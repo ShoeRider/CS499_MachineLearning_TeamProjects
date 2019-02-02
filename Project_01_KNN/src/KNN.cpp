@@ -1,5 +1,14 @@
 //Implement KNN
 //Implement KNN_1ToMax
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+
+#include <math.h>
+
+#include <Eigen/Dense>// "" will install this Package
+//for extra credit: the OpenMP Package 
+#include "omp.h" //"sudo apt-get install libomp-dev" will install this Package
 
 /*Takes:
   (
@@ -25,12 +34,15 @@ int Predict_1ToMAX_KNearestNeighbors
   //TODO:
   //Take input parameters and map them with the Eigen objects
   //
-  //Sort Training Elements, so finding the nearest neigboors is quick
+  //Sort Training Elements, so finding the nearest neighbors is quick
   //
   
   
   //Loop from 1 to Max K NearestNeighbors
-  //Could use OpenMP to Parallelize this component
+  //Could use OpenMP to make this component Parallel
+  
+  //omp_set_num_threads(2);
+  //#pragma omp parallel private() shared()
   for(int i=0, i < MaxNeighbors, i++)
   {
     //select element from accending Distance sorted list
@@ -71,8 +83,9 @@ int PredictTestArray_1ToMAX_KNearestNeighbors
  }
  
  
- //Use Sorting Technique to sort elements 
-int SortTrainingData
+ //Creating a Parallel version of Quick Sort
+ //TODO Need to verify that it works
+ void QuickSortTrainingData
   (
    //Training Points
     double * training_inputs_ptr,
@@ -80,24 +93,44 @@ int SortTrainingData
     int NRow,int NCol
   )
   {
-	 //Could use InsertSort or Merge Sort(Parallelizeable) to sort the training data in an attempt to save time.
-	return 0; //no issues encountered
+	if(low < high)
+    {
+		int Partition = PartitionArray();
+		while(left <= right)
+		{
+			
+		}
+		#pragma omp task shared() private()
+		void QuickSortTrainingData
+		(
+			//Training Points
+			double * training_inputs_ptr,
+			double * training_Lables,
+			int NRow, int NCol
+		);
+		
+		#pragma omp task shared() private()
+		void QuickSortTrainingData
+		(
+			//Training Points
+			double * training_inputs_ptr,
+			double * training_Lables,
+			int NRow, int NCol
+		);
+		#pragma omp taskwait
+
+   }
   }
  
- 
- 
+
+
+
  
  //The way i see the KNN Problem is to find an array of predictions from a KNN Problem, 
  // and find the instance of K, where with the lowest test error. 
 
  
  
+
  
  
- 
- 
- 
- 
- 
- 
-  
