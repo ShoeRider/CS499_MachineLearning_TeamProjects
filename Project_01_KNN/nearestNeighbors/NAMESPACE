@@ -1,3 +1,0 @@
-useDynLib(nearestNeighbors)
-exportPattern("^[[:alpha:]]+")
-import(data.table)
