@@ -14,8 +14,4 @@ clean :
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir clean; \
 	done
-	rm -f *.o *.gch                \
-	question1/question1_Anthony    \
-	question2/question2_Anthony    \
-	question3/question3_Anthony    \
-	question4/question4_Anthony    \
+	rm -f *.o *.gch                
