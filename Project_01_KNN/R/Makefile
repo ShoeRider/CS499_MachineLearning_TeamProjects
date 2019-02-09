@@ -9,8 +9,13 @@ Install_R:
 
 
 #Commands to run R code
-KNN_Test:
+KNN:
 	Rscript KNN.R
+#Commands to run R code
+KNN_Test:
+	Rscript KNN_Tests.R
+
+
 
 Save_Test:
 	R CMD BATCH KNN.R

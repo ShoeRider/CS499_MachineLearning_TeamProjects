@@ -1,6 +1,10 @@
 #include "KNN.h"
-#include <R.h>
 
+
+
+
+// Note need this line for any cpp funtion we wish to use in R code, Dont remove
+// [[Rcpp::export]]
 int knn_interface(
   //Training Points
    const double * training_inputs_ptr,
@@ -20,8 +24,9 @@ int knn_interface(
      testing_inputs_ptr,
      testing_Prediction_ptr
    );
-if (status != 0)
-{
-  error("non-zero exit status from knn");
-}
+  if (status != 0)
+  {
+    error("non-zero exit status from knn");
+  }
+
 }

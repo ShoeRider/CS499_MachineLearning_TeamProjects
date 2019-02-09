@@ -1,3 +1,24 @@
+#ifndef Sort_Array_CPP
+#define Sort_Array_CPP
+
+//Implement KNN
+//Implement KNN_1ToMax
+
+#include "KNN.h"
+//RCPP includes and R flags
+////////////////////////////////////////////
+#include <Rcpp.h>
+using namespace Rcpp;
+//using namespace Eigen;
+//using namespace std;
+
+////////////////////////////////////////////
+
+
+
+
+
+
 //Creating a Parallel version of Quick Sort
 //TODO Need to verify that it works
 void QuickSortTrainingData
@@ -117,3 +138,5 @@ bool Test_QuickSortIntegerArray(void* Array, int FromLeft,int FromRight)
 	RandomizeArray(datam,Nodes);
 	free(data);
 }
+
+ #endif // Sort_Array_CPP
