@@ -4,16 +4,18 @@ all: Double  Test
 Install_R:
 	sudo apt-get install r-base
 
-#C and C++ compilation:
+#C compilation:
 Double:
 	R CMD SHLIB Double.c
 
 
 
 #Commands to run R code
+#Return output to Terminal
 Test:
 	Rscript Double.R
-
+	
+#Return output to File
 Save_Test:
 	R CMD BATCH Double.R
 	# save the output in the file Double.Rout

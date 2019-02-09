@@ -1,20 +1,47 @@
+#ifndef KNN_CPP
+#define KNN_CPP
+
 //Implement KNN
 //Implement KNN_1ToMax
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
 
-#include <math.h>
+#include "KNN.h"
+//RCPP includes and R flags
+////////////////////////////////////////////
+#include <Rcpp.h>
+using namespace Rcpp;
+//using namespace Eigen;
+//using namespace std;
 
-#include <Eigen/Dense>// "" will install this Package
-//for extra credit: the OpenMP Package
-#include "omp.h" //"sudo apt-get install libomp-dev" will install this Package
+////////////////////////////////////////////
 
 
-void double_me_test(int* x) {
+
+// Note need this line for any cpp funtion we wish to use in R code, Dont remove
+// [[Rcpp::export]]
+double test_cpp(double x) {
   // Doubles the value at the memory location pointed to by x
-  *x = *x + *x;
+  Eigen::MatrixXd m = Eigen::MatrixXd::Random(3,3);
+  m = (m + Eigen::MatrixXd::Constant(3,3,1.2)) * 50;
+  std::cout << "m =" << std::endl << m << std::endl;
+  Eigen::VectorXd v(3);
+  v << 1, 2, 3;
+  std::cout << "m * v =" << std::endl << m * v << std::endl;
+  return x;
 }
+
+
+
+// Note need this line for any cpp funtion we wish to use in R code, Dont remove
+// [[Rcpp::export]]
+//Also when using RCPP, you cant use pointers in parameters for function calls
+double double_me_cpp(double x) {
+  // Doubles the value at the memory location pointed to by x
+  x = 2*x;
+  return(x);
+}
+
+
+
 
 int knn(
    //Training Points
@@ -27,8 +54,12 @@ int knn(
     double * testing_Prediction_ptr
   )
 {
+  Eigen::Map<Eigen::MatrixXd, > Training_input(training_inputs_ptr);
 
+  Eigen::MatrixXd m = Eigen::MatrixXd::Random(3,3);
+  return 0;
 }
+
 
 /*Takes:
   (
@@ -62,7 +93,7 @@ int Predict_1ToMAX_KNearestNeighbors(
 
   //omp_set_num_threads(2);
   //#pragma omp parallel private() shared()
-  for(int i=0, i < MaxNeighbors, i++)
+  for(int i=0; i < MaxNeighbors; i++)
   {
     //select element from accending Distance sorted list
 
@@ -105,48 +136,8 @@ int PredictTestArray_1ToMAX_KNearestNeighbors
  }
 
 
- //Creating a Parallel version of Quick Sort
- //TODO Need to verify that it works
- void QuickSortTrainingData
-  (
-   //Training Points
-    double * training_inputs_ptr,
-    double * training_Lables,
-    int NRow,int NCol
-  )
-  {
-	if(low < high)
-    {
-		int Partition = PartitionArray();
-		while(left <= right)
-		{
-
-		}
-		#pragma omp task shared() private()
-		void QuickSortTrainingData
-		(
-			//Training Points
-			double * training_inputs_ptr,
-			double * training_Lables,
-			int NRow, int NCol
-		);
-
-		#pragma omp task shared() private()
-		void QuickSortTrainingData
-		(
-			//Training Points
-			double * training_inputs_ptr,
-			double * training_Lables,
-			int NRow, int NCol
-		);
-		#pragma omp taskwait
-
-   }
-  }
 
 
 
 
-
- //The way i see the KNN Problem is to find an array of predictions from a KNN Problem,
- // and find the instance of K, where with the lowest test error.
+ #endif // KNN_CPP

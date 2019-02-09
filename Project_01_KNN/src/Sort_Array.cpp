@@ -1,10 +1,50 @@
+//Creating a Parallel version of Quick Sort
+//TODO Need to verify that it works
+void QuickSortTrainingData
+ (
+	//Training Points
+	 double * training_inputs_ptr,
+	 double * training_Lables,
+	 int NRow,int NCol
+ )
+ {
+
+ if(low < high)
+	 {
+	 int Partition = PartitionArray();
+	 while(left <= right)
+	 {
+
+	 }
+	 #pragma omp task shared() private()
+	 void QuickSortTrainingData
+	 (
+		 //Training Points
+		 double * training_inputs_ptr,
+		 double * training_Lables,
+		 int NRow, int NCol
+	 );
+
+	 #pragma omp task shared() private()
+	 void QuickSortTrainingData
+	 (
+		 //Training Points
+		 double * training_inputs_ptr,
+		 double * training_Lables,
+		 int NRow, int NCol
+	 );
+	 #pragma omp taskwait
+
+	}
+ }
+
 void QuickSortIntegerArray(void* Array, int FromLeft,int FromRight)
 {
 	int pivot = Array[(left + right)/2];//Select the middle element as the pivot
 	int Temp = 0;
 	int LeftSlide = FromLeft;
 	int RightSlide = FromRight;
-	
+
 	//partition; Move each element to the Right or Left side of the array based on the Partition value
 	while(LeftSlide <= RightSlide)
 	{
@@ -18,9 +58,9 @@ void QuickSortIntegerArray(void* Array, int FromLeft,int FromRight)
 		{
 			RightSlide++;
 		}
-		
+
 		//Segment the other elements based on their position (greater or less than) the pivot
-		//	we can swap the LeftSlide/Rightslide's because they already represent the most 
+		//	we can swap the LeftSlide/Rightslide's because they already represent the most
 		//	inward positions that dont meet the Partition Value's Rule.
 		if(LeftSlide <= RightSlide)
 		{
@@ -31,8 +71,8 @@ void QuickSortIntegerArray(void* Array, int FromLeft,int FromRight)
 			LeftSlide++;
 		}
 	}
-	
-	
+
+
 	//Recursive calls
 	if(FromLeft < RightSlide)
 	{

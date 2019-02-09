@@ -16,10 +16,6 @@ double(as.integer(5))
 
 
 
-
-
-
-
 #Inline C++ implementation methods:
 # note you need the: library(Rcpp)
 # and can install Rcpp with the in R Command:
@@ -32,6 +28,9 @@ cppFunction('int double_R(int x) {
   return 2*x;
 }')
 double_R(2)
+
+
+
 
 
 #include CPP from file methods

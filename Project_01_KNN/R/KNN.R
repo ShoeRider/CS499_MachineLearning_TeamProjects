@@ -1,6 +1,11 @@
-Predict_1ToMAX_KNearestNeighbors <-.C("Predict_1ToMAX_KNearestNeighbors",
-  as.double(),
-  )
+#Inline C++ implementation methods:
+# note you need the: library(Rcpp)
+# and can install Rcpp with the in R Command:
+#   install.packages("Rcpp")
+# Indlude the RCPP package with the line:
+library(Rcpp)
 
-dyn.load("../doubler.so")
-.C("double_me", x = as.integer(5))
+
+
+sourceCpp("../src/KNN.cpp")
+double_me_cpp(as.integer(5))
