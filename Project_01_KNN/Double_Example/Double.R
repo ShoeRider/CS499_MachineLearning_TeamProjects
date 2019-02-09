@@ -28,11 +28,10 @@ double(as.integer(5))
 library(Rcpp)
 
 
-cppFunction('int add(int x, int y, int z) {
-  int sum = x + y + z;
-  return sum;
+cppFunction('int double_R(int x) {
+  return 2*x;
 }')
-
+double_R(2)
 
 
 #include CPP from file methods

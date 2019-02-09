@@ -8,8 +8,6 @@ Install_R:
 Double:
 	R CMD SHLIB Double.c
 
-Double_CPP:
-	R CMD SHLIB Double_cpp.cpp
 
 
 #Commands to run R code
