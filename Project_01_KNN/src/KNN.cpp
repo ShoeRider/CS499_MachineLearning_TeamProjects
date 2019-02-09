@@ -7,24 +7,43 @@
 #include <math.h>
 
 #include <Eigen/Dense>// "" will install this Package
-//for extra credit: the OpenMP Package 
+//for extra credit: the OpenMP Package
 #include "omp.h" //"sudo apt-get install libomp-dev" will install this Package
+
+
+void double_me_test(int* x) {
+  // Doubles the value at the memory location pointed to by x
+  *x = *x + *x;
+}
+
+int knn(
+   //Training Points
+    double * training_inputs_ptr,
+    double * training_lables_ptr,
+    int NRow,int NCol,
+    int MaxNeighbors,
+    //Test Points
+    double * testing_inputs_ptr,
+    double * testing_Prediction_ptr
+  )
+{
+
+}
 
 /*Takes:
   (
-  
+
   ),
-  Modifies the Vector at: testing_Prediction_ptr, 
+  Modifies the Vector at: testing_Prediction_ptr,
     selecting a classification for a single point
   Note: this function might be able to be made faster by segmenting points into a sorted 'bucket',
     By sorting once, we might see gains with Larger lists of training data...
 */
-int Predict_1ToMAX_KNearestNeighbors
-  (
+int Predict_1ToMAX_KNearestNeighbors(
    //Training Points
     double * training_inputs_ptr,
-    double * training_Lables,
-    int NRow,int NCol, 
+    double * training_lables_ptr,
+    int NRow,int NCol,
     int MaxNeighbors,
     //Test Points
     double * testing_inputs_ptr,
@@ -36,28 +55,31 @@ int Predict_1ToMAX_KNearestNeighbors
   //
   //Sort Training Elements, so finding the nearest neighbors is quick
   //
-  
-  
+
+
   //Loop from 1 to Max K NearestNeighbors
   //Could use OpenMP to make this component Parallel
-  
+
   //omp_set_num_threads(2);
   //#pragma omp parallel private() shared()
   for(int i=0, i < MaxNeighbors, i++)
   {
     //select element from accending Distance sorted list
-    
+
     //accumulate TotalY
     //find the Y hat value for each element in the array = TotalY / i
   }
   return 0;
 }
 
+
+
+
 /*Takes:
   (
-  
+
   ),
-  Modifies the Vector at: testing_Prediction_ptr, 
+  Modifies the Vector at: testing_Prediction_ptr,
     selecting a classification for a single point
   Note: this function might be able to be made faster by segmenting points into a sorted 'bucket',
     By sorting once, we might see gains with Larger lists of training data...
@@ -67,7 +89,7 @@ int PredictTestArray_1ToMAX_KNearestNeighbors
    //Training Points
     double * training_inputs_ptr,
     double * training_Lables,
-    int NRow,int NCol, 
+    int NRow,int NCol,
     int MaxNeighbors,
     //Test Points
     double * testing_inputs_ptr,
@@ -81,8 +103,8 @@ int PredictTestArray_1ToMAX_KNearestNeighbors
 	//for loop over the entire testing_Prediction_ptr Array
 	return 0;
  }
- 
- 
+
+
  //Creating a Parallel version of Quick Sort
  //TODO Need to verify that it works
  void QuickSortTrainingData
@@ -98,7 +120,7 @@ int PredictTestArray_1ToMAX_KNearestNeighbors
 		int Partition = PartitionArray();
 		while(left <= right)
 		{
-			
+
 		}
 		#pragma omp task shared() private()
 		void QuickSortTrainingData
@@ -108,7 +130,7 @@ int PredictTestArray_1ToMAX_KNearestNeighbors
 			double * training_Lables,
 			int NRow, int NCol
 		);
-		
+
 		#pragma omp task shared() private()
 		void QuickSortTrainingData
 		(
@@ -121,16 +143,10 @@ int PredictTestArray_1ToMAX_KNearestNeighbors
 
    }
   }
- 
 
 
 
- 
- //The way i see the KNN Problem is to find an array of predictions from a KNN Problem, 
- // and find the instance of K, where with the lowest test error. 
 
- 
- 
 
- 
- 
+ //The way i see the KNN Problem is to find an array of predictions from a KNN Problem,
+ // and find the instance of K, where with the lowest test error.
