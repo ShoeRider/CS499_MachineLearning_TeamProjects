@@ -1,0 +1,34 @@
+
+Operations and running code:
+
+
+
+Structure:
+
+
+
+
+Commands to install packages in ubuntu:
+  Eigen:
+  Follow the instructions at: https://laurentkneip.github.io/opengv/page_installation.html or the ones linsted below:
+    sudo apt-get install build-essential
+    sudo apt-get install cmake
+    sudo apt-get install cmake libeigen3-dev
+
+    go to home, or desired instalation directory and:
+      git clone https://github.com/laurentkneip/opengv
+      cd opengv
+      mkdir build && cd build && cmake .. && make
+      mkdir build && cd build && cmake .. -DEIGEN_INCLUDE_DIR:STRING="EigenIncludePath" && make
+  R
+    sudo apt-get install r-base
+  Rstudio
+    Go to: https://www.rstudio.com/products/rstudio/download/
+    and select the appropreate package. after installing running the file will
+    open the Ubuntu Software app, select install. If after the installation is
+    done, try a different pakage
+
+  Rspp
+
+  OpenMP
+    sudo apt-get install libomp-dev
