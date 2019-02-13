@@ -4,9 +4,7 @@
 
 *** Members:
 - Anthony Schroeder
-- Andrea Caviglia
-- Cindy Valenrtin
--
+
 
 
 ** Overview
