@@ -1,45 +1,5 @@
 
-/*Takes:
-  (
 
-  ),
-  Modifies the Vector at: testing_Prediction_ptr,
-    selecting a classification for a single point
-  Note: this function might be able to be made faster by segmenting points into a sorted 'bucket',
-    By sorting once, we might see gains with Larger lists of training data...
-*/
-int Predict_1ToMAX_KNearestNeighbors(
-   //Training Points
-    double * training_inputs_ptr,
-    double * training_lables_ptr,
-    int NRow,int NCol,
-    int MaxNeighbors,
-    //Test Points
-    double * testing_inputs_ptr,
-    double * testing_Prediction_ptr
-  )
-{
-  //TODO:
-  //Take input parameters and map them with the Eigen objects
-  //
-  //Sort Training Elements, so finding the nearest neighbors is quick
-  //
-
-
-  //Loop from 1 to Max K NearestNeighbors
-  //Could use OpenMP to make this component Parallel
-
-  //omp_set_num_threads(2);
-  //#pragma omp parallel private() shared()
-  for(int i=0; i < MaxNeighbors; i++)
-  {
-    //select element from accending Distance sorted list
-
-    //accumulate TotalY
-    //find the Y hat value for each element in the array = TotalY / i
-  }
-  return 0;
-}
 
 
 
