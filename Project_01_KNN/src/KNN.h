@@ -11,21 +11,36 @@
 //for extra credit: the OpenMP Package
 #include "omp.h" //"sudo apt-get install libomp-dev" will install this Package
 
-/*Takes:
-    (
+/*NN1toKmaxPredict takes a training data set and an entire test matrix,
+ then computes a matrix of k-nearest neighbor predictions,
+ for k=1 to max_neighbors, and for every test observation.
+  Parameters:
+  (
+  n_train_observations, n_test_observations, n_features.
+  maximum number of neighbors: max_neighbors.
+  a matrix training data inputs (n_train_observations x n_features).
+  a vector of training data outputs (n_train_observations).
+  a test input matrix (n_test_observations x n_features).
+  a matrix of predictions for the test data (n_test_observations x max_neighbors),
+      which is where you need to store the result.
 
-    ),
-
+  ),
   */
-double knn(
-    double SortedTraining_inputs_ptr,
-    double SortedTraining_lables_ptr,
+  double NN1toKmaxPredict(
+    double Training_inputs_ptr,
+    double Training_lables_ptr,
+    int N_TrainingObservations,
+    int N_Features,
     int NRow,
     int NCol,
     int MaxNeighbors,
     double testing_inputs_ptr,
-    double testing_Prediction_ptr
+    double testing_Prediction_ptr,
+    int N_TestObservations
   );
+
+
+
 
 /*Takes:
     (

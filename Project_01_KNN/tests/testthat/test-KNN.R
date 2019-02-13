@@ -33,9 +33,23 @@ try(log(x))
 
 
 
+#2 points extra credit if, in your R package, you write a test that makes sure
+# your C++ nearest neighbors code computes the same predictions as a nearest
+# neighbor prediction computed in R code.
 
+#2 points extra credit if, in your Rmd report, you compute the test loss
+# matrices by writing a loop over all five data sets. (rather than copying/
+# repeating the same CV code for each data set) Hint: use store the data sets in
+# a named list.
 
+#2 points extra credit if, in your Rmd report, you use LaTeX code/MathJax to
+# type the equations for the nearest neighbor prediction function fD,k(x) and
+# the optimal number of neighbors \hat k (as estimated via minimizing the mean
+# validation loss).
 
+#2 points if, in your GitHub repo, you setup Travis-CI to check your R package,
+# and have a green badge that indicates a build that passes checks. See blog and
+# docs.
 
 
 # The following not all that relevant ....

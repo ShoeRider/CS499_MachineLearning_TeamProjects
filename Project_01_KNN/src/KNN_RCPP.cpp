@@ -5,8 +5,10 @@
 //Implement KNN_1ToMax
 
 #include "KNN.h"
-
-
+//RCPP includes and R flags
+////////////////////////////////////////////
+#include <Rcpp.h>
+using namespace Rcpp;
 //using namespace Eigen;
 //using namespace std;
 

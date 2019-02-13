@@ -9,7 +9,7 @@ sourceCpp("../src/KNN.cpp")
 x <- rnorm(5)
 SortVector(x)
 #TODO Fix Error Expressions
-Test_TrainingData<-function(Training.Input, Training.Label)
+sanitize_TrainingData<-function(Training.Input, Training.Label)
 {
   if(length(TrainingInput) == length(TrainingLabel))
   {
@@ -44,7 +44,7 @@ NN1toKmaxPredict <- function(Training.Input, Training.Label, Neighbors, TestInpu
 {
   #write type/dimension checking code in the beginning of that function, and stop()
   # with an informative error message if there are any issues.
-  Test_TrainingData(Training.Input,Training.Label)
+  sanitize_TrainingData(Training.Input,Training.Label)
   if(n.folds == 0){
     stop("( Parameter(4)) 'n.folds' contains novalue, \n
          and should contain the number of Folds to preform")
@@ -55,20 +55,21 @@ NN1toKmaxPredict <- function(Training.Input, Training.Label, Neighbors, TestInpu
     fold.vec <-Random_Folds(length(Y.vec),5)
   }
 
+  
+  
+
+}
 
 
-  NN1toKmaxPredict(
-    as.double,
-    )
+PD <-function(X,Y)
+{
+  .C("printDouble",as.double(X),as.integer(Y))
 }
 
 
 
-
-
-
 #Example how to properly cast variables to C code
-.c("FunctionInterface",
-    as.double(),
-    as.double(),
-    as.double())
+#.c("FunctionInterface",
+#    as.double(),
+#    as.double(),
+#    as.double())

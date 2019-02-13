@@ -10,7 +10,7 @@ sourceCpp("../src/KNN.cpp")
 
 knn_R <- function(TrainingInput, TrainingLabel, Neighbors, TestInput, TestPrediction)
 {
-  sample(1:6,10,replace=T)
+  sample(1:6,10,replace = T)
 }
 
 
@@ -28,7 +28,7 @@ Random_Folds <- function(Size,Folds)
 
 Find_OptimalKNN<-function()
 {
-  
+
 }
 
 
@@ -41,7 +41,7 @@ Find_OptimalKNN<-function()
 #   a prediction on the test fold s.
 
 #X.mat, y.vec is a training data set.
-#fold.vec is a vector of fold ID numbers. If fold.vec is NULL, randomly assign 
+#fold.vec is a vector of fold ID numbers. If fold.vec is NULL, randomly assign
 #   fold IDs from 1 to n.folds, i.e.
 #-fold.vec <- sample(rep(1:n.folds, l=nrow(X.mat)))
 #TODO
@@ -68,32 +68,39 @@ NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
     fold.vec <-Random_Folds(length(Y.vec),5)
   }
 
+  Error.mat = list()
+  
   # Use this as an example to loop over Folds
-  #for(fold.i in seq_along(unique.folds)){
-  #  for(prediction.set.name in c("train", "validation")){
-  #    pred.mat <- NN1toKmaxPredict(
-  #      train.features, train.labels,
-  #      prediction.set.features, max.neighbors)
-  #    loss.mat <- if(labels.all.01){
-  #      ifelse(pred.mat>0.5, 1, 0) != y.vec #zero-one loss for binary classification.
-  #    }else{
-  #      (pred.mat-y.vec)^2 #square loss for regression.
-  #    }
-  #    train.or.validation.loss.mat[, fold.i] <- colMeans(loss.mat)
-  #  }
-  #}
-  
-  
-  
+  # L1-Norm Loss function
+  for(fold.i in seq_along(unique.folds)){
+    for(prediction.set.name in c("train", "validation")){
+      
+      pred.mat <- NN1toKmaxPredict(
+        train.features, train.labels,
+        prediction.set.features, max.neighbors)
+      
+      loss.mat <- if(labels.all.01)
+      {
+        ifelse(pred.mat>0.5, 1, 0) != y.vec #zero-one loss for binary classification.
+      }
+      else
+      {
+        abs(pred.mat-y.vec) #L1-Norm Loss function
+      }
+      Error.mat[, fold.i] <- colMeans(loss.mat)
+    }
+  }
+
+
   for (Iteration in 0:Folds)
   {
     Find_OptimalKNN()
-    #Use L1/Manhattan as the learning loss 
+    #Use L1/Manhattan as the learning loss
   }
-  
+
   #return a list with the following named elements:
   #  X.mat, y.vec: training data.
-  
+
   #train.loss.mat, validation.loss.mat (matrices of loss values for each fold and number of neighbors).
   #train.loss.vec, validation.loss.vec (vectors with max.neighbors elements: mean loss over all folds).
   #selected.neighbors (number of neighbors selected by minimizing the mean validation loss).
@@ -102,8 +109,30 @@ NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
 }
 
 
-
-
+#Temp
+L2_LossFunction <- function()
+{
+  # Use this as an example to loop over Folds
+  #Uses L2-Euclidean Loss Function
+  for(fold.i in seq_along(unique.folds)){
+    for(prediction.set.name in c("train", "validation")){
+      
+      pred.mat <- NN1toKmaxPredict(
+        train.features, train.labels,
+        prediction.set.features, max.neighbors)
+      
+      loss.mat <- if(labels.all.01)
+      {
+        ifelse(pred.mat>0.5, 1, 0) != y.vec #zero-one loss for binary classification.
+      }
+      else
+      {
+        (pred.mat-y.vec)^2 #square loss for regression.
+      }
+      Error.mat[, fold.i] <- colMeans(loss.mat)
+    }
+  }
+}
 
 
 
@@ -117,7 +146,7 @@ ElemStatLearn::spam
 
 
 
-#couldnt get 'prim' to work.... 
+#couldnt get 'prim' to work....
 install.packages("PRIMsrc")
 library(PRIMsrc)
 
@@ -138,8 +167,8 @@ KNN_Spam_Test<-function()
   Folds <- 3
   MaxNeighbors <- 30
   Local_spam<- ElemStatLearn::spam
-  
-  
+
+
   DataColsStart = 0
   DataColsEnd   = length(Local_spam) - 1
   LabelCol      = length(Local_spam)
@@ -158,24 +187,24 @@ KNN_Spam_Test<-function()
     print(Iteration)
     #implement NNLearnCV
     Projected_K = NNLearnCV(Local_spam[,DataColsStart:DataColsEnd], Local_spam[,LabelCol], MaxNeighbors, Local_spam$Fold, Folds)
-    
+
   }
 
   #
-  
+
   #For each train/test split, to show that your algorithm is actually learning something non-trivial
-  #from the inputs/features, compute a baseline predictor that ignores the inputs/features.? 
+  #from the inputs/features, compute a baseline predictor that ignores the inputs/features.?
   #  Not exactly sure what is asked, I believe he wants the : (for an arbitrary K value)
     #plot the mean validation loss as a function of the number of neighbors.
-    #plot the mean train loss in one color, and the mean validation loss in another color. 
-  
+    #plot the mean train loss in one color, and the mean validation loss in another color.
+
   #For each data set, compute a 2 x 3 matrix of mean test loss values:
     #each of the three columns are for a specific test set,
     #the first row is for the nearest neighbors predictor,
     #the second row is for the baseline/un-informed predictor.
-  
+
   #plot the mean validation loss as a function of the number of neighbors.
-  #plot the mean train loss in one color, and the mean validation loss in another color. 
+  #plot the mean train loss in one color, and the mean validation loss in another color.
 }
 
 
@@ -183,16 +212,16 @@ KNN_Spam_Test<-function()
 KNN_SAheart_Test<-function()
 {
   Local_SAheart<- ElemStatLearn::SAheart
-  
+
 }
 
 #ElemStatLearn::zip.train: 10-class [7291, 256] output is first column. (ignore classes other than 0 and 1)
 KK_ziptrain_Test<-function()
 {
-  #output is first column, 
+  #output is first column,
   #  and ignore classes other than 0 and 1
   Local_ZipTrain<- ElemStatLearn::zip.train
-  
+
 }
 
 
@@ -201,8 +230,3 @@ KK_ziptrain_Test<-function()
 #Regression.
 #ElemStatLearn::prostate [97 x 8] output is lpsa column, ignore train column.
 #ElemStatLearn::ozone [111 x 3] output is first column (ozone)
-
-
-
-
-
