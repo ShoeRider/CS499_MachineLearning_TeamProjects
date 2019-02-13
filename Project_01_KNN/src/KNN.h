@@ -47,4 +47,10 @@ int Predict_1ToMAX_KNearestNeighbors(
       double * testing_Prediction_ptr
     );
 
+
+#define ERROR_TOO_MANY_NEIGHBORS 1
+#define ERROR_TOO_FEW_NEIGHBORS 2
+#define ERROR_NO_TRAIN_DATA 3
+#define ERROR_NO_TEST_DATA 4
+
 #endif // KNN_H
