@@ -11,7 +11,12 @@
 //for extra credit: the OpenMP Package
 #include "omp.h" //"sudo apt-get install libomp-dev" will install this Package
 
+/*Takes:
+    (
 
+    ),
+
+  */
 double knn(
     double SortedTraining_inputs_ptr,
     double SortedTraining_lables_ptr,
@@ -22,6 +27,24 @@ double knn(
     double testing_Prediction_ptr
   );
 
+/*Takes:
+    (
 
+    ),
+    Modifies the Vector at: testing_Prediction_ptr,
+      selecting a classification for a single point
+    Note: this function might be able to be made faster by segmenting points into a sorted 'bucket',
+      By sorting once, we might see gains with Larger lists of training data...
+  */
+int Predict_1ToMAX_KNearestNeighbors(
+     //Training Points
+      double * training_inputs_ptr,
+      double * training_lables_ptr,
+      int NRow,int NCol,
+      int MaxNeighbors,
+      //Test Points
+      double * testing_inputs_ptr,
+      double * testing_Prediction_ptr
+    );
 
 #endif // KNN_H
