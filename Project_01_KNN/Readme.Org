@@ -1,19 +1,19 @@
-**Instructor
+** Instructor
 -Toby Hocking
 **Project: 01 KNN
 
-**Members:
+** Members:
 -Anthony Schroeder
 -Andrea Caviglia
 -Cindy Valenrtin
 -
 
 
-***Overview
+*** Overview
 
-***R implementation
+*** R implementation
 
-***C ++ implementation
+*** C ++ implementation
 
 
 
