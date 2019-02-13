@@ -29,3 +29,5 @@ write documentation for that R function, with at least two examples of how to
 
 
 **** Notes/Conserns:
+
+- while working on this project it took me a while to figure out

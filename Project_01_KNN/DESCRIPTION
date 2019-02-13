@@ -1,4 +1,4 @@
-Package: nearestNdighbors
+Package: nearestNeighborsDemo
 Type: Package
 Title: nearest neighbors
 Version: 2019.01.28
