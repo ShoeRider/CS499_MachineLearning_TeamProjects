@@ -17,6 +17,17 @@ using namespace Rcpp;
 
 
 
+int SortByAxis(
+  double * training_inputs_ptr,
+  double * training_lables_ptr,
+  int NRow,int NCol)
+{
+  std::sort(sorted_index_vec.data(),
+            sorted_index_vec.data()+ sorted_indec_vec.size(),
+            [&distance_vec](int lhs, int rhs){ return distance_vec(lhs) < distance_vec(rhs)}
+          )
+  return 0;
+}
 
 
 //Creating a Parallel version of Quick Sort
