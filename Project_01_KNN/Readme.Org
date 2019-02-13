@@ -1,19 +1,19 @@
-** Instructor
+** Project: 01 KNN
+*** Instructor
 -Toby Hocking
-**Project: 01 KNN
 
-** Members:
--Anthony Schroeder
--Andrea Caviglia
--Cindy Valenrtin
+*** Members:
+- Anthony Schroeder
+- Andrea Caviglia
+- Cindy Valenrtin
 -
 
 
-*** Overview
+** Overview
 
-*** R implementation
+** R implementation
 
-*** C ++ implementation
+** C ++ implementation
 
 
 
@@ -22,19 +22,19 @@ Operations and running code:
 *** Commands to install packages in ubuntu:
   Eigen:
   Follow the instructions at: https://laurentkneip.github.io/opengv/page_installation.html or the ones linsted below:
-    -sudo apt-get install build-essential
-    -sudo apt-get install cmake
-    -sudo apt-get install cmake libeigen3-dev
+    - sudo apt-get install build-essential
+    - sudo apt-get install cmake
+    - sudo apt-get install cmake libeigen3-dev
 
     go to home, or desired instalation directory and:
-      -git clone https://github.com/laurentkneip/opengv
-      -cd opengv
-      -mkdir build && cd build && cmake .. && make
-      -mkdir build && cd build && cmake .. -DEIGEN_INCLUDE_DIR:STRING="EigenIncludePath" && make
+      - git clone https://github.com/laurentkneip/opengv
+      - cd opengv
+      - mkdir build && cd build && cmake .. && make
+      - mkdir build && cd build && cmake .. -DEIGEN_INCLUDE_DIR:STRING="EigenIncludePath" && make
     We included the header(.h) file into the subdirectory: "src/Eigen", as some
     issues pursisted when attempting to install.
   R
-    -sudo apt-get install r-base
+    - sudo apt-get install r-base
   Rstudio
     Go to: https://www.rstudio.com/products/rstudio/download/
     and select the appropreate package. after installing running the file will
@@ -44,4 +44,4 @@ Operations and running code:
   Rspp
 
   OpenMP
-    -sudo apt-get install libomp-dev
+    - sudo apt-get install libomp-dev
