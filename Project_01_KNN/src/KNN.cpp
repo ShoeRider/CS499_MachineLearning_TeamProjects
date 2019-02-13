@@ -84,11 +84,7 @@ NumericVector SortVector_Eigen(NumericVector *ToSort)
   (
 
   ),
-  Modifies the Vector at: testing_Prediction_ptr,
-    selecting a classification for a single point
-  Note: this function might be able to be made faster by segmenting points into a sorted 'bucket',
-    By sorting once, we might see gains with Larger lists of training data...
-  Breaf
+
 */
 //Note: i am not sure if we are required to use (double pointers), or if we
 //can use NumericVectors. I have an example of NumericVectors working in "SortVector_Eigen"
@@ -160,18 +156,34 @@ int Predict_1
 
 
 
+/*NN1toKmaxPredict takes a training data set and an entire test matrix,
+ then computes a matrix of k-nearest neighbor predictions,
+ for k=1 to max_neighbors, and for every test observation.
+  Parameters:
+  (
+  n_train_observations, n_test_observations, n_features.
+  maximum number of neighbors: max_neighbors.
+  a matrix training data inputs (n_train_observations x n_features).
+  a vector of training data outputs (n_train_observations).
+  a test input matrix (n_test_observations x n_features).
+  a matrix of predictions for the test data (n_test_observations x max_neighbors),
+      which is where you need to store the result.
 
+  ),
 
-// Note need this line for any cpp funtion we wish to use in R code, Dont remove
+*/
 // [[Rcpp::export]]
-double knn(
-    double SortedTraining_inputs_ptr,
-    double SortedTraining_lables_ptr,
-    int NRow,
-    int NCol,
-    int MaxNeighbors,
-    double testing_inputs_ptr,
-    double testing_Prediction_ptr
+double NN1toKmaxPredict(
+  int MaxNeighbors,
+  double Training_inputs_ptr,
+  double Training_lables_ptr,
+  int N_TrainingObservations,
+  int N_Features,
+  int NRow,
+  int NCol,
+  double testing_inputs_ptr,
+  double testing_Prediction_ptr,
+  int N_TestObservations,
   )
 {
   return 0;
