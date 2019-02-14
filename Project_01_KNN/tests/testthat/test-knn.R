@@ -63,12 +63,12 @@ sanitize_TrainingData<-function(Training.Input, Training.Label)
           Should Contain a vector of fold ID numbers")
     fold.vec <-Random_Folds(length(Y.vec),5)
   }
-  if(typeof(Training.Input) != "double")
+  if(typeof(Training.Input) != "double") # consider using the is.double() function
   {
     print(typeof(Training.Input))
     stop("(Parameter(0)) 'Training Data' contains an element not a double")
   }
-  if(typeof(Training.Label) != "double")
+  if(typeof(Training.Label) != "double") # consider using the is.double() function
   {
     print(typeof(Training.Label))
     stop("(Parameter(0)) 'Training.Label' contains an element not a double")
