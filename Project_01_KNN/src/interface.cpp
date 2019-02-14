@@ -1,32 +1,35 @@
-#include "KNN.h"
+#include "knn.h"
+#include <R.h>
+#include <R_ext/Rdynload.h>
 
-
-
-
-// Note need this line for any cpp funtion we wish to use in R code, Dont remove
-// [[Rcpp::export]]
-int knn_interface(
-  //Training Points
-   const double * training_inputs_ptr,
-   const double * training_lables_ptr,
-   const int NRow,const int NCol, const int MaxNeighbors,
-   //Test Points
-   double * testing_inputs_ptr,
-   double * testing_Prediction_ptr
- )
+void knn_interface(
+    const double *train_input_ptr, // n_observations x n_features
+    const double *train_label_ptr, // n_observations
+    const double *test_input_ptr, // n_features
+    const int *n_observations_ptr,
+    const int *n_features_ptr,
+    const int *max_neighbors_ptr,
+    double *test_prediction_ptr // max neighbors
+)
 {
-  int status = knn(
-    //Training Points
-     training_inputs_ptr,
-     training_lables_ptr,
-     NRow,NCol,MaxNeighbors,
-     //Test Points
-     testing_inputs_ptr,
-     testing_Prediction_ptr
-   );
-  if (status != 0)
+  int status = knn(train_input_ptr,train_label_ptr,test_input_ptr,
+                   *n_observations_ptr, *n_features_ptr, *max_neighbors_ptr,
+                   test_prediction_ptr);
+  
+  if( status != 0 )
   {
-    error("non-zero exit status from knn");
+    error("Non-zero Exit Status from KNN");
   }
+}
 
+R_CMethodDef cMethods[]= {
+  {"knn_interface",(DL_FUNC) &knn_interface, 7 },
+  { NULL, NULL, 0 }
+};
+
+extern "C" {
+  void R_init_nearestNeighborsAlg(DllInfo *info){
+    R_registerRoutines( info, cMethods, NULL, NULL, NULL);
+    R_useDynamicSymbols( info, FALSE);
+  }
 }

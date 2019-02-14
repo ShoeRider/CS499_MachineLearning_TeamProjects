@@ -1,4 +1,4 @@
-Package: nearestNdighbors
+Package: nearestNeighbors
 Type: Package
 Title: nearest neighbors
 Version: 2019.01.28
@@ -6,3 +6,5 @@ Author: Anthony M Schroeder
 Maintainer: Anthony M Schroeder <as3379@nau.edu>
 License: GPL-3
 RoxygenNote: 6.1.1
+LinkingTo: RcppEigen
+Suggests: testthat, ElemStatLearn
