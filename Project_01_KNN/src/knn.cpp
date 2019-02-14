@@ -40,4 +40,5 @@ int knn(
     test_prediction_ptr[model_i] = total/neighbors;
   }
   return 0;
+
 }

@@ -20,6 +20,7 @@ void knn_interface(
   {
     error("Non-zero Exit Status from KNN");
   }
+
 }
 
 R_CMethodDef cMethods[]= {
@@ -32,4 +33,6 @@ extern "C" {
     R_registerRoutines( info, cMethods, NULL, NULL, NULL);
     R_useDynamicSymbols( info, FALSE);
   }
+
+
 }

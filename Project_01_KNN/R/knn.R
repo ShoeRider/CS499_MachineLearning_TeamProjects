@@ -30,3 +30,4 @@ knn <- function(x.mat, y.vec, testx.vec, max.neighbors)
                     as.integer(ncol(x.mat)),as.integer(max.neighbors),
                     predictions=double(max.neighbor),PACKAGE="nearestNeighborsAlg")
 }
+

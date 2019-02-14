@@ -6,7 +6,7 @@
 - Anthony Schroeder
 - Andrea Caviglia
 - Cindy Valenrtin
--
+- Chadd Frasier
 
 
 ** Overview
@@ -45,4 +45,5 @@ Operations and running code:
 
   OpenMP
     - sudo apt-get install libomp-dev
+
 

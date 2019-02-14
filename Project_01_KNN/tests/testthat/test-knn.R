@@ -18,4 +18,6 @@ test_that("knn computes same answer as R", {
   closest.indices <- sorted.index.vec[1:max.neighbors]
   expected.prediction <- cumsum(y[closest.indices])/(1:max.neighbors)
   expect_equal(pred.vec,expected.prediction)
+
 })
+
