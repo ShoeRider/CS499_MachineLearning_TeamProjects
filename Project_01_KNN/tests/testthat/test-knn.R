@@ -34,14 +34,111 @@ Random_Folds <- function(Size,Folds)
 {
   try(if(Size < 0) stop("Invalid Size Value: cannot preform random Folds when (Size < 0) !!"))
   try(if(Folds < 0) stop("Invalid Folds Value: cannot preform random Folds when (Size < 0) !!"))
-  sample(0:(Folds-1),Size,replace=T)
+  sample(1:(Folds),Size,replace=T)
 }
 
+sanitize_TrainingData<-function(Training.Input, Training.Label)
+{
+  if(length(TrainingInput) == length(TrainingLabel))
+  {
+    print(length(TrainingInput))
+    print(length(TrainingLabel))
+    stop("( The Rows for Both (Parameter(0)) Training.Input, and (Parameter(0)) Training.Label, must be the same Length")
+  }
+  
+  if(length(X.mat) == 0){
+    stop("( Parameter(0)) 'Training Data' contains a length of 0, or no elements \n
+         Should Contain a Matrix")
+  }
+  if(length(Y.vec) == 0){
+    stop("( Parameter(1)) 'Training Labels' contains a length of 0, or no elements \n
+         Should Contain a list of Tablels")
+  }
+  if(n.folds == 0){
+    stop("( Parameter(4)) 'n.folds' contains novalue, \n
+         and should contain the number of Folds to preform")
+  }
+  if(length(fold.vec) == 0){
+    print("Warning: ( Parameter(3)) 'fold.vec' contained no value \n
+          Should Contain a vector of fold ID numbers")
+    fold.vec <-Random_Folds(length(Y.vec),5)
+  }
+  if(typeof(Training.Input) != "double")
+  {
+    print(typeof(Training.Input))
+    stop("(Parameter(0)) 'Training Data' contains an element not a double")
+  }
+  if(typeof(Training.Label) != "double")
+  {
+    print(typeof(Training.Label))
+    stop("(Parameter(0)) 'Training.Label' contains an element not a double")
+  }
+  if(length(TrainingInput) == 0){
+    stop("( Parameter(0)) 'Training Data' contains a length of 0, or no elements \n
+         Should Contain a Matrix")
+  }
+  if(length(TrainingLabel) == 0){
+    stop("( Parameter(1)) 'Training Labels' contains a length of 0, or no elements \n
+         Should Contain a list of Tablels")
+  }
+}
+      
+NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
+{
+  #the Fold.Vect is the Fold value considered the Testing DataSet,
+  #Everything else is appart of the Training DataSet(For this instance/'Function call')
+  #sanitize_TrainingData(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
+  
+  Data = cbind(X.mat ,Y.vec)
+
+  DataColsStart = 0
+  DataColsEnd   = length(Data) - 1
+  LabelCol      = length(Data)
+  Rows          = length(Data[,1])
+  
+
+  #to Create Rows of indexes
+  #fold.vec <- cut(seq(1,nrow(Data)),breaks=n.folds,labels=FALSE)
+  #fold.vec <- Random_Folds(length(Y.vec),n.folds)
+  #print(fold.vec)
+  
+  Error.matrix = matrix(ncol=LabelCol)
+  #print(folds.vec)
+  #loop over (n.folds)folds validation 
+  for(i in 1:n.folds){
+    #Segement your data by fold using the which() function 
+    testIndexes <- which(fold.vec==i,arr.ind=TRUE)
+    #print(testIndexes)
+    testData  <- Data[testIndexes, ]
+    trainData <- Data[-testIndexes, ]
+    
+    #Separate InputData and InputLabels
+    test.Data    <- testData[,DataColsStart:DataColsEnd]
+    test.Labels  <- testData[,LabelCol]
+    
+    train.Data   <- trainData[,DataColsStart:DataColsEnd]
+    train.Labels <- trainData[,LabelCol]
+    
+    #preform KNN Function call, and recieve ?? back 
+    Error.Vector = abs(knn(train.Data, train.Labels, test.Data, max.neighbors) - test.Labels)
+    Error.matrix = rbind(Error.matrix,Error.Vector)
+  }
+  
+  
+  #return a list with the following named elements:
+  #  X.mat, y.vec: training data.
+  #  train.loss.mat, validation.loss.mat (matrices of loss values for each fold and number of neighbors).
+  #  train.loss.vec, validation.loss.vec (vectors with max.neighbors elements: mean loss over all folds).
+  #  selected.neighbors (number of neighbors selected by minimizing the mean validation loss).
+  #  predict(testX.mat), a function that takes a matrix of inputs/features and returns a vector of predictions. It should check the type/dimension of testX.mat and stop() with an informative error message if there are any issues.
+  
+  }
 
 
 
-
-
+      
+      
+   
 #Binary Tests
 KNN_Spam_Test<-function()
 {
@@ -89,77 +186,6 @@ KNN_Spam_Test<-function()
 }
 
 
-#Use NNLearnCV to train a model on the other two folds (which should be used in
-#   your NNLearnCV function as internal train/validation sets/splits), then make
-#   a prediction on the test fold s.
-
-#X.mat, y.vec is a training data set.
-#fold.vec is a vector of fold ID numbers. If fold.vec is NULL, randomly assign
-#   fold IDs from 1 to n.folds, i.e.
-#-fold.vec <- sample(rep(1:n.folds, l=nrow(X.mat)))
-#TODO
-# -Fix Stop Errors to acctually detect missing or Spoofed Values
-NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
-{
-  #the Fold.Vect is the Fold value considered the Testing DataSet,
-  #Everything else is appart of the Training DataSet(For this instance/'Function call')
-  if(length(X.mat) == 0){
-    stop("( Parameter(0)) 'Training Data' contains a length of 0, or no elements \n
-         Should Contain a Matrix")
-  }
-  if(length(Y.vec) == 0){
-    stop("( Parameter(1)) 'Training Labels' contains a length of 0, or no elements \n
-         Should Contain a list of Tablels")
-  }
-  if(n.folds == 0){
-    stop("( Parameter(4)) 'n.folds' contains novalue, \n
-         and should contain the number of Folds to preform")
-  }
-  if(fold.vec == NULL){
-    print("Warning: ( Parameter(3)) 'fold.vec' contained no value \n
-         Should Contain a vector of fold ID numbers")
-    fold.vec <-Random_Folds(length(Y.vec),5)
-  }
-
-  Error.mat = list()
-  
-  # Use this as an example to loop over Folds
-  # L1-Norm Loss function
-  for(fold.i in seq_along(unique.folds)){
-    for(prediction.set.name in c("train", "validation")){
-      
-      pred.mat <- NN1toKmaxPredict(
-        train.features, train.labels,
-        prediction.set.features, max.neighbors)
-      
-      loss.mat <- if(labels.all.01)
-      {
-        ifelse(pred.mat>0.5, 1, 0) != y.vec #zero-one loss for binary classification.
-      }
-      else
-      {
-        abs(pred.mat-y.vec) #L1-Norm Loss function
-      }
-      Error.mat[, fold.i] <- colMeans(loss.mat)
-    }
-  }
-
-
-  for (Iteration in 0:Folds)
-  {
-    Find_OptimalKNN()
-    #Use L1/Manhattan as the learning loss
-  }
-
-  #return a list with the following named elements:
-  #  X.mat, y.vec: training data.
-
-  #train.loss.mat, validation.loss.mat (matrices of loss values for each fold and number of neighbors).
-  #train.loss.vec, validation.loss.vec (vectors with max.neighbors elements: mean loss over all folds).
-  #selected.neighbors (number of neighbors selected by minimizing the mean validation loss).
-  #predict(testX.mat), a function that takes a matrix of inputs/features and returns a vector of predictions. It should check the type/dimension of testX.mat and stop() with an informative error message if there are any issues.
-  0
-}
 
 #ElemStatLearn::SAheart 2-class [462, 9] output is last column (chd).
 KNN_SAheart_Test<-function()
