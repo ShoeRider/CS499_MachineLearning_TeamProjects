@@ -1,3 +1,3 @@
 library(testthat)
 
-test_check("nearestNeighbors")
+test_check("NearestNeighbors")
