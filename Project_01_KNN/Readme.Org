@@ -45,3 +45,5 @@ Operations and running code:
 
   OpenMP
     - sudo apt-get install libomp-dev
+
+
