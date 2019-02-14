@@ -145,3 +145,27 @@ NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
   0
 }
 
+#ElemStatLearn::SAheart 2-class [462, 9] output is last column (chd).
+KNN_SAheart_Test<-function()
+{
+  Local_SAheart<- ElemStatLearn::SAheart
+
+}
+
+#ElemStatLearn::zip.train: 10-class [7291, 256] output is first column. (ignore classes other than 0 and 1)
+NKK_ziptrain_Test<-function()
+{
+  #output is first column,
+  #  and ignore classes other than 0 and 1
+  Local_ZipTrain<- ElemStatLearn::zip.train
+
+}
+
+
+
+
+#Regression.
+#ElemStatLearn::prostate [97 x 8] output is lpsa column, ignore train column.
+#ElemStatLearn::ozone [111 x 3] output is first column (ozone)
+
+
