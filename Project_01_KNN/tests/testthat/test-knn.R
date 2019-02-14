@@ -26,6 +26,22 @@ test_that("knn computes same answer as R", {
 install.packages("ElemStatLearn")
 library(ElemStatLearn)
 
+
+
+#This function works better with larger lists!!
+#note RandomNumbers generate (0,Folds)
+Random_Folds <- function(Size,Folds)
+{
+  try(if(Size < 0) stop("Invalid Size Value: cannot preform random Folds when (Size < 0) !!"))
+  try(if(Folds < 0) stop("Invalid Folds Value: cannot preform random Folds when (Size < 0) !!"))
+  sample(0:(Folds-1),Size,replace=T)
+}
+
+
+
+
+
+
 #Binary Tests
 KNN_Spam_Test<-function()
 {
