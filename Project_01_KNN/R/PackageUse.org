@@ -28,9 +28,9 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, MaxNeighbors=30, TestVector =
 
 
 
- - The number of MaxNeighbors
+ The number of MaxNeighbors
   KNNLearnCV <- function(
-     TrainingInput, a NxP matrix from N-Examples P-parameters ,
+    - TrainingInput, a NxP matrix from N-Examples P-parameters ,
     - TrainingLabel, a Nx1 matrix from N-Examples P-parameters ,
     - MaxNeighbors, Test from 1 to MaxNeighbors to find the best hyperparameter,
     - TestVector, Vector that classifies individual rows in different folds,  
