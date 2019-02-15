@@ -15,7 +15,7 @@ install.packages("ElemStatLearn")
 #+END_SRC
 
 *** Functions:
-Here is a quick list and discription of the different functions provided:
+Here is a quick list and description of the different functions provided:
 - NN1toKmaxPredict is a C++ function interface, that takes several pointers and ...
 - KNNLearnCV is a C++ function interface, that takes a batch 
 
@@ -23,7 +23,7 @@ Here is a quick list and discription of the different functions provided:
   How to use:
 
 *** KNNLearnCV Program interface:
-The main implementation of this Package is the KNNLearnCV function that takes a set of Training data with labels, and finds the most effective hyper parameter K,(K Nearest Neighbors) to compaire when evaluating a test point. 
+The main implementation of this Package is the KNNLearnCV function that takes a set of Training data with labels, and finds the most effective hyper parameter K,(K Nearest Neighbors) to compare when evaluating a test point. 
   
 #+BEGIN_SRC R
 KNNLearnCV<-function(TrainingInput, TrainingLabel, MaxNeighbors=30, TestVector = NULL, NumberOfFolds=5)
@@ -85,7 +85,7 @@ Using the ElemStatLearn::ziptrain library to show how to use the NNLearnCV funct
   Fold.vec <- Random_Folds(Rows,Folds)
   
   
-  #Double Folding ? ~still a little confused where to implement the two instances of the Folds
+  #Double Folding? ~still a little confused where to implement the two instances of the Folds
   sanitize_TrainingData(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
   Projected_K = NNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
 #+END_SRC
@@ -95,7 +95,7 @@ Using the ElemStatLearn::ziptrain library to show how to use the NNLearnCV funct
  Local_ZipTrain<- ElemStatLearn::zip.train
 #+END_SRC
 
-We have also included a function compairing the CPP's implementation to a known working KNN in the function: "", which is located in the directory "Project_01_KNN/tests/testthat/"
+We have also included a function comparing the CPP's implementation to a known working KNN in the function: "", which is located in the directory "Project_01_KNN/tests/testthat/"
 
 #+BEGIN_SRC R
  Local_ZipTrain<- ElemStatLearn::zip.train
@@ -108,9 +108,9 @@ We have also included a function compairing the CPP's implementation to a known 
   - train.loss.mat, validation.loss.mat (matrices of loss values for each fold and number of neighbors).
   - train.loss.vec, validation.loss.vec (vectors with max.neighbors elements: mean loss over all folds).
   - selected.neighbors (number of neighbors selected by minimizing the mean validation loss).
-  - predict(testX.mat), a function that takes a matrix of inputs/features and returns a vector of predictions. It should check the type/dimension of testX.mat and stop() with an informative error message if there are any issues.
+  - predict(testX.mat), a function that takes a matrix of inputs/features and returns a vector of predictions. It should check the type/dimension of testX.mat and stop () with an informative error message if there are any issues.
 
 
-**** Notes/Conserns:
-
-- while working on this project it took me a while to figure out
+**** Notes/Concerns:
+While working on this project and in R users should be careful with the following concerns:
+- while working on this project RCPP kept presenting itself as the only implementation to use C++ code in R but is shown to be limited and is challenging or impossible for CPP functions to compile and use (double*) parameters.
