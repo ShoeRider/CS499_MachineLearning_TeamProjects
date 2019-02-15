@@ -1,0 +1,59 @@
+write documentation for that R function, with at least two examples of how to
+ use it (one for regression, one for binary classification).
+
+
+** About this Package
+
+** How to use this R Package
+#+BEGIN_SRC R
+install.packages("testthat")
+library(testthat)
+#+END_SRC
+
+*** Functions:
+- NN1toKmaxPredict is a C++ function interface, that takes several pointers and ...
+
+*** NNLearnCV:
+  How to use:
+#+BEGIN_SRC c++
+C++ Code
+#+END_SRC
+
+#+BEGIN_SRC R
+  for(fold.i in seq_along(unique.folds)){
+    for(prediction.set.name in c("train", "validation")){
+      pred.mat <- NN1toKmaxPredict(
+	train.features, train.labels,
+	prediction.set.features, max.neighbors)
+      loss.mat <- if(labels.all.01){
+	ifelse(pred.mat>0.5, 1, 0) != y.vec #zero-one loss for binary classification.
+      }else{
+	(pred.mat-y.vec)^2 #square loss for regression.
+      }
+      train.or.validation.loss.mat[, fold.i] <- colMeans(loss.mat)
+    }
+  }
+#+END_SRC
+
+*** NN1toKmaxPredict:
+  NN1toKmaxPredict <- function(
+    - TrainingInput,
+    - TrainingLabel,
+    - Neighbors,
+    - TestInput,
+    - TestPrediction
+    )
+
+**** Returns:
+  - X.mat, y.vec: training data.
+  - train.loss.mat, validation.loss.mat (matrices of loss values for each fold and number of neighbors).
+  - train.loss.vec, validation.loss.vec (vectors with max.neighbors elements: mean loss over all folds).
+  - selected.neighbors (number of neighbors selected by minimizing the mean validation loss).
+  - predict(testX.mat), a function that takes a matrix of inputs/features and returns a vector of predictions. It should check the type/dimension of testX.mat and stop() with an informative error message if there are any issues.
+
+**** HowToUse:
+
+
+**** Notes/Conserns:
+
+- while working on this project it took me a while to figure out
