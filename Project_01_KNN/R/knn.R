@@ -32,7 +32,15 @@ knn <- function(x.mat, y.vec, testx.vec, max.neighbors)
 }
 
 
-
+#TODO: 
+# Create even distribution version
+# Rename function to something like: KNNLearnCV.Create.Fold.Vec
+Random_Folds <- function(Size, Folds)
+{
+  try(if(Size < 0) stop("Invalid Size Value: cannot preform random Folds when (Size < 0) !!"))
+  try(if(Folds < 0) stop("Invalid Folds Value: cannot preform random Folds when (Size < 0) !!"))
+  sample(1:(Folds),Size,replace=T)
+}
 
 KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
 {
