@@ -8,7 +8,6 @@ context("knn")
 
 
 
-source("R/knn.R")
 
 
 
@@ -28,7 +27,7 @@ test_that("knn computes same answer as R", {
   sorted.index.vec <- order(dist.vec)
   closest.indices <- sorted.index.vec[1:max.neighbors]
   expected.prediction <- cumsum(y[closest.indices])/(1:max.neighbors)
-  expect_equal(pred.vec,expected.prediction)
+  expect_equal(as.numeric(pred.vec$prediction),expected.prediction)
 
 })
 
