@@ -25,13 +25,13 @@
 knn <- function(x.mat, y.vec, testx.vec, max.neighbors)
 {
   
-  result.list <- .C("knn_interface", as.numeric(unlist(x.mat)), as.numeric(unlist(y.vec)),
-                    as.numeric(unlist((testx.vec))),as.integer(nrow(x.mat)),
+  result.list <- .C("knn_interface", as.double(x.mat)), as.double(y.vec),
+                    as.double(testx.vec),as.integer(nrow(x.mat)),
                     as.integer(ncol(x.mat)),as.integer(max.neighbors),
                     predictions=double(100),PACKAGE="NearestNeighbors")
-  result.list[7]
-  print(result.list[7])
+
 }
+
 
 
 KNNLearnCV.Create.Fold.Vec<- function(ArraySize,Folds)
