@@ -24,8 +24,10 @@ KNNLearnCV Program interface:
 NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
 #+END_SRC
 
+*** Use-cause Examples
+Using ElemStatLearn's libraries to show how to use this library. 
 
-
+** Example1 :
 Using the ElemStatLearn::prostate library to show how to use the NNLearnCV function implemented:
 #+BEGIN_SRC R
 
@@ -43,20 +45,41 @@ Using the ElemStatLearn::prostate library to show how to use the NNLearnCV funct
   #Local_SAheart[1:2,]
   #print(Local_prostate[,1])
   
-  
   print(Local_prostate[Rows,])
   print(Rows)
-  
   
   #Create New Fold Column to hold Fold Values
   Fold.vec <- Random_Folds(Rows,Folds)
   
- 
   Projected_K = NNLearnCV(Local_prostate[,DataColsStart:DataColsEnd], Local_prostate[,LabelCol], MaxNeighbors, Fold.vec, Folds)
-  
 #+END_SRC
 
+** Example1 :
+Using the ElemStatLearn::prostate library to show how to use the NNLearnCV function implemented:
+#+BEGIN_SRC R
+
+  Folds <- 3
+  MaxNeighbors <- 30
+  Local_prostate<- ElemStatLearn::prostate[,1:9]
   
+
+  DataColsStart = 2
+  DataColsEnd   = length(Local_prostate[1,]) -1
+  LabelCol      = length(Local_prostate[1,])
+  Rows          = length(Local_prostate[,1])
+  
+  #accesses first two Rows:
+  #Local_SAheart[1:2,]
+  #print(Local_prostate[,1])
+  
+  print(Local_prostate[Rows,])
+  print(Rows)
+  
+  #Create New Fold Column to hold Fold Values
+  Fold.vec <- Random_Folds(Rows,Folds)
+  
+  Projected_K = NNLearnCV(Local_prostate[,DataColsStart:DataColsEnd], Local_prostate[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+#+END_SRC
   
   #Create New Fold Column to hold Fold Values
   Fold.vec <- Random_Folds(Rows,Folds)
