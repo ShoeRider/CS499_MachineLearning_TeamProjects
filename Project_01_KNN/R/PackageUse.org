@@ -87,8 +87,9 @@ Using the ElemStatLearn::ziptrain library to show how to use the NNLearnCV funct
   
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
   sanitize_TrainingData(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
-  #Projected_K = NNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
-  
+  Projected_K = NNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+#-END_SRC
+
 ** Example3 : 
 #+BEGIN_SRC R
  Local_ZipTrain<- ElemStatLearn::zip.train
