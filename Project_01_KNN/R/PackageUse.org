@@ -5,22 +5,25 @@ write documentation for that R function, with at least two examples of how to
 ** About this Package
 
 ** How to use this R Package
+Code this package includes:
+
 #+BEGIN_SRC R
 install.packages("testthat")
 library(testthat)
+install.packages("ElemStatLearn")
+#library(ElemStatLearn)
 #+END_SRC
 
 *** Functions:
+Here is a quick list and discription of the different functions provided:
 - NN1toKmaxPredict is a C++ function interface, that takes several pointers and ...
+- KNNLearnCV is a C++ function interface, that takes a batch 
 
 *** NNLearnCV:
   How to use:
-#+BEGIN_SRC c++
-C++ Code
-#+END_SRC
 
 *** KNNLearnCV Program interface:
-
+The main implementation of this Package is the KNNLearnCV function that takes a set of Training data with labels, and finds the most effective hyper parameter K,(K Nearest Neighbors) to compaire when evaluating a test point. 
   
 #+BEGIN_SRC R
 KNNLearnCV<-function(TrainingInput, TrainingLabel, MaxNeighbors=30, TestVector = NULL, NumberOfFolds=5)
@@ -31,11 +34,12 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, MaxNeighbors=30, TestVector =
  The number of MaxNeighbors
   KNNLearnCV <- function(
     - TrainingInput, a NxP matrix from N-Examples P-parameters ,
-    - TrainingLabel, a Nx1 matrix from N-Examples P-parameters ,
+    - TrainingLabel, a Nx1 matrix that either classifies or the individual rows into distinct categories or is a value representing the desired value from.  
     - MaxNeighbors, Test from 1 to MaxNeighbors to find the best hyperparameter,
-    - TestVector, Vector that classifies individual rows in different folds,  
+    - TestVector, a Nx1 matrix that classifies individual rows in different folds,  
     - NumberOfFolds, is the number of folds preformed,
   )
+  N is the number of 
   
 Note: If no value is entered for, MaxNeighbors=30, TestVector = NULL, NumberOfFolds=5, they will be substitued with an according value.
  - Make sure matrices are the proper size in respect to each other.
@@ -75,7 +79,7 @@ Using the ElemStatLearn::prostate library to show how to use the NNLearnCV funct
 Using the ElemStatLearn::ziptrain library to show how to use the NNLearnCV function implemented:
 #+BEGIN_SRC R
  Local_ZipTrain<- ElemStatLearn::zip.train
-#+END_SRC
+
   
   #Create New Fold Column to hold Fold Values
   Fold.vec <- Random_Folds(Rows,Folds)
@@ -85,6 +89,16 @@ Using the ElemStatLearn::ziptrain library to show how to use the NNLearnCV funct
   sanitize_TrainingData(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
   #Projected_K = NNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
   
+** Example3 : 
+#+BEGIN_SRC R
+ Local_ZipTrain<- ElemStatLearn::zip.train
+#-END_SRC
+
+We have also included a function compairing the CPP's implementation to a known working KNN in the function: "", which is located in the directory "Project_01_KNN/tests/testthat/"
+
+#+BEGIN_SRC R
+ Local_ZipTrain<- ElemStatLearn::zip.train
+#-END_SRC
 
 
 
@@ -94,8 +108,6 @@ Using the ElemStatLearn::ziptrain library to show how to use the NNLearnCV funct
   - train.loss.vec, validation.loss.vec (vectors with max.neighbors elements: mean loss over all folds).
   - selected.neighbors (number of neighbors selected by minimizing the mean validation loss).
   - predict(testX.mat), a function that takes a matrix of inputs/features and returns a vector of predictions. It should check the type/dimension of testX.mat and stop() with an informative error message if there are any issues.
-
-**** HowToUse:
 
 
 **** Notes/Conserns:
