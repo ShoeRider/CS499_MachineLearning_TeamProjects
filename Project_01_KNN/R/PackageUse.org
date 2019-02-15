@@ -24,6 +24,37 @@ KNNLearnCV Program interface:
 NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
 #+END_SRC
 
+
+
+Using the ElemStatLearn::prostate library to show how to use the NNLearnCV function implemented:
+#+BEGIN_SRC R
+Folds <- 3
+  MaxNeighbors <- 30
+  Local_ZipTrain<- ElemStatLearn::prostate
+  print(typeof(ElemStatLearn::prostate))
+ 
+  DataColsStart = 2
+  DataColsEnd   = length(Local_ZipTrain[1,])
+  LabelCol      = 1
+  Rows          = length(Local_ZipTrain[,1])
+  
+  #accesses first two Rows:
+  #Local_SAheart[1:2,]
+  #print(Local_ZipTrain[,1])
+  
+#+END_SRC
+
+  
+  
+  #Create New Fold Column to hold Fold Values
+  Fold.vec <- Random_Folds(Rows,Folds)
+  
+  
+  #Double Folding ? ~still a little confused where to implement the two instances of the Folds
+  sanitize_TrainingData(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+  #Projected_K = NNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+  
+
 *** NN1toKmaxPredict:
   NN1toKmaxPredict <- function(
     - TrainingInput,
