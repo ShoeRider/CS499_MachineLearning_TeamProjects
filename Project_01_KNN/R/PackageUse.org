@@ -19,10 +19,27 @@ library(testthat)
 C++ Code
 #+END_SRC
 
-KNNLearnCV Program interface:
+*** KNNLearnCV Program interface:
+
+  
 #+BEGIN_SRC R
-NNLearnCV<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
+KNNLearnCV<-function(TrainingInput, TrainingLabel, MaxNeighbors=30, TestVector = NULL, NumberOfFolds=5)
 #+END_SRC
+
+
+
+ - The number of MaxNeighbors
+  KNNLearnCV <- function(
+    TrainingInput, a NxP matrix from N-Examples P-parameters ,
+    TrainingLabel, a Nx1 matrix from N-Examples P-parameters ,
+    MaxNeighbors, Test from 1 to MaxNeighbors to find the best hyperparameter,
+    TestVector, Vector that classifies individual rows in different folds,  
+    NumberOfFolds, is the number of folds preformed,
+  )
+  
+Note: If no value is entered for, MaxNeighbors=30, TestVector = NULL, NumberOfFolds=5, they will be substitued with an according value.
+ - Make sure matrices are the proper size in respect to each other.
+ 
 
 *** Use-cause Examples
 Using ElemStatLearn's libraries to show how to use this library. 
@@ -69,14 +86,7 @@ Using the ElemStatLearn::ziptrain library to show how to use the NNLearnCV funct
   #Projected_K = NNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
   
 
-*** NN1toKmaxPredict:
-  NN1toKmaxPredict <- function(
-    - TrainingInput,
-    - TrainingLabel,
-    - Neighbors,
-    - TestInput,
-    - TestPrediction
-    )
+
 
 **** Returns:
   - X.mat, y.vec: training data.
