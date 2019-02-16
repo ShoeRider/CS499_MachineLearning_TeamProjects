@@ -25,36 +25,45 @@
 knn <- function(x.mat, y.vec, testx.vec, max.neighbors)
 {
   
-  result.list <- .C("knn_interface", as.double(x.mat), as.double(y.vec),
-                    as.double(testx.vec),as.integer(nrow(x.mat)),
-                    as.integer(ncol(x.mat)),as.integer(max.neighbors),
-                    predictions=double(max.neighbors),PACKAGE="NearestNeighbors")
 
+   result.list <- .C("knn_interface", as.numeric(unlist(x.mat)), as.numeric(unlist(y.vec)),
+                     as.numeric(unlist((testx.vec))),as.integer(nrow(x.mat)),
+                     as.integer(ncol(x.mat)),as.integer(max.neighbors),
+                     predictions=double(100),PACKAGE="NearestNeighbors")
+  
+  print(result.list)
+}
+
+Random_Folds <- function(Size,Folds)
+{
+  try(if(Size < 0) stop("Invalid Size Value: cannot preform random Folds when (Size < 0) !!"))
+  try(if(Folds < 0) stop("Invalid Folds Value: cannot preform random Folds when (Size < 0) !!"))
+  sample(1:(Folds),Size,replace=T)
 }
 
 
-
-KNNLearnCV.Create.Fold.Vec<- function(ArraySize,Folds)
+KNNLearnCV.Create.Fold.Vec<- function(Array,Folds)
 {
-  try(if(ArraySize < 0) stop("Invalid ArraySize Value: cannot preform random Folds when (ArraySize < 0) !!"))
-  try(if(Folds < 0) stop("Invalid Folds Value: cannot preform random Folds when (Folds < 0) !!"))
-  Fold.Vec <- cut(seq(1,ArraySize,breaks=Folds,labels=FALSE))
+  try(if(ArraySize <= 0) stop("Invalid ArraySize Value: cannot preform random Folds when (ArraySize < 0) !!"))
+  try(if(Folds <= 0) stop("Invalid Folds Value: cannot preform random Folds when (Folds < 0) !!"))
+  print(ArraySize)
+  Fold.Vec <- cut(seq(1,nrow(Array),breaks=3,labels=FALSE))
 }
 
 
 KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
 {
-
+  
   Data = cbind(X.mat ,Y.vec)
-
+  
   
   
   DataColsStart = 0
   DataColsEnd   = length(Data[1,]) - 1
   LabelCol      = length(Data[1,])
   Rows          = length(Data[,1])
-
-
+  
+  
   Error.matrix = double
   #print(folds.vec)
   #loop over (n.folds)folds validation
@@ -64,16 +73,16 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
     #print(testIndexes)
     testData  <- Data[testIndexes, ]
     trainData <- Data[-testIndexes, ]
-
+    
     #Separate InputData and InputLabels
     test.Data    <- testData[,DataColsStart:DataColsEnd]
     test.Labels  <- testData[,LabelCol]
-
+    
     train.Data   <- trainData[,DataColsStart:DataColsEnd]
     train.Labels <- trainData[,LabelCol]
-
+    
     #preform KNN Function call, and recieve ?? back
-
+    
     print(knn(train.Data, train.Labels, test.Data, max.neighbors))
     #Error.Vector = abs((knn(train.Data, train.Labels, test.Data, max.neighbors)) - (test.Labels))
     #print((knn(train.Data, train.Labels, test.Data, max.neighbors)))
@@ -81,7 +90,7 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
     #print(Error.matrix)
     #Error.matrix <- rbind(Error.matrix,Error.Vector)
   }
-
+  
   0
   #return a list with the following named elements:
   #  X.mat, y.vec: training data.
@@ -89,7 +98,7 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
   #  train.loss.vec, validation.loss.vec (vectors with max.neighbors elements: mean loss over all folds).
   #  selected.neighbors (number of neighbors selected by minimizing the mean validation loss).
   #  predict(testX.mat), a function that takes a matrix of inputs/features and returns a vector of predictions. It should check the type/dimension of testX.mat and stop() with an informative error message if there are any issues.
-
+  
 }
 
 #KNNLearnCV, takes in ... and uses the folding technique to cross validate the best possible
@@ -101,8 +110,8 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, max.neighbors=30, fold.vec=NU
     print("As default, n.folds will be set to 5")
     n.folds = 5
   }
-
-
+  
+  
   if(max.neighbors <= 0)
   {
     print("Warning: (Parameter(3)) 'max.neighbors' contains a non valid answer(max.neighbors <= 0), and should contain the hyperparameter K, the max hyperparameter to test")
@@ -116,9 +125,9 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, max.neighbors=30, fold.vec=NU
     print("in protection the default, max.neighbors will be set to the length(TrainingInput) ")
     max.neighbors = length(TrainingInput[,1])
   }
-
-
-
+  
+  
+  
   #check if fold.vec is correct, and meets proper requirements:
   if(is.null(fold.vec))
   {
@@ -145,9 +154,9 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, max.neighbors=30, fold.vec=NU
     print("a new set fold.vec will be created to produce a result")
     fold.vec <-KNNLearnCV.Create.Fold.Vec(Training.Instances,n.folds)
   }
-
-
-
+  
+  
+  
   if(length(TrainingInput) == 0){
     stop("Error: (Parameter(0)) 'Training Data' contains a length of 0, or no elements should Contain a Matrix")
   }
@@ -160,8 +169,8 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, max.neighbors=30, fold.vec=NU
     print(sprintf("length(TrainingInput):%d length(TrainingLabel):%d length(fold.vec):%d",length(TrainingInput),length(TrainingLabel),length(fold.vec)))
     stop("Error: (All 3 Rows(TrainingInput(Parameter(0)),TrainingLabel( Parameter(1)),fold.vec( Parameter(3))) must be equal length")
   }
-
-
+  
+  
   if(!(as.character(typeof(TrainingInput)) %in% c("list","integer","double")))
   {
     print(as.character(typeof(TrainingInput)))
@@ -188,9 +197,10 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, max.neighbors=30, fold.vec=NU
       print(sprintf("typeof(TrainingLabel): %s, and is not a; list,integer, or double"),as.character(typeof(TrainingLabel)))
       stop("Error: (Parameter(0)) 'TrainingLabel' contains an element not a list,integer, or double")
     }
-
+    
   }
-
+  
   print("Passed Sanitation Tests, calling KNNLearnCV.Algorithm")
   knnLearncv = KNNLearnCV.Algorithm(TrainingInput, TrainingLabel, max.neighbors, fold.vec, n.folds)
 }
+
