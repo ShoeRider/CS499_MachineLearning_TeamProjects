@@ -1,6 +1,25 @@
 ** Data set 1: spam
 
 ### Matrix of loss values
+KNN Loss
+| First Header  | Second Header | First Header  | Second Header |
+| ------------- | ------------- | ------------- | ------------- |
+| Content Cell  | Content Cell  | Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  | Content Cell  |
+
+Mean Error KNN:
+ [1]  0.1621175  [11] 0.2627015 [21] 0.2909396
+ [2]  0.1870692  [12] 0.2659452 [22] 0.2929418 
+ [3]  0.2065068  [13] 0.2697292 [23] 0.2949617 
+ [4]  0.2163634  [14] 0.2730907 [24] 0.2966180
+ [5]  0.2270747  [15] 0.2759121 [25] 0.2976344 
+ [6]  0.2344913  [16] 0.2795010 [26] 0.2989332
+ [7]  0.2401434  [17] 0.2821486 [27] 0.3005749 
+ [8]  0.2471050  [18] 0.2848084 [28] 0.3020304 
+ [9]  0.2535000  [19] 0.2867964 [29] 0.3032905
+ [10] 0.2586435  [20] 0.2889302 [30] 0.3045216
+[InternetShortcut]
+URL=https://files.slack.com/files-pri/TFSK45WG5-FG94ERQ9K/image.png
 
 print out and/or plot the matrix.
 
@@ -11,6 +30,7 @@ comment on difference between NN and baseline.
 plot the two loss functions.
 
 What is the optimal number of neighbors?
+
 
 ** Data set 2: SAheart
 
