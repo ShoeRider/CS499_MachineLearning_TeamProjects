@@ -1,11 +1,11 @@
 # to use these tests include these commands:
 if (!require("ElemStatLearn")) install.packages("ElemStatLearn")
 if (!require("testthat")) install.packages("testthat")
-library(testthat)
-library(ElemStatLearn)
-#library(NearestNeighbors)
-context("knn")
 
+library(ElemStatLearn)
+library(NearestNeighbors)
+library(testthat)
+context("knn")
 
 
 source("R/knn.R")
