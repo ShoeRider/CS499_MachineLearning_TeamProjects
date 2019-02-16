@@ -1,0 +1,60 @@
+Code
+Pull requests 1
+Projects 0
+Insights
+CS499_MachineLearning_TeamProject/nearestNeaighbor.Rmd
+4e4faf8 on Feb 15, 2019
+---
+output: pdf_document
+---
+
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{An Introduction to Glmnet}
+-->
+
+<a id="top"></a>
+
+# Nearest Neighbor
+
+#### NAU Febuary 15, 2018
+
+> [Introduction](#intro)
+> 
+<a id="intro"></a>
+
+## Data set 1: spam
+
+### Matrix of loss values
+
+print out and/or plot the matrix.
+
+comment on difference between NN and baseline.
+
+### Train/validation loss plot
+
+plot the two loss functions.
+
+What is the optimal number of neighbors?
+
+## Data set 2: SAheart
+
+### Matrix of loss values
+
+print out and/or plot the matrix.
+
+comment on difference between NN and baseline.
+
+### Train/validation loss plot
+
+plot the two loss functions.
+
+What is the optimal number of neighbors?
+
+## Data set 3: ...
+
+[Back to Top](#top)
+
+
+
+
