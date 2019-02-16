@@ -17,10 +17,10 @@ output: pdf_document
 
 # Nearest Neighbor
 
-#### NAU Febuary 15, 2018
+#### NAU Febuary 15, 2019
 
 > [Introduction](#intro)
-> 
+> We were tasked with attempting to code a nearest neaighbor algorithm in C++ and R and the task was very challenging. The Enviornment was new for 75% of our group and the project suffered because of it. That being said we did accomplish 3 of the 4 required parts. We ran out of time.
 <a id="intro"></a>
 
 ## Data set 1: spam
