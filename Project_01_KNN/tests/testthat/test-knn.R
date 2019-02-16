@@ -1,5 +1,5 @@
 
-library(nearestNeighborsAlg)
+library(NearestNeighbors)
 library(testthat)
 context("knn")
 
