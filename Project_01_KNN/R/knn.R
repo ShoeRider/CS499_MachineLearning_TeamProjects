@@ -24,15 +24,17 @@
 #'
 knn <- function(x.mat, y.vec, testx.vec, max.neighbors)
 {
-  
-
-   result.list <- .C("knn_interface", as.numeric(unlist(x.mat)), as.numeric(unlist(y.vec)),
-                     as.numeric(unlist((testx.vec))),as.integer(nrow(x.mat)),
-                     as.integer(ncol(x.mat)),as.integer(max.neighbors),
-                     predictions=double(100),PACKAGE="NearestNeighbors")
-  
-  print(result.list)
+  result.list <- .C("knn_interface", as.double(x.mat), as.double(y.vec),
+                    as.double(testx.vec),as.integer(nrow(x.mat)),
+                    as.integer(ncol(x.mat)),as.integer(max.neighbors),
+                    predictions=double(max.neighbors),PACKAGE="NearestNeighbors")
+   #print(result.list$predictions)
 }
+
+
+library(NearestNeighbors)
+library(testthat)
+context("knn")
 
 Random_Folds <- function(Size,Folds)
 {
@@ -53,18 +55,23 @@ KNNLearnCV.Create.Fold.Vec<- function(Array,Folds)
 
 KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
 {
-  
+
   Data = cbind(X.mat ,Y.vec)
   
   
-  
   DataColsStart = 0
-  DataColsEnd   = length(Data[1,]) - 1
-  LabelCol      = length(Data[1,])
-  Rows          = length(Data[,1])
+  DataColsEnd   = NCOL(Data) - 1
+  LabelCol      = NCOL(Data)
+  Rows          = NROW(Data)
   
   
-  Error.matrix = double
+  
+  Training.L1Error.matrix = 0
+  #Training.L2Error.matrix = 0
+  
+  Testing.L1Error.matrix = 0
+  #Testing.L2Error.matrix = 0
+  
   #print(folds.vec)
   #loop over (n.folds)folds validation
   for(i in 1:n.folds){
@@ -82,16 +89,56 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
     train.Labels <- trainData[,LabelCol]
     
     #preform KNN Function call, and recieve ?? back
+    Double.train.Data   <- do.call(cbind, lapply(train.Data, as.numeric))
+    Double.train.Labels <- do.call(cbind, lapply(train.Labels, as.numeric))
+    Double.test.Data    <- do.call(cbind, lapply(test.Data, as.numeric))
     
-    print(knn(train.Data, train.Labels, test.Data, max.neighbors))
-    #Error.Vector = abs((knn(train.Data, train.Labels, test.Data, max.neighbors)) - (test.Labels))
+    #print(test.Labels)
+    #print(length(test.Labels[test.Labels == 1]))
+    #print(length(test.Labels[test.Labels == 2]))
+    
+    #print(t(Double.train.Labels))
+    #print(length(Double.train.Labels[t(Double.train.Labels) == 1]))
+    #print(length(Double.train.Labels[t(Double.train.Labels) == 2]))
+    print(NROW(Double.test.Data))
+    print(NCOL(t(test.Labels)))
+    
+    
+    
+    
+    for(X in 1:NROW(Double.test.Data))
+    {
+      Error.vec <- knn(Double.train.Data, Double.train.Labels, Double.test.Data[X,], max.neighbors)[7]
+      
+      L1Error.vec <- abs(do.call(cbind, lapply(Error.vec, as.numeric)) - as.integer( t(test.Labels)[X]))
+      Testing.L1Error.matrix <-rbind(Testing.L1Error.matrix,t(L1Error.vec ))
+      
+    }
+    
+    for(X in 1:NROW(Double.train.Data))
+    {
+      Error.vec <- knn(Double.train.Data, Double.train.Labels, Double.train.Data[X,], max.neighbors)[7]
+      
+      L1Error.vec <- abs(do.call(cbind, lapply(Error.vec, as.numeric)) - as.integer( t(Double.train.Labels)[X]))
+      Training.L1Error.matrix <-rbind(Training.L1Error.matrix,t(L1Error.vec ))
+      
+    }
+
+    #Prediction <- knn(Double.train.Data, Double.train.Labels, Double.test.row, max.neighbors)  - (test.Labels)
+    
+    #Error.Vector = abs(Prediction - (test.Labels))
     #print((knn(train.Data, train.Labels, test.Data, max.neighbors)))
     #print(length(test.Labels))
     #print(Error.matrix)
     #Error.matrix <- rbind(Error.matrix,Error.Vector)
   }
+  print(colMeans(Testing.L1Error.matrix))
+  print(colMeans(Training.L1Error.matrix))
+
   
-  0
+  plot(colMeans(Testing.L1Error.matrix),type="o", col = "red", xlab = "K Neighbors", ylab = "Error",main = "KNN wrt Selected K, ElemStatLearn::SAheart\n Testing(red),Training(blue)")
+  lines(colMeans(Training.L1Error.matrix), type = "o", col = "blue")
+
   #return a list with the following named elements:
   #  X.mat, y.vec: training data.
   #  train.loss.mat, validation.loss.mat (matrices of loss values for each fold and number of neighbors).
@@ -201,6 +248,6 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, max.neighbors=30, fold.vec=NU
   }
   
   print("Passed Sanitation Tests, calling KNNLearnCV.Algorithm")
-  knnLearncv = KNNLearnCV.Algorithm(TrainingInput, TrainingLabel, max.neighbors, fold.vec, n.folds)
+  knnLearncv <- KNNLearnCV.Algorithm(TrainingInput, TrainingLabel, max.neighbors, fold.vec, n.folds)
 }
 
