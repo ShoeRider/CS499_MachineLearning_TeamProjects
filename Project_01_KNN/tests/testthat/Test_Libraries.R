@@ -1,11 +1,11 @@
 # to use these tests include these commands:
 if (!require("ElemStatLearn")) install.packages("ElemStatLearn")
 if (!require("testthat")) install.packages("testthat")
-library(testthat)
-library(ElemStatLearn)
-#library(NearestNeighbors)
-context("knn")
 
+library(ElemStatLearn)
+library(NearestNeighbors)
+library(testthat)
+context("knn")
 
 
 source("R/knn.R")
@@ -35,41 +35,38 @@ KNN_Spam_Test<-function()
   Folds <- 3
   MaxNeighbors <- 30
   Local_spam<- ElemStatLearn::spam
+  
+
+  Local_spam$spam <- sapply(as.character(Local_spam$spam),switch,"spam"=1,"email"=0)
+  MaxSample_ofType = length(Local_spam[Local_spam$spam == 1,][,1])
+
+  
+  Spam <- data.frame(Local_spam[Local_spam$spam == 1,])
+  print(NROW(Spam))
 
 
+  email = Local_spam[0,]
+  email <- head(Local_spam[Local_spam$spam == 0,],MaxSample_ofType)
+  print(NROW(email))
+  
+  Cliped<-rbind(Spam,email)
+  Cliped<-Cliped[sample(nrow(Cliped)),]
   DataColsStart = 0
-  DataColsEnd   = length(Local_spam) - 1
-  LabelCol      = length(Local_spam)
-  Rows          = length(Local_spam[,1])
-
-  #accesses first two Rows:
-  #Local_spam[1:2,]
-
+  DataColsEnd   = NCOL(Cliped) - 1
+  LabelCol      = NCOL(Cliped)
+  Rows          = NROW(Cliped)
+  
   #Create New Fold Column to hold Fold Values
-  Local_spam$Fold <- Random_Folds(length(Local_spam[,1]),Folds)
-
-
+  Fold <- Random_Folds(Rows,Folds)
+  print(Cliped)
+  
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  Projected_K = KNNLearnCV(Local_spam[,DataColsStart:DataColsEnd], Local_spam[,LabelCol], MaxNeighbors, Local_spam$Fold, Folds)
+  KNNLearnCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], MaxNeighbors, Fold, Folds)
 
 
-  #
 
-  #For each train/test split, to show that your algorithm is actually learning something non-trivial
-  #from the inputs/features, compute a baseline predictor that ignores the inputs/features.?
-  #  Not exactly sure what is asked, I believe he wants the : (for an arbitrary K value)
-  #plot the mean validation loss as a function of the number of neighbors.
-  #plot the mean train loss in one color, and the mean validation loss in another color.
-
-  #For each data set, compute a 2 x 3 matrix of mean test loss values:
-  #each of the three columns are for a specific test set,
-  #the first row is for the nearest neighbors predictor,
-  #the second row is for the baseline/un-informed predictor.
-
-  #plot the mean validation loss as a function of the number of neighbors.
-  #plot the mean train loss in one color, and the mean validation loss in another color.
 }
-KNN_Spam_Test()
+#KNN_Spam_Test()
 
 
 
@@ -93,7 +90,7 @@ KNN_SAheart_Test<-function()
   famhist<-factor(c("Present" = 1, "Absent" = 0))
 
   #Local_SAheart[,5] <- as.integer(factor(Local_SAheart[,5],levels=c("Present" = 1, "Absent" = 2)))
-  Local_SAheart[,5] <- sapply(as.character(Local_SAheart[,5]),switch,"Present"=1,"Absent"=2)
+  Local_SAheart[,5] <- sapply(as.character(Local_SAheart[,5]),switch,"Present"=1,"Absent"=0)
   print(Local_SAheart)
   #Local_SAheart <-factor(Local_SAheart[,5])
 
@@ -126,18 +123,18 @@ KNN_ziptrain_Test<-function()
   }
 
   DataColsStart = 2
-  DataColsEnd   = length(Local_ZipTrain[1,])
+  DataColsEnd   = NCOL(Local_ZipTrain)
   LabelCol      = 1
-  Rows          = length(Local_ZipTrain[,1])
+  Rows          = NROW(Local_ZipTrain)
 
   #accesses first two Rows:
   #Local_SAheart[1:2,]
   #print(Local_ZipTrain[,1])
 
-
-  print(Local_ZipTrain[Rows,])
+  
+  print(DataColsEnd)
   print(Rows)
-
+  #print(Local_ZipTrain)
 
   #Create New Fold Column to hold Fold Values
   Fold.vec <- Random_Folds(Rows,Folds)
@@ -145,9 +142,10 @@ KNN_ziptrain_Test<-function()
 
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
   Projected_K = KNNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
-
+  
+  print(((Projected_K)))
 }
-#KNN_ziptrain_Test()
+KNN_ziptrain_Test()
 
 
 
@@ -194,20 +192,20 @@ KNN_ozone<-function()
   print("Starting Local_Ozone")
   Folds <- 3
   MaxNeighbors <- 30
-  Local_ZipTrain<- ElemStatLearn::prostate
+  Local_ozone<- ElemStatLearn::ozone
 
 
   DataColsStart = 2
-  DataColsEnd   = length(Local_ZipTrain[1,])
+  DataColsEnd   = NCOL(Local_ozone)
   LabelCol      = 1
-  Rows          = length(Local_ZipTrain[,1])
+  Rows          = NROW(Local_ozone)
 
   #accesses first two Rows:
   #Local_SAheart[1:2,]
   #print(Local_ZipTrain[,1])
 
 
-  print(Local_ZipTrain[Rows,])
+  print(Local_ozone)
   print(Rows)
 
 
@@ -216,7 +214,7 @@ KNN_ozone<-function()
 
 
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  Projected_K = KNNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+  Projected_K = KNNLearnCV(Local_ozone[,DataColsStart:DataColsEnd], Local_ozone[,LabelCol], MaxNeighbors, Fold.vec, Folds)
 
 }
 #KNN_ozone()

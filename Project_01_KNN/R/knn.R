@@ -24,15 +24,16 @@
 #'
 knn <- function(x.mat, y.vec, testx.vec, max.neighbors)
 {
-  
-
-   result.list <- .C("knn_interface", as.numeric(unlist(x.mat)), as.numeric(unlist(y.vec)),
-                     as.numeric(unlist((testx.vec))),as.integer(nrow(x.mat)),
-                     as.integer(ncol(x.mat)),as.integer(max.neighbors),
-                     predictions=double(100),PACKAGE="NearestNeighbors")
-  
-  print(result.list)
+  result.list <- .C("knn_interface", as.double(x.mat), as.double(y.vec),
+                    as.double(testx.vec),as.integer(nrow(x.mat)),
+                    as.integer(ncol(x.mat)),as.integer(max.neighbors),
+                    predictions=double(max.neighbors),PACKAGE="NearestNeighbors")
 }
+
+
+library(NearestNeighbors)
+library(testthat)
+context("knn")
 
 Random_Folds <- function(Size,Folds)
 {
@@ -53,18 +54,27 @@ KNNLearnCV.Create.Fold.Vec<- function(Array,Folds)
 
 KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.folds=5)
 {
-  
   Data = cbind(X.mat ,Y.vec)
-  
-  
+  NonZero= 0
+  BinaryClassification =  all(Y.vec <= 1 & Y.vec >= 0)
+
+  print(BinaryClassification)
   
   DataColsStart = 0
-  DataColsEnd   = length(Data[1,]) - 1
-  LabelCol      = length(Data[1,])
-  Rows          = length(Data[,1])
+  DataColsEnd   = NCOL(Data) - 1
+  LabelCol      = NCOL(Data)
+  Rows          = NROW(Data)
+  
+  #print(Rows)
+
   
   
-  Error.matrix = double
+  Training.L1Error.matrix = 0
+  #Training.L2Error.matrix = 0
+  
+  Testing.L1Error.matrix = 0
+  Testing.L2Error.matrix = 0
+  
   #print(folds.vec)
   #loop over (n.folds)folds validation
   for(i in 1:n.folds){
@@ -81,17 +91,111 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
     train.Data   <- trainData[,DataColsStart:DataColsEnd]
     train.Labels <- trainData[,LabelCol]
     
-    #preform KNN Function call, and recieve ?? back
+    if(typeof(train.Data) =="double")
+    {
+      Double.train.Data   <- train.Data
+    }else{
+      Double.train.Data   <- do.call(cbind, lapply(train.Data, as.numeric))
+    }
     
-    print(knn(train.Data, train.Labels, test.Data, max.neighbors))
-    #Error.Vector = abs((knn(train.Data, train.Labels, test.Data, max.neighbors)) - (test.Labels))
+    if(typeof(train.Labels) =="double")
+    {
+      Double.train.Labels   <- train.Labels
+    }else{
+      Double.train.Labels   <- do.call(cbind, lapply(train.Labels, as.numeric))
+    }
+    
+    if(typeof(test.Data) =="double")
+    {
+      Double.test.Data   <- test.Data
+    }else{
+      Double.test.Data    <- do.call(cbind, lapply(test.Data, as.numeric))
+    }
+    
+
+
+    
+    #print(test.Labels)
+    #print(length(test.Labels[test.Labels == 1]))
+    #print(length(test.Labels[test.Labels == 2]))
+    
+    #print(t(Double.train.Labels))
+    #print(length(Double.train.Labels[t(Double.train.Labels) == 1]))
+    #print(length(Double.train.Labels[t(Double.train.Labels) == 2]))
+
+    
+    for(X in 1:NROW(Double.test.Data))
+    {
+      Error.vec <- knn(Double.train.Data, Double.train.Labels, Double.test.Data[X,], max.neighbors)[7]
+      
+      if(BinaryClassification)
+      {
+        L1Error.vec <- ifelse(do.call(cbind, lapply(Error.vec, as.numeric))>0.5,1,0) != as.integer( t(test.Labels)[X])
+      }else{
+        L1Error.vec <- abs(do.call(cbind, lapply(Error.vec, as.numeric)) - as.integer( t(test.Labels)[X]))
+      }
+      Testing.L1Error.matrix <-rbind(Testing.L1Error.matrix,t(L1Error.vec ))
+      
+      
+      if(BinaryClassification)
+      {
+        L2Error.vec <- ifelse(do.call(cbind, lapply(Error.vec, as.numeric))>0.5,1,0) != as.integer( t(test.Labels)[X])
+      }else{
+        L2Error.vec <- (do.call(cbind, lapply(Error.vec, as.numeric)) - as.integer( t(test.Labels)[X]))**2
+      }
+      
+      
+      Testing.L2Error.matrix <-rbind(Testing.L2Error.matrix,t(L2Error.vec ))
+      
+      
+      
+    }
+    
+    #for(X in 1:NROW(Double.train.Data))
+    #{
+    #  Error.vec <- knn(Double.train.Data, Double.train.Labels, Double.train.Data[X,], max.neighbors)[7]
+      
+    #  L1Error.vec <- abs(do.call(cbind, lapply(Error.vec, as.numeric)) - as.integer( t(Double.train.Labels)[X]))
+    #  Training.L1Error.matrix <-rbind(Training.L1Error.matrix,t(L1Error.vec ))
+      
+    #}
+
+    #Prediction <- knn(Double.train.Data, Double.train.Labels, Double.test.row, max.neighbors)  - (test.Labels)
+    
+    #Error.Vector = abs(Prediction - (test.Labels))
     #print((knn(train.Data, train.Labels, test.Data, max.neighbors)))
     #print(length(test.Labels))
     #print(Error.matrix)
     #Error.matrix <- rbind(Error.matrix,Error.Vector)
   }
+  print(colMeans(Testing.L1Error.matrix))
+  print(colMeans(Testing.L2Error.matrix))
+  #print(colMeans(Training.L1Error.matrix))
+
+  #plot(colMeans(Testing.L2Error.matrix),type="o", col = "blue", xlab = "K Neighbors", ylab = "Error",main = "KNN wrt Selected K, ElemStatLearn::Spam\n L1(red),L2(blue)")
+  #lines(colMeans(Testing.L1Error.matrix), type = "o", col = "red")
   
-  0
+  if(BinaryClassification)
+  {
+    plot(colMeans(Testing.L1Error.matrix),type="o", col = "Dark Green", xlab = "K Neighbors", ylab = "Error",main = "KNN wrt Selected K, ElemStatLearn::SAheart\n if n>.5,then 1, otherwise 0")
+  }
+  else{
+    plot(colMeans(Testing.L1Error.matrix),type="o", col = "red", xlab = "K Neighbors", ylab = "Error",main = "KNN wrt Selected K, ElemStatLearn::Spam\n L1(red),L2(blue)")
+    lines(colMeans(Testing.L2Error.matrix), type = "o", col = "blue")
+    
+    #plot(colMeans(Testing.L2Error.matrix),type="o", col = "blue", xlab = "K Neighbors", ylab = "Error",main = "KNN wrt Selected K, ElemStatLearn::Spam\n L1(red),L2(blue)")
+    #lines(colMeans(Testing.L1Error.matrix), type = "o", col = "red")
+  }
+  
+  
+  #plot(colMeans(Training.L1Error.matrix),type="o", col = "blue", xlab = "K Neighbors", ylab = "Error",main = "KNN wrt Selected K, ElemStatLearn::Ozone\n Testing(red),Training(blue)")
+  #lines(colMeans(Testing.L1Error.matrix), type = "o", col = "red")
+
+  
+  #plot(colMeans(Testing.L1Error.matrix),type="o", col = "red", xlab = "K Neighbors", ylab = "Error",main = "KNN wrt Selected K, ElemStatLearn::Ozone\n Testing(red),Training(blue)")
+  #lines(colMeans(Training.L1Error.matrix), type = "o", col = "blue")
+  
+  
   #return a list with the following named elements:
   #  X.mat, y.vec: training data.
   #  train.loss.mat, validation.loss.mat (matrices of loss values for each fold and number of neighbors).
@@ -201,6 +305,6 @@ KNNLearnCV<-function(TrainingInput, TrainingLabel, max.neighbors=30, fold.vec=NU
   }
   
   print("Passed Sanitation Tests, calling KNNLearnCV.Algorithm")
-  knnLearncv = KNNLearnCV.Algorithm(TrainingInput, TrainingLabel, max.neighbors, fold.vec, n.folds)
+  knnLearncv <- KNNLearnCV.Algorithm(TrainingInput, TrainingLabel, max.neighbors, fold.vec, n.folds)
 }
 
