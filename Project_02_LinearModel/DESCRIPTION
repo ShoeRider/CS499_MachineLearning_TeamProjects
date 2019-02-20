@@ -1,0 +1,13 @@
+Package: LinearModel
+Type: Package
+Title: Linear Models
+Version: 2019.2.19
+Author: Anthony M Schroeder, Chadd Frasier
+Maintainer: Anthony M Schroeder <as3379@nau.edu> Chadd Frasier <cmf339@nau.edu> 
+Description: Demonstrates linear models for regression and binary classification.
+License: GPL-3
+RoxygenNote: 6.1.1
+LinkingTo: RcppEigen
+Suggests: ElemStatLearn, testthat
+Encoding: UTF-8
+LazyData: true
