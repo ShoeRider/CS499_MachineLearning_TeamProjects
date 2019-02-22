@@ -16,8 +16,12 @@ NormalizeMatrix<-function(Matrix)
 
 NormalizeVector<-function(Vector)
 {
-  return<- Vector /sum(Vector)
+  return<- Vector / (sum(Vector**2))**(1/2)
 }
+
+
+#L1 abs(Y.hat - Y.truth)
+#L2 (Y.hat - Y.truth)**2
 
 
 LMSquare_Prediction<-function(TrainingData,TrainingLabels,W.mat)
@@ -254,7 +258,7 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
   #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
   Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,initial.weight.vec.,0)
   NormalizedGradient <- data.matrix(NormalizeVector(Gradient)) + penalty*(colSums(W.mat**2))**(1/2)
-  
+  #Gradient clip
   print(sum(NormalizedGradient))
   W.mat <- cbind(W.mat, W.mat+NormalizedGradient)
 
@@ -271,16 +275,6 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
     #Gradient clip
     W.mat <- cbind(W.mat, W.mat[,Iteration]+NormalizedGradient)
   }
-  #print(W.mat)
-  #print(L2Error.matrix)
-  # TODO return W.mat on the original scale
-
-  #I think this is how to renormalize the W.Matrix, I did a short test, but dont know
-  #how valid/ it was
-  #error = Find_Wmatrix_R2Error(mean*W.mat,TrainingData,TrainingLabels,BinaryClassification)
-  #print(sum(error))
-  #error = Find_Wmatrix_R2Error(W.mat,Normalized_TrainingData,TrainingLabels,BinaryClassification)
-  #print(sum(error))
 
 
   #Output: optimal weight vector for the given penalty parameter.
@@ -291,47 +285,58 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
 LMSquareLossL2penalties<-function(X.mat, y.vec,penalty.vec)
 {
   #this function should begin by scaling X.mat to obtain X.scaled.mat with each column mean=0 and sd=1
+  Normalized_TrainingData<-NormalizeMatrix(X.mat)
+  opt.thresh = 1
+
+  W.mat = 0
+  for(penalty in penalty.vec)
+  {
+    W.vec <- LMSquareLossL2(Normalized_TrainingData, y.vec, penalty, opt.thresh, initial.weight.vec.)
+  }
+
 
   #it should then loop over penalty values, calling LMSquareLossL2 to get the optimal weight vector for each.
 
   #Output: W.mat (n_features x n_penalties), weight matrix on original scale, that can be used to get predictions via X.mat %*% W.mat
+  W.mat
 }
 
 
 LMSquareLossL2CV<-function(TrainingData, TrainingLabels, fold.vec, penalty.vec)
 {
   #should use K-fold cross-validation based on the fold IDs provided in fold.vec
-  #step.size = 1
-  #BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
+  BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
 
-  #Data = cbind(TrainingData ,TrainingLabels)
+  Data = cbind(TrainingData ,TrainingLabels)
   #Randomly shuffle the data
-  #Data<-Data[sample(nrow(Data)),]
+  Data<-Data[sample(nrow(Data)),]
 
   #TODO If invalid fold.vec .. make one for ourselves
+  #TODO find folds.n from fold.vec
 
-  #DataColsStart = 0
-  #DataColsEnd   = NCOL(Data) - 1
-  #LabelCol      = NCOL(Data)
-  #Rows          = NROW(Data)
+  DataColsStart = 0
+  DataColsEnd   = NCOL(Data) - 1
+  LabelCol      = NCOL(Data)
+  Rows          = NROW(Data)
 
-  #Perform 10 fold cross validation
-  #for(i in 1:folds.n)
-  #{
-  #}
-  #for each train/validation split, use LMSquareLossL2penalties to compute optimal L2-penalized models on the train data, then compute the validation loss of each model.
+  #Perform folds.n fold cross validation
+  for(i in 1:folds.n)
+  {
+    #for each train/validation split, use LMSquareLossL2penalties to compute optimal L2-penalized models on the train data, then compute the validation loss of each model.
 
-  #compute mean.validation.loss.vec, which is a vector (with n_penalties elements) of mean validation loss over all K folds.
+    #compute mean.validation.loss.vec, which is a vector (with n_penalties elements) of mean validation loss over all K folds.
 
-  #minimize the mean validation loss to determine selected.penalty, the optimal penalty value.
+    #minimize the mean validation loss to determine selected.penalty, the optimal penalty value.
 
-  #finally use LMSquareLossL2penalties(penalty.vec=selected.penalty) on the whole training data set.
+    #finally use LMSquareLossL2penalties(penalty.vec=selected.penalty) on the whole training data set.
+  }
+
 
 
   #Output a list with the following named elements:
   #  mean.validation.loss, mean.train.loss.vec, penalty.vec, selected.penalty (for plotting train/validation loss curves)
-  #weight.vec, the weight vector found by using gradient descent with selected.penalty on the whole training data set.
-  #predict(testX.mat), a function that takes a test features matrix and returns a vector of predictions (real numbers for regression, probabilities for binary classification).
+  #  weight.vec, the weight vector found by using gradient descent with selected.penalty on the whole training data set.
+  #  predict(testX.mat), a function that takes a test features matrix and returns a vector of predictions (real numbers for regression, probabilities for binary classification).
 }
 
 
