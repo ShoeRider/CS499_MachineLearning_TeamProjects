@@ -43,18 +43,36 @@ LMLogisticLossEarlyStoppingCV<-function(X.mat, y.vec, fold.vec, max.iterations.)
 }
 
 
-#X.mat (feature matrix, n_train x n_features), y.vec (label vector, n_train x 1), max.iterations (int scalar > 1), step.size.
-LMSquareLossIterations<-function(TrainingData, TrainingLabels,Iterations,StepSize.Scalar,Folds.number = 3)
+LMLogisticLossIterations<-function(TrainingData, # X.mat (feature matrix, n_train x n_features),
+                                   TrainingLabels, # y.vec (label vector, n_train x 1),
+                                   Iterations, # max.iterations (int scalar > 1),
+                                   StepSize.Scalar # int step.siz
+                                   )
 {
   #make sure to compute a scaled input matrix, which has mean=0 and sd=1 for each column, and keep track of
-  # the mean/sd of each column, so you can return W.mat on the original scale (if you use the unscaled X.mat
-  # during gradient descent, it will not converge – numerical instability).
+  scaled.input.data = NormalizeMatrix(TrainingData)
+  # keep track the mean/sd of each column, so you can return W.mat on the original scale
+  col.sd.vec = as.numeric(-1,ncol(scaled.input.data))
+  for( col in 1:ncol(scaled.input.data))
+  {
+    # save a vector of the sd of each column
+    col.sd.vec[col] <- sd(scaled.input.data[,col])
+  }
+  # print(col.sd.vec)
+
 
   # Value<-LM_FindPrediction(TrainingData, TrainingLabels,TestData,Scalars,Bias)
-  # if BinaryClassification...
-  # else Regression ...
+  BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
+  if( BinaryClassification )
+  {
+    # BinaryClassification...
+  }
+  else
+  {
+    # else Regression ...
+  }
+  # function should optimize the mean loss (not the total loss).
 
-  # both functions should optimize the mean loss (not the total loss).
-
+  # returns matrix of weight vectors, one for each iteration, n_features x max.iterations.
 }
 
