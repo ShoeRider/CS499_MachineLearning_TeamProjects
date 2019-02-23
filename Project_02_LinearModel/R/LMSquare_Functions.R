@@ -11,7 +11,18 @@
 
 NormalizeMatrix<-function(Matrix)
 {
-  return<-Matrix / (colSums(Matrix**2))**(1/2)
+  # vector of mean column values
+  mean <- mean(Matrix)
+  # sum all of all columns for each row
+  sum = 0
+  for( row in 1:nrow(Matrix))
+  {
+    sum = sum + sum((Matrix[row,] - mean)^2)
+  }
+  # get sd from the calculated sum and number of observations
+  sd = sqrt(sum / length(Matrix))
+  # return the new matrix
+  return((Matrix - mean)/sd)
 }
 
 NormalizeVector<-function(Vector)
