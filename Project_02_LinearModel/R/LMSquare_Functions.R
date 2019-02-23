@@ -9,6 +9,8 @@
 #'
 #'
 
+#' function to normalize a matrix to sd=1 mean=0
+#' Uses the formula that was walked through in class
 NormalizeMatrix<-function(Matrix)
 {
   # vector of mean column values
