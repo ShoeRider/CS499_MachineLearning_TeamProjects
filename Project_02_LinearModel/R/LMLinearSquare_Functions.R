@@ -129,7 +129,7 @@ LMSquareLossIterations<-function(TrainingData, TrainingLabels,Iterations,StepSiz
 
   #initial Matrix for iteration 1
   W.Matrix = array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
-
+  Error = 0
 
 
   #Itterate # of times
@@ -143,14 +143,53 @@ LMSquareLossIterations<-function(TrainingData, TrainingLabels,Iterations,StepSiz
 
   }
 
+  Norm.Error <-Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification)
   #print(Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification))
+  barplot(
+    Norm.Error,
+    main = "Norm.Error: spam",
+    xlab = "mean loss value",
+    beside = TRUE
+  )
+  #print(Error)
 
   #clearly not how to find the W.DeNormalizedMatrix
-  W.DeNormalizedMatrix = (t(W.Matrix)*TrainingData.sd)+TrainingData.mean
+  #print(W.Matrix)
+  W.Matrix.mean <- mean(W.Matrix)
 
-  #print(Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification))
+  W.Matrix.Sum = 0
+
+  for( col in 1:ncol(W.Matrix))
+  {
+
+    W.Matrix.Sum = W.Matrix.Sum + sum((W.Matrix[,col] - W.Matrix.mean)^2)
+  }
+
+  # get sd from the calculated sum and number of observations
+  W.Matrix.sd = sqrt(W.Matrix.Sum / length(W.Matrix))
+  print(W.Matrix.sd)
+  print(TrainingData.sd)
+
+
+  DeNormalized.TrainingDatam<-((Normalized_TrainingData)*TrainingData.sd)+TrainingData.mean
+
+  DeNormalizedWeightMatrix = (t(W.Matrix)*mean(W.Matrix))-t(W.Matrix/TrainingData.sd)
+
+ # print(sum(abs(DeNormalized.TrainingDatam-TrainingData)))
+
+  DeNorm.Error <-Find_Wmatrix_MeanL2Error(TrainingData,TrainingLabels,DeNormalizedWeightMatrix,BinaryClassification)
+  #Error<-Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification)
+
+
+  #Error = abs(Norm.Error - DeNorm.Error)
   #print(Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,W.DeNormalizedMatrix,BinaryClassification))
-
+  barplot(
+    DeNorm.Error,
+    main = "DeNorm.Error: spam",
+    xlab = "mean loss value",
+    beside = TRUE
+  )
+  #print(Error)
   return(W.Matrix)
 }
 
@@ -405,16 +444,18 @@ Logistic_Spam_Test<-function()
   #print(Cliped)
 
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  #LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],2,0.1)
+  Error = LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],20,0.1)
   #max.iterations = 10
-  #LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,max.iterations)
-  Normalized_TrainingData <- as.matrix(NormalizeMatrix(as.matrix(Cliped[,DataColsStart:DataColsEnd])))
+  #LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
 
-  LMSquareLossL2(Normalized_TrainingData,  Cliped[,LabelCol], .5, 2, array(rep(0,NCOL(Normalized_TrainingData)),dim=c(1,NCOL(Normalized_TrainingData))))
+  Normalized_TrainingData <- as.matrix(NormalizeMatrix(as.matrix(Cliped[,DataColsStart:DataColsEnd])))
+  #print(Error)
+  #LMSquareLossL2(Normalized_TrainingData,  Cliped[,LabelCol], .5, 2, array(rep(0,NCOL(Normalized_TrainingData)),dim=c(1,NCOL(Normalized_TrainingData))))
+
 
 }
-#Logistic_Spam_Test()
-LMSquareLossL2(Normalized_TrainingData,  Cliped[,LabelCol], .5, 2, rep(0,NCOL(Normalized_TrainingData)))
+Logistic_Spam_Test()
+#LMSquareLossL2(Normalized_TrainingData,  Cliped[,LabelCol], .5, 2, rep(0,NCOL(Normalized_TrainingData)))
 
 
 
