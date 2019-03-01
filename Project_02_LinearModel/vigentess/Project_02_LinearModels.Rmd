@@ -1,0 +1,42 @@
+---
+title: "Linear Models Report"
+author: "Anthony Schroeder,"
+date: ""
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+
+---
+
+
+<a id="top"></a>
+
+# Linear Models Report
+
+#### NAU March 1, 2019
+
+## Introduction
+> [Introduction](#intro)
+
+
+
+
+## Testing With Data Sets 
+we are going to run our code on the following data sets.
+
+## Data set 1: spam
+### Matrix of loss values
+
+print out and/or plot the matrix.
+
+comment on difference between NN and baseline.
+
+### Train/validation loss plot
+
+plot the two loss functions.
+
+What is the optimal number of neighbors?
+
+
