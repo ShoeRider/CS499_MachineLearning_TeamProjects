@@ -10,6 +10,8 @@
 #'
 #'
 #'
+
+
 Random_Folds <- function(Size,Folds)
 {
   try(if(Size < 0) stop("Invalid Size Value: cannot preform random Folds when (Size < 0) !!"))
@@ -31,15 +33,9 @@ NormalizeMatrix<-function(Matrix)
   # get sd from the calculated sum and number of observations
   sd = sqrt(sum / length(Matrix))
   # return the new matrix
-  print("sd")
-  print(sd)
   return((Matrix - mean)/sd)
 }
 
-DeNormalizeMatrix<-function(Matrix,OriginalMean,OriginalSum)
-{
-  0
-}
 NormalizeVector<-function(Vector)
 {
   return<- Vector /sum(Vector)
@@ -57,6 +53,19 @@ LMSquare_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
   # with a scalar of 2 , but its not needed becasue This vector will be normalized
   Gradient = (t(TrainingData) %*% SquaredNorm)
 }
+
+LMSquare_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vector,Penalty=0)
+{
+  #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+  Y.hat = data.matrix(TrainingData) %*% data.matrix(W.Vector)
+
+
+  SquaredNorm = (Y.hat - TrainingLabels)
+
+  # with a scalar of 2 , but its not needed becasue This vector will be normalized
+  Gradient = (t(TrainingData) %*% SquaredNorm) + 2*W.Vector*Penalty
+}
+
 LMSquare_L2Error<-function(TrainingData,TrainingLabels,W.Vector,BinaryClassification)
 {
   Y.hat = data.matrix(TrainingData) %*% data.matrix(W.mat[,Iteration])
@@ -87,6 +96,7 @@ LMSquare_L2Error<-function(TrainingData,TrainingLabels,W.Vector,BinaryClassifica
 # were Y.Hat is determined to be 0,1 and compaired to Y.Truth
 # Error Is either 0 or 1.
 #returns: vector of fitness of every W.Matrix Row
+
 Find_Wmatrix_MeanL2Error<-function(TestingData,TestingLables,W.Matrix,BinaryClassification)
 {
   L2Error.matrix = 0
@@ -103,6 +113,7 @@ Find_Wmatrix_MeanL2Error<-function(TestingData,TestingLables,W.Matrix,BinaryClas
 
 
 #X.mat (feature matrix, n_train x n_features), y.vec (label vector, n_train x 1), max.iterations (int scalar > 1), step.size.
+
 LMSquareLossIterations<-function(TrainingData, TrainingLabels,Iterations,StepSize.Scalar)
 {
   TrainingData <- data.matrix(TrainingData)
@@ -138,8 +149,8 @@ LMSquareLossIterations<-function(TrainingData, TrainingLabels,Iterations,StepSiz
   {
 
     Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,])
-    NormalizedGradient <- data.matrix(NormalizeVector(Gradient))*StepSize.Scalar
-    W.Matrix <- rbind(W.Matrix, W.Matrix[Iteration,]+t(NormalizedGradient))
+    StepSize.Gradient <- data.matrix(NormalizeVector(Gradient))*StepSize.Scalar
+    W.Matrix <- rbind(W.Matrix, W.Matrix[Iteration,]+t(StepSize.Gradient))
 
   }
 
@@ -151,13 +162,12 @@ LMSquareLossIterations<-function(TrainingData, TrainingLabels,Iterations,StepSiz
   #DeNormalized.TrainingData<-((Normalized_TrainingData)*TrainingData.sd)+TrainingData.mean
   DeNormalizedWeightMatrix = (t(W.Matrix)*mean(W.Matrix))-t(W.Matrix/TrainingData.sd)
 
-
-
   #DeNorm.Error <-Find_Wmatrix_MeanL2Error(TrainingData,TrainingLabels,DeNormalizedWeightMatrix,BinaryClassification)
   #Norm.Error   <-Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification)
 
   return(DeNormalizedWeightMatrix)
 }
+
 
 LMSquareLossIterations.DeNormalizationError<-function(TrainingData, TrainingLabels,Iterations,StepSize.Scalar)
 {
@@ -236,12 +246,20 @@ LMSquareLossIterations.DeNormalizationError<-function(TrainingData, TrainingLabe
   DeNorm.Error <-Find_Wmatrix_MeanL2Error(TrainingData,TrainingLabels,DeNormalizedWeightMatrix,BinaryClassification)
   #Error<-Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification)
 
+  Norm.Error <-Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification)
+  #print(Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification))
+  barplot(
+    DeNorm.Error,
+    main = "DeNorm.Error: spam",
+    xlab = "mean loss value",
+    beside = TRUE
+  )
 
   Error = abs(Norm.Error - DeNorm.Error)
   #print(Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,W.DeNormalizedMatrix,BinaryClassification))
   barplot(
     Error,
-    main = "DeNorm.Error: spam",
+    main = "Error between (Norm.Error - DeNorm.Error)",
     xlab = "mean loss value",
     beside = TRUE
   )
@@ -249,13 +267,27 @@ LMSquareLossIterations.DeNormalizationError<-function(TrainingData, TrainingLabe
   return(DeNormalizedWeightMatrix)
 }
 
-
 #LMSquareLossEarlyStoppingCV
 #Takes: (TrainingData, TrainingLabels, fold.vec,folds.n=4,max.iterations)
 #
 LMSquareLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,folds.n=4,max.iterations)
 {
-  step.size = 2
+  TrainingData <- data.matrix(TrainingData)
+  TrainingData.mean <- mean(TrainingData)
+  TrainingData.Sum = 0
+
+  for( row in 1:nrow(TrainingData))
+  {
+    TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  }
+
+  # get sd from the calculated sum and number of observations
+  TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+
+
+
+  step.size = 0.1
   BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
 
   Data = cbind(TrainingData ,TrainingLabels)
@@ -268,9 +300,10 @@ LMSquareLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,fol
   DataColsEnd   = NCOL(Data) - 1
   LabelCol      = NCOL(Data)
   Rows          = NROW(Data)
-
+  W.Matrix=0
   #initialize Error Matrix:
   L2Error.Matrix = 0
+  mean.validation.loss=0
   #Perform folds.n fold cross validation
   for(i in 1:folds.n){
     #Segement your data by fold using the which() function
@@ -300,32 +333,41 @@ LMSquareLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,fol
 
     #for each train/validation split, use LM___LossIterations to compute a sequence of models
 
-    W.Matrix         =  LMSquareLossIterations(train.Data,train.Labels,max.iterations,step.size)
+
+    W.Vector =  LMSquareLossIterations(train.Data,train.Labels,max.iterations,step.size)
+
+
+    tempmatrix = (W.Vector/TrainingData.sd)
+
 
     #on the train data, then compute the validation loss of each model.
-    Error            =  Find_Wmatrix_MeanL2Error(test.Data,test.Labels,t(W.Matrix),BinaryClassification)
+    Error            =  Find_Wmatrix_MeanL2Error(test.Data,test.Labels,W.Vector,BinaryClassification)
     L2Error.Matrix   <- rbind(L2Error.Matrix,t(Error))
   }
 
   #compute mean.validation.loss.vec, which is a vector (with max.iterations elements)
   # of mean validation loss over all K folds.
-  mean.validation.loss = colMeans(L2Error.Matrix)
-
+  L2Error.AverageVector = colMeans(L2Error.Matrix)
 
   #minimize the mean validation loss to determine selected.steps, the optimal number of steps/iterations.
   SmallestLoss = .Machine$integer.max
   selected.steps = 0
   for(Index in 1:max.iterations)
   {
-    if(mean.validation.loss[Index] < SmallestLoss)
+    if(L2Error.AverageVector[Index] < SmallestLoss)
     {
-      SmallestLoss = mean.validation.loss[Index]
-      selected.steps        = Index
+      SmallestLoss    = mean.validation.loss[Index]
+      selected.steps  = Index
     }
   }
 
+
+
   #finally use LMLinearSquareLossIterations(max.iterations=selected.steps) on the whole training data set.
-  MainWeight.Vector = LMSquareLossIterations(TrainingData, TrainingLabels,selected.steps,step.size)
+  MainWeight.Matrix = LMSquareLossIterations(TrainingData, TrainingLabels,selected.steps,step.size)
+  #print(MainWeight.Matrix[,2])
+  #Matrix Should Already Be normalized
+
 
   #return a list with:
   #mean.validation.loss, mean.train.loss.vec (for plotting train/validation loss curves)
@@ -335,6 +377,7 @@ LMSquareLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,fol
 
   #not sure how to return list
   ReturnList = 0
+  #MainWeight.Matrix[,2]
   #[mean.validation.loss,selected.steps,MainWeight.Vector,function(Feature.Matrix){return(Feature.Matrix %*% MainWeight.Vector) }]
 }
 
@@ -354,36 +397,70 @@ LMSquareLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,fol
 
 LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
 {
+  StepSize.Scalar = .1
+  print("Starting LMSquareLossL2")
+  BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
+
+  #Itterate till Cur.thresh < opt.thresh of times
+  validation.loss = 0
+  Iteration = 0
+
+  #initial Matrix for iteration 1
+  W.Matrix = initial.weight.vec
+  Error = 0
+
+
+  #Itterate # of times
+  #---------------------------------------------------------------------------------------------
+  for(Iteration in 1:30)
+  {
+    print(Iteration)
+    Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,])
+    #Gradient = LMSquare_Gradient.L2Regularization(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,],penalty)
+    Regularized.Gradient <- data.matrix(NormalizeVector(Gradient))*StepSize.Scalar
+    W.Matrix <- rbind(W.Matrix, W.Matrix[Iteration,]+t(Regularized.Gradient))
+
+  }
+  #print(W.Matrix)
+  #print(W.Matrix[nrow(W.Matrix),])
+  #Output: optimal weight vector for the given penalty parameter.
+  return(W.Matrix)
+}
+
+
+LMSquareLossL2.Temp<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
+{
   print("Starting LMSquareLossL2")
   BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
 
   #initial Matrix for iteration 1
-  W.mat = array(initial.weight.vec,dim=c(1,NCOL(Normalized_TrainingData)))
+  W.mat = initial.weight.vec
 
   #Itterate till Cur.thresh < opt.thresh of times
   Cur.thresh = .Machine$integer.max
   validation.loss = 0
   Iteration = 0
   print(W.mat[1,])
-  while (!(Cur.thresh < opt.thresh) && !(Iteration == 2))
+  while((Iteration != 10))
   {
-    Iteration = 1+Iteration
+
 
     #ind the optimal weight vector that minimizes the following cost function:
     # Sigma   L[w^T x_i, y_i] + penalty * ||w||
     #i=1^n
     #where L is either the logistic or square loss.
     Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,W.mat[Iteration,])
-    RegularizedGradient <- Gradient + penalty*(colSums(W.mat**2))**(1/2)
+    RegularizedGradient <- Gradient
     #Gradient clip
 
-    print(Gradient)
+    print(Iteration)
     #apply(RegularizedGradient, function(y) min(max(y,(-opt.thresh)),(opt.thresh)))
     W.mat <- rbind(W.mat, W.mat[Iteration,]+t(RegularizedGradient))
+    Iteration = 1+Iteration
   }
-
+  print(W.mat[nrow(W.mat),])
   #Output: optimal weight vector for the given penalty parameter.
-  W.mat
+  return(W.mat[nrow(W.mat),])
 }
 
 
@@ -403,7 +480,7 @@ LMSquareLossL2penalties<-function(X.mat, y.vec,penalty.vec)
   }
 
   #Output: W.mat (n_features x n_penalties), weight matrix on original scale, that can be used to get predictions via X.mat %*% W.mat
-  W.mat*X.mat.mean
+  W.mat
 }
 
 
@@ -434,7 +511,7 @@ LMSquareLossL2CV<-function(TrainingData, TrainingLabels, fold.vec, penalty.vec)
     trainData <- Data[-testIndexes, ]
 
     #for each train/validation split, use LMSquareLossL2penalties to compute optimal L2-penalized models on the train data, then compute the validation loss of each model.
-    W.Vector = LMSquareLossL2penalties(trainData[,1:DataColsEnd], trainData[,LabelCol],penalty.vec)
+    W.Vector = LMSquareLossL2penalties(trainData[,1:DataColsEnd], trainData[,LabelCol],penalty.vec,penalty.vec[testIndexes])
     W.Matrix = rbind(W.Matrix,W.Vector)
 
     #compute mean.validation.loss.vec, which is a vector (with n_penalties elements) of mean validation loss over all K folds.
@@ -466,14 +543,16 @@ LMSquareLossL2CV<-function(TrainingData, TrainingLabels, fold.vec, penalty.vec)
 
 
 
-Logistic_Spam_Test<-function()
+
+
+Linear_Spam_Tests<-function()
 {
   print("Starting Spam_Test")
   Folds <- 3
   MaxNeighbors <- 30
   Local_spam<- ElemStatLearn::spam
 
-
+  BinaryClassification = 1
   Local_spam$spam <- sapply(as.character(Local_spam$spam),switch,"spam"=1,"email"=0)
   MaxSample_ofType = length(Local_spam[Local_spam$spam == 1,][,1])
 
@@ -496,22 +575,51 @@ Logistic_Spam_Test<-function()
   #Create New Fold Column to hold Fold Values
   fold.vec <- Random_Folds(Rows,Folds)
   #print(Cliped)
+  
 
+  #Question:1
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  Error = LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],20,0.1)
-  #max.iterations = 10
-  #LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
-
-  Normalized_TrainingData <- as.matrix(NormalizeMatrix(as.matrix(Cliped[,DataColsStart:DataColsEnd])))
-  #print(Error)
-  #LMSquareLossL2(Normalized_TrainingData,  Cliped[,LabelCol], .5, 2, array(rep(0,NCOL(Normalized_TrainingData)),dim=c(1,NCOL(Normalized_TrainingData))))
+  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],20,0.1)
 
 
+  #Question:2
+  #DeNormalizedWeights<-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+
+
+  #Questions: (3)
+  TrainingLabels <- data.matrix(Cliped[,LabelCol])
+  TrainingData   <- data.matrix(Cliped[,DataColsStart:DataColsEnd])
+  TrainingData.mean <- mean(TrainingData)
+  TrainingData.Sum = 0
+
+  for( row in 1:nrow(TrainingData))
+  {
+    TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  }
+
+  # get sd from the calculated sum and number of observations
+  TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+  Penalty.Vector <-array(rep(0,NCOL(Normalized_TrainingData)))
+  #Question: 3
+  W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, .5, 2, array(rep(0,NCOL(Normalized_TrainingData)),dim=c(1,NCOL(Normalized_TrainingData))))
+
+
+  print(dim(W.Matrix))
+
+  DeNormalizedWeights<-(t(W.Matrix)*mean(W.Matrix))-t(W.Matrix/TrainingData.sd)
+
+
+
+
+  DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+  #print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "DeNorm.Error: spam",xlab = "mean loss value",beside = TRUE)
+
+
+  #Question: 4
+  #W.Matrix<- LMSquareLossL2penalties(Normalized_TrainingData, TrainingLabels,Penalty.Vector)
 }
-Logistic_Spam_Test()
-#LMSquareLossL2(Normalized_TrainingData,  Cliped[,LabelCol], .5, 2, rep(0,NCOL(Normalized_TrainingData)))
-
-
-
+Linear_Spam_Tests()
 
 
