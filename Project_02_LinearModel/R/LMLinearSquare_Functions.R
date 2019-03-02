@@ -44,6 +44,7 @@ NormalizeVector<-function(Vector)
 
 LMSquare_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 {
+
   #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
   Y.hat = data.matrix(TrainingData) %*% data.matrix(W.Vector)
 
@@ -52,10 +53,13 @@ LMSquare_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 
   # with a scalar of 2 , but its not needed becasue This vector will be normalized
   Gradient = (t(TrainingData) %*% SquaredNorm)
+  #TODO: Fix Implementation of LMSquare_Gradient
+  #NormalizedGradient = NormalizeVector(Gradient)
 }
 
 LMSquare_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vector,Penalty=0)
 {
+  W.Vector <-data.matrix(W.Vector)
   #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
   Y.hat = data.matrix(TrainingData) %*% data.matrix(W.Vector)
 
@@ -63,7 +67,13 @@ LMSquare_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vecto
   SquaredNorm = (Y.hat - TrainingLabels)
 
   # with a scalar of 2 , but its not needed becasue This vector will be normalized
-  Gradient = (t(TrainingData) %*% SquaredNorm) + 2*W.Vector*Penalty
+  #print((Penalty)*diag(nrow(W.Vector)))
+  print(Penalty)
+  #print(t(W.Vector)%*%data.matrix(W.Vector))
+  #L2_W = data.matrix(t(W.Vector)%*%data.matrix(W.Vector))
+
+  Gradient = (t(TrainingData) %*% SquaredNorm)
+  NormalizedGradient = NormalizeVector(Gradient) + (2*Penalty*data.matrix(W.Vector))
 }
 
 LMSquare_L2Error<-function(TrainingData,TrainingLabels,W.Vector,BinaryClassification)
@@ -406,7 +416,7 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
   Iteration = 0
 
   #initial Matrix for iteration 1
-  W.Matrix = initial.weight.vec
+  W.Matrix =array(initial.weight.vec,dim=c(1,NCOL(Normalized_TrainingData)))
   Error = 0
 
 
@@ -415,9 +425,9 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
   for(Iteration in 1:30)
   {
     print(Iteration)
-    Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,])
-    #Gradient = LMSquare_Gradient.L2Regularization(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,],penalty)
-    Regularized.Gradient <- data.matrix(NormalizeVector(Gradient))*StepSize.Scalar
+    #Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,])
+    Gradient = LMSquare_Gradient_L2Regularization(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,],penalty)
+    Regularized.Gradient <- data.matrix(Gradient)*StepSize.Scalar
     W.Matrix <- rbind(W.Matrix, W.Matrix[Iteration,]+t(Regularized.Gradient))
 
   }
@@ -428,40 +438,7 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
 }
 
 
-LMSquareLossL2.Temp<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
-{
-  print("Starting LMSquareLossL2")
-  BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
 
-  #initial Matrix for iteration 1
-  W.mat = initial.weight.vec
-
-  #Itterate till Cur.thresh < opt.thresh of times
-  Cur.thresh = .Machine$integer.max
-  validation.loss = 0
-  Iteration = 0
-  print(W.mat[1,])
-  while((Iteration != 10))
-  {
-
-
-    #ind the optimal weight vector that minimizes the following cost function:
-    # Sigma   L[w^T x_i, y_i] + penalty * ||w||
-    #i=1^n
-    #where L is either the logistic or square loss.
-    Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,W.mat[Iteration,])
-    RegularizedGradient <- Gradient
-    #Gradient clip
-
-    print(Iteration)
-    #apply(RegularizedGradient, function(y) min(max(y,(-opt.thresh)),(opt.thresh)))
-    W.mat <- rbind(W.mat, W.mat[Iteration,]+t(RegularizedGradient))
-    Iteration = 1+Iteration
-  }
-  print(W.mat[nrow(W.mat),])
-  #Output: optimal weight vector for the given penalty parameter.
-  return(W.mat[nrow(W.mat),])
-}
 
 
 #penalty.vec (vector of decreasing penalty values)
@@ -471,11 +448,12 @@ LMSquareLossL2penalties<-function(X.mat, y.vec,penalty.vec)
   X.mat.mean = sum(X.mat)/NROW(X.mat)
   Normalized_TrainingData<-NormalizeMatrix(X.mat)
   opt.thresh = 1
-
+  Optimal.W.Vector = rep(0,NCOL(y.vec))
   W.mat = 0
   for(penalty in penalty.vec)
   {
-    W.vec <- LMSquareLossL2(Normalized_TrainingData, y.vec, penalty, opt.thresh, rep(0,NCOL(y.vec)))
+    W.Vector <- LMSquareLossL2(Normalized_TrainingData, y.vec, penalty, opt.thresh, Optimal.W.Vector )
+
     W.mat <- cbind(W.mat, W.vec)
   }
 
@@ -574,8 +552,9 @@ Linear_Spam_Tests<-function()
 
   #Create New Fold Column to hold Fold Values
   fold.vec <- Random_Folds(Rows,Folds)
-  #print(Cliped)
-  
+
+  TrainingLabels <- data.matrix(Cliped[,LabelCol])
+  TrainingData   <- data.matrix(Cliped[,DataColsStart:DataColsEnd])
 
   #Question:1
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
@@ -587,8 +566,10 @@ Linear_Spam_Tests<-function()
 
 
   #Questions: (3)
-  TrainingLabels <- data.matrix(Cliped[,LabelCol])
-  TrainingData   <- data.matrix(Cliped[,DataColsStart:DataColsEnd])
+  #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+  #Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+
   TrainingData.mean <- mean(TrainingData)
   TrainingData.Sum = 0
 
@@ -597,13 +578,14 @@ Linear_Spam_Tests<-function()
     TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
   }
 
-  # get sd from the calculated sum and number of observations
+  #get sd from the calculated sum and number of observations
   TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
   Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
-  Penalty.Vector <-array(rep(0,NCOL(Normalized_TrainingData)))
-  #Question: 3
-  W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, .5, 2, array(rep(0,NCOL(Normalized_TrainingData)),dim=c(1,NCOL(Normalized_TrainingData))))
 
+  #Question: 3 Function call
+  Penalty.Scalar=0.1
+  W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, 2,Initial.W.Vector)
+             #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
 
   print(dim(W.Matrix))
 
@@ -613,12 +595,12 @@ Linear_Spam_Tests<-function()
 
 
   DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
-  #print(DeNorm.Error)
-  barplot(DeNorm.Error,main = "DeNorm.Error: spam",xlab = "mean loss value",beside = TRUE)
+  print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "LM SquareLoss:L2 spam",xlab = "mean loss value",beside = TRUE)
 
 
   #Question: 4
-  #W.Matrix<- LMSquareLossL2penalties(Normalized_TrainingData, TrainingLabels,Penalty.Vector)
+  #W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
 }
 Linear_Spam_Tests()
 
