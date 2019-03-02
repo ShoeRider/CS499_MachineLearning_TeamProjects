@@ -13,13 +13,31 @@ vignette: >
 
 <a id="top"></a>
 
-# Linear Models Report
+# Project 2 LM Vignette
+### <authors>
+#### NAU Febuary 28, 2019
 
-#### NAU March 1, 2019
+> [Introduction](#intro)
+> [Installation](#install)
+> [Steps to Run](#qs)
+> [Linear Regression](#lin)
+> [LMSquareLossIterations](#lin.SqrLoss)
+> [LMSquareLossEarlyStoppingCV](#lin.SqrLossCV)
+> [LMSquareLossL2](#lin.SqrLossL2)
+> [LMSquareLossL2penalties](#lin.SqrLossPen)
+> [LMSquareLossL2CV](#lin.SqrLossL2CV)
+> [Logistic Regression](#log)
+> [LMLogisticLossIterations](#log.LogLoss)
+> [LMLogisticLossEarlyStoppingCV](#log.LogLossCV)
+> [LMLogLossL2](#log.LogLossL2)
+> [LMLogLossL2penalties](#log.LogLossPen)
+> [LMLogLossL2CV](#log.LogLossL2CV)
+<a id="intro"></a>
+
 
 ## Introduction
-> [Introduction](#intro)
 
+The second machine learning project for our class is to create Linear Learning Models using Logistic Loss for binary classification and Square Loss for other classification problems. We have to use what we discussed in class to code the linear regression and cross validation functions in order to minimize the loss. 
 
 
 
