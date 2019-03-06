@@ -633,41 +633,42 @@ Linear_Spam_Tests<-function()
 
   #Question:1
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],4,0.1)
+  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],30,0.1)
+
 
 
   #Question:2
   #DeNormalizedWeights<-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
-  ES.List <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec,Folds,30)
+  #ES.List <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec,Folds,30)
   #print(ES.List)
-  DeNormalizedWeights <- ES.List$w.mat
+  #DeNormalizedWeights <- ES.List$w.mat
 
 
   #Questions: (3)
   #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
-  #Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
-  #Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
 
-  #TrainingData.mean <- mean(TrainingData)
-  #TrainingData.Sum = 0
+  TrainingData.mean <- mean(TrainingData)
+  TrainingData.Sum = 0
 
-  #for( row in 1:nrow(TrainingData))
-  #{
-  #  TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
-  #}
+  for( row in 1:nrow(TrainingData))
+  {
+    TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  }
 
   #get sd from the calculated sum and number of observations
-  #TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
-  #Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+  TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
 
   #Question: 3 Function call
   #Penalty.Scalar=0.1
-  #W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, 2,Initial.W.Vector)
+  W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, 2,Initial.W.Vector)
              #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
 
   #print(dim(W.Matrix))
 
-  #DeNormalizedWeights<-(t(W.Matrix)*mean(W.Matrix))-t(W.Matrix/TrainingData.sd)
+  DeNormalizedWeights<-(t(W.Matrix)*mean(W.Matrix))-t(W.Matrix/TrainingData.sd)
 
 #print(ES.List$)
 
