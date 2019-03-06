@@ -91,6 +91,8 @@ we are going to run our code on the following data sets.
 # Tests with ''Libraries to 
 
 
+
+
 ## Data set 1: spam
 
 ### Matrix of loss values
@@ -207,14 +209,30 @@ barplot(LMSquareLoss_Error,main = "LMSquareLossIterations Vs Error \n 'Library's
 #------------------------------------------------------------------------
 ```
 
+For each data set, use 4-fold cross-validation to evaluate the prediction accuracy of your code. For each split s=1 to 4, set aside the data in fold s as a test set. Use ___CV to train a model on the other folds (which should be used in your ___CV function as internal train/validation sets/splits), then make a prediction on the test fold s.
+
+For each train/test split, to show that your algorithm is actually learning something non-trivial from the inputs/features, compute a baseline predictor that ignores the inputs/features.
+Regression: the mean of the training labels/outputs.
+Binary classification: the most frequent class/label/output in the training data.
 
 
 What are the optimal regularization parameters?
 
+For each data set, compute a 4 x 3 matrix of mean test loss values:
+each of the four rows are for a specific test set,
+the first column is for the early stopping predictor,
+the second column is for the L2 regularized predictor,
+the third column is for the baseline/un-informed predictor.
 
 
-
-
+## Error results table
+| Test Set  | Early Stoping | L2 Regularized Predictor | Baseline (30 Iterations)(0.1 step)  | 
+|:----------|:--------------|:-------------------------|:------------------------------------|
+| 1         |               |                          |  0.3963045                          |  
+| 2         |               |                          |                                     |  
+| 3         |               |                          |                                     |  
+| 4         |               |                          |                                     |  
+| Avg.      |               |                          |                                     |
 
 
 
@@ -225,7 +243,114 @@ What are the optimal regularization parameters?
 Here is an example of how to use the LMSquareLossIterations function:
 //Currently having build issues, but code works within R.Studio 
 ```{r}
+library(LinearModel)
 
+# Data set 2: SAheart_Test
+#----------------------Data Initialization-------------------------------
+  Folds <- 3
+  MaxNeighbors <- 30
+  Local_SAheart<- ElemStatLearn::SAheart
+
+
+  DataColsStart = 0
+  DataColsEnd   = length(Local_SAheart) - 1
+  LabelCol      = length(Local_SAheart)
+  Rows          = length(Local_SAheart[,1])
+
+  #accesses first two Rows:
+  #Local_SAheart[1:2,]
+  famhist<-factor(c("Present" = 1, "Absent" = 0))
+
+  #Local_SAheart[,5] <- as.integer(factor(Local_SAheart[,5],levels=c("Present" = 1, "Absent" = 2)))
+  Local_SAheart[,5] <- sapply(as.character(Local_SAheart[,5]),switch,"Present"=1,"Absent"=0)
+  #print(Local_SAheart)
+  #Local_SAheart <-factor(Local_SAheart[,5])
+
+  #Create New Fold Column to hold Fold Values
+  Local_SAheart.Fold <- Random_Folds(length(Local_SAheart[,1]),Folds)
+
+
+
+  #Create New Fold Column to hold Fold Values
+  fold.vec <- Random_Folds(Rows,Folds)
+
+#------------------------------------------------------------------------
+  
+    
+  
+  
+#Note on Functional Parameters: LMSquareLossIterations(
+#  
+#)
+  
+  # This Function Returns a Weights Matrix of each iteration between taking the gradient:
+  # Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+  
+#--------------------LMSquareLossIterations------------------------
+  #LMSquareLoss_Weights <- LMSquareLossIterations(TrainingLabels, TrainingData,20,0.1)
+  DeNormalizedWeights <- LMSquareLossIterations(Local_SAheart[,DataColsStart:DataColsEnd], Local_SAheart[,LabelCol],20,0.1)
+
+LMSquareLossES_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+
+barplot(LMSquareLossES_Error,main = "LMSquareLossIterations Vs Error \n 'Library'SA_Heart",xlab = "mean loss value",beside = TRUE)
+
+#------------------------------------------------------------------------
+  
+  
+  #Note on Functional Parameters: LMSquareLossEarlyStoppingCV(
+#  
+#)
+  
+  # This Function Returns ...
+  
+  
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+ # LMSquareLossES_Weights<- LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  
+#ES.List <-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  #print(ES.List)
+#LMSquareLossES_Weights <- ES.List$w.mat
+  #print(LMSquareLossES_Weights)
+
+#------------------------------------------------------------------------
+```
+
+
+comment on difference in accuracy.
+The Accuracy inttially improves drametically, but then deviates away from the optimal solution. 
+
+### Train/validation loss plot
+
+plot the two loss functions.
+
+
+```{r}
+#--------------------LMSquareLossIterations------------------------
+  #Find the Error for each Iteration:
+#LMSquareLoss_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+
+  #Here is a Matrix of the Error of each iteration of the weight Matrix:
+  #print(LMSquareLoss_Error)
+  
+  #Here is a plot the weight Matrix found with LMSquareLossIterations:
+#barplot(LMSquareLoss_Error,main = "LMSquareLossIterations Vs Error \n 'Library'spam",xlab = "mean loss value",beside = TRUE)
+
+  #print(DeNorm.Error)
+  
+#------------------------------------------------------------------------
+  
+  
+  
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+  #Find the Error for each Iteration:
+#LMSquareLossES_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],LMSquareLossES_Weights,BinaryClassification)
+
+  #Here is a Matrix of the Error of each iteration of the weight Matrix:
+  #print(LMSquareLossES_Error)
+  
+  #Here is a plot the weight Matrix found with LMSquareLossIterations:
+#barplot(LMSquareLossES_Error,main = "EarlyStoping",xlab = "mean loss value",beside = TRUE)
+#------------------------------------------------------------------------
 ```
 
 
@@ -236,10 +361,30 @@ comment on difference in accuracy.
 
 plot the two loss functions.
 
+What are the optimal regularization parameters?
 
+For each data set, use 4-fold cross-validation to evaluate the prediction accuracy of your code. For each split s=1 to 4, set aside the data in fold s as a test set. Use ___CV to train a model on the other folds (which should be used in your ___CV function as internal train/validation sets/splits), then make a prediction on the test fold s.
 
+For each train/test split, to show that your algorithm is actually learning something non-trivial from the inputs/features, compute a baseline predictor that ignores the inputs/features.
+Regression: the mean of the training labels/outputs.
+Binary classification: the most frequent class/label/output in the training data.
 
+For each data set, compute a 4 x 3 matrix of mean test loss values:
+each of the four rows are for a specific test set,
+the first column is for the early stopping predictor,
+the second column is for the L2 regularized predictor,
+the third column is for the baseline/un-informed predictor.
 
+ 
+
+## Error results table
+| Test Set  | Early Stoping | L2 Regularized Predictor | Baseline (30 Iterations)(0.1 step)  | 
+|:----------|:--------------|:-------------------------|:------------------------------------|
+| 1         |               |                          |                            |  
+| 2         |               |                          |                                     |  
+| 3         |               |                          |                                     |  
+| 4         |               |                          |                                     |  
+| Avg.      |               |                          |                                     |
 
 
 ## Data set 3: 
@@ -260,3 +405,31 @@ comment on difference in accuracy.
 ### Train/validation loss plot
 
 plot the two loss functions.
+
+
+
+For each data set, use 4-fold cross-validation to evaluate the prediction accuracy of your code. For each split s=1 to 4, set aside the data in fold s as a test set. Use ___CV to train a model on the other folds (which should be used in your ___CV function as internal train/validation sets/splits), then make a prediction on the test fold s.
+
+For each train/test split, to show that your algorithm is actually learning something non-trivial from the inputs/features, compute a baseline predictor that ignores the inputs/features.
+Regression: the mean of the training labels/outputs.
+Binary classification: the most frequent class/label/output in the training data.
+
+
+What are the optimal regularization parameters?
+
+For each data set, compute a 4 x 3 matrix of mean test loss values:
+each of the four rows are for a specific test set,
+the first column is for the early stopping predictor,
+the second column is for the L2 regularized predictor,
+the third column is for the baseline/un-informed predictor.
+
+
+## Error results table
+| Test Set  | Early Stoping | L2 Regularized Predictor | Baseline (30 Iterations)(0.1 step)  | 
+|:----------|:--------------|:-------------------------|:------------------------------------|
+| 1         |               |                          |                            |  
+| 2         |               |                          |                                     |  
+| 3         |               |                          |                                     |  
+| 4         |               |                          |                                     |  
+| Avg.      |               |                          |                                     |
+
