@@ -99,8 +99,7 @@ Here is an example of how to use the LMSquareLossIterations function:
 
 //Currently having build issues, but code works within R.Studio 
 ```{r}
-# !!for some Reason I cant get code to run but here is some example code how to use LMSquareLossIterations!!
-
+library(LinearModel)
 
 # Data set 1: spam
 #----------------------Data Initialization-------------------------------
@@ -130,13 +129,12 @@ Here is an example of how to use the LMSquareLossIterations function:
 
   #Create New Fold Column to hold Fold Values
   fold.vec <- Random_Folds(Rows,Folds)
-
-  TrainingLabels <- data.matrix(Cliped[,LabelCol])
-  TrainingData   <- data.matrix(Cliped[,DataColsStart:DataColsEnd])
+  
+  TrainingLabels <- (Cliped[,LabelCol])
+  TrainingData   <- (Cliped[,DataColsStart:DataColsEnd])
 #------------------------------------------------------------------------
   
-  
-  
+    
   
   
 #Note on Functional Parameters: LMSquareLossIterations(
@@ -147,7 +145,9 @@ Here is an example of how to use the LMSquareLossIterations function:
   # Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
   
 #--------------------LMSquareLossIterations------------------------
-  LMSquareLoss_Weights <- LMSquareLossIterations(TrainingLabels, TrainingData,20,0.1)
+  #LMSquareLoss_Weights <- LMSquareLossIterations(TrainingLabels, TrainingData,20,0.1)
+  DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],20,0.1)
+
 #------------------------------------------------------------------------
   
   
@@ -159,8 +159,10 @@ Here is an example of how to use the LMSquareLossIterations function:
   
   
 #--------------------LMSquareLossEarlyStoppingCV------------------------
-  LMSquareLossES_Weights<- LMSquareLossEarlyStoppingCV(TrainingLabels, TrainingData, fold.vec,Folds,30)
-
+ # LMSquareLossES_Weights<- LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  ES.List <-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  #print(ES.List)
+  LMSquareLossES_Weights <- ES.List.w.mat
   
 
 #------------------------------------------------------------------------
@@ -178,26 +180,32 @@ plot the two loss functions.
 ```{r}
 #--------------------LMSquareLossIterations------------------------
   #Find the Error for each Iteration:
-  LMSquareLoss_Error <-Find_Wmatrix_MeanL2Error(TrainingLabels, TrainingData,LMSquareLoss_Weights,BinaryClassification)
+  LMSquareLoss_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
 
   #Here is a Matrix of the Error of each iteration of the weight Matrix:
-  print(LMSquareLoss_Error)
+  #print(LMSquareLoss_Error)
   
   #Here is a plot the weight Matrix found with LMSquareLossIterations:
   barplot(LMSquareLoss_Error,main = "LMSquareLossIterations Vs Error \n 'Library'spam",xlab = "mean loss value",beside = TRUE)
+
+  #print(DeNorm.Error)
+  
 #------------------------------------------------------------------------
+  
+  
   
 #--------------------LMSquareLossEarlyStoppingCV------------------------
   #Find the Error for each Iteration:
-  LMSquareLossES_Error <-Find_Wmatrix_MeanL2Error(TrainingLabels, TrainingData,LMSquareLossES_Weights,BinaryClassification)
+  LMSquareLossES_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],ES.List.w.mat,BinaryClassification)
 
   #Here is a Matrix of the Error of each iteration of the weight Matrix:
-  print(LMSquareLossES_Error)
+  #print(LMSquareLossES_Error)
   
   #Here is a plot the weight Matrix found with LMSquareLossIterations:
-  #barplot(LMSquareLossES_Error,main = "LMSquareLossEarlyStoppingCV Vs Error \n 'Library'spam",xlab = "mean loss value",beside = TRUE)
+  barplot(LMSquareLossES_Error,main = "EarlyStoping",xlab = "mean loss value",beside = TRUE)
 #------------------------------------------------------------------------
 ```
+
 
 
 What are the optimal regularization parameters?
