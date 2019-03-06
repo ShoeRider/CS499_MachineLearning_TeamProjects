@@ -160,10 +160,11 @@ library(LinearModel)
   
 #--------------------LMSquareLossEarlyStoppingCV------------------------
  # LMSquareLossES_Weights<- LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  
   ES.List <-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
   #print(ES.List)
-  LMSquareLossES_Weights <- ES.List.w.mat
-  
+  LMSquareLossES_Weights <- ES.List$w.mat
+  #print(LMSquareLossES_Weights)
 
 #------------------------------------------------------------------------
 ```
@@ -180,13 +181,13 @@ plot the two loss functions.
 ```{r}
 #--------------------LMSquareLossIterations------------------------
   #Find the Error for each Iteration:
-  LMSquareLoss_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+LMSquareLoss_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
 
   #Here is a Matrix of the Error of each iteration of the weight Matrix:
   #print(LMSquareLoss_Error)
   
   #Here is a plot the weight Matrix found with LMSquareLossIterations:
-  barplot(LMSquareLoss_Error,main = "LMSquareLossIterations Vs Error \n 'Library'spam",xlab = "mean loss value",beside = TRUE)
+barplot(LMSquareLoss_Error,main = "LMSquareLossIterations Vs Error \n 'Library'spam",xlab = "mean loss value",beside = TRUE)
 
   #print(DeNorm.Error)
   
@@ -196,7 +197,7 @@ plot the two loss functions.
   
 #--------------------LMSquareLossEarlyStoppingCV------------------------
   #Find the Error for each Iteration:
-  LMSquareLossES_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],ES.List.w.mat,BinaryClassification)
+  LMSquareLossES_Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],LMSquareLossES_Weights,BinaryClassification)
 
   #Here is a Matrix of the Error of each iteration of the weight Matrix:
   #print(LMSquareLossES_Error)
@@ -248,6 +249,7 @@ plot the two loss functions.
 Here is an example of how to use the LMSquareLossIterations function:
 //Currently having build issues, but code works within R.Studio 
 ```{r}
+
 
 ```
 
