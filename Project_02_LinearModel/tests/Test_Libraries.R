@@ -8,6 +8,9 @@ context("LinearModel")
 
 
 
+#source("R/knn.R")
+
+
 
 
 
@@ -76,51 +79,69 @@ Linear_Spam_Tests<-function()
 
   #Questions: (3)
   #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
-  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
-  Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
 
-  print("Initial weight vector")
-  print(dim(Initial.W.Vector))
 
-  TrainingData.mean <- mean(TrainingData)
-  TrainingData.Sum = 0
+  #Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
 
-  for( row in 1:nrow(TrainingData))
-  {
-    TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
-  }
+  #print("Initial weight vector")
+  #print(dim(Initial.W.Vector))
+
+  #TrainingData.mean <- mean(TrainingData)
+  #TrainingData.Sum = 0
+
+  #for( row in 1:nrow(TrainingData))
+  #{
+  #  TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  #}
 
   #get sd from the calculated sum and number of observations
-  TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
-  Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+  #TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  #Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
 
   #Question: 3 Function call
-  Penalty.Scalar=2
-  W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, .31,Initial.W.Vector)
+  #Penalty.Scalar=2
+  #W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, .31,Initial.W.Vector)
   #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
 
   #print(dim(W.Matrix))
 
-  DeNormalizedWeights<-(t(W.Matrix))/TrainingData.sd
+  #DeNormalizedWeights<-(t(W.Matrix))/TrainingData.sd
 
   #print(ES.List$)
 
-  print("DIM of DeNormalizedWeights")
+  #print("DIM of DeNormalizedWeights")
   #print(dim(DeNormalizedWeights))
   #print(DeNormalizedWeights)
 
   #DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
-  DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],t(DeNormalizedWeights),BinaryClassification)
+  #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],t(DeNormalizedWeights),BinaryClassification)
   #barplot(DeNorm.Error,main = "L1 Error :Question 3 spam",xlab = "mean loss value",beside = TRUE)
 
-  print("DIM of DeNorm.Error")
+  #print("DIM of DeNorm.Error")
   #print(dim(DeNorm.Error))
-  print(DeNorm.Error)
-  barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
 
 
   #Question: 4
-  #W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
+
+  DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],W.Matrix,BinaryClassification)
+  print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "Q4 penalty.vector Error: spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question:5
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2CV(TrainingData, TrainingLabels,Penalty.Vector)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
 }
 Linear_Spam_Tests()
 
@@ -156,8 +177,83 @@ Linear_SAheart_Test<-function()
   Local_SAheart$Fold <- Random_Folds(length(Local_SAheart[,1]),Folds)
 
 
-  #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  Projected_K = KNNLearnCV(Local_SAheart[,DataColsStart:DataColsEnd], Local_SAheart[,LabelCol], MaxNeighbors, Local_SAheart$Fold, Folds)
+  #Question:1
+  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],30,0.1)
+
+
+
+  #Question:2
+  #DeNormalizedWeights<-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  #ES.List <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec,Folds,30)
+  #print(ES.List)
+  #DeNormalizedWeights <- ES.List$w.mat
+
+
+  #Questions: (3)
+  #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+
+
+  #Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
+
+  #print("Initial weight vector")
+  #print(dim(Initial.W.Vector))
+
+  #TrainingData.mean <- mean(TrainingData)
+  #TrainingData.Sum = 0
+
+  #for( row in 1:nrow(TrainingData))
+  #{
+  #  TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  #}
+
+  #get sd from the calculated sum and number of observations
+  #TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  #Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+
+  #Question: 3 Function call
+  #Penalty.Scalar=2
+  #W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, .31,Initial.W.Vector)
+  #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
+
+  #print(dim(W.Matrix))
+
+  #DeNormalizedWeights<-(t(W.Matrix))/TrainingData.sd
+
+  #print(ES.List$)
+
+  #print("DIM of DeNormalizedWeights")
+  #print(dim(DeNormalizedWeights))
+  #print(DeNormalizedWeights)
+
+  #DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+  #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],t(DeNormalizedWeights),BinaryClassification)
+  #barplot(DeNorm.Error,main = "L1 Error :Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question: 4
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
+
+  DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],W.Matrix,BinaryClassification)
+  print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "Q4 penalty.vector Error: spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question:5
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2CV(TrainingData, TrainingLabels,Penalty.Vector)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
 }
 #Linear_SAheart_Test()
 
@@ -198,10 +294,83 @@ Linear_ziptrain_Test<-function()
   Fold.vec <- Random_Folds(Rows,Folds)
 
 
-  #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  Projected_K = KNNLearnCV(Local_ZipTrain[,DataColsStart:DataColsEnd], Local_ZipTrain[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+  #Question:1
+  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],30,0.1)
 
-  print(((Projected_K)))
+
+
+  #Question:2
+  #DeNormalizedWeights<-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  #ES.List <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec,Folds,30)
+  #print(ES.List)
+  #DeNormalizedWeights <- ES.List$w.mat
+
+
+  #Questions: (3)
+  #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+
+
+  #Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
+
+  #print("Initial weight vector")
+  #print(dim(Initial.W.Vector))
+
+  #TrainingData.mean <- mean(TrainingData)
+  #TrainingData.Sum = 0
+
+  #for( row in 1:nrow(TrainingData))
+  #{
+  #  TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  #}
+
+  #get sd from the calculated sum and number of observations
+  #TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  #Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+
+  #Question: 3 Function call
+  #Penalty.Scalar=2
+  #W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, .31,Initial.W.Vector)
+  #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
+
+  #print(dim(W.Matrix))
+
+  #DeNormalizedWeights<-(t(W.Matrix))/TrainingData.sd
+
+  #print(ES.List$)
+
+  #print("DIM of DeNormalizedWeights")
+  #print(dim(DeNormalizedWeights))
+  #print(DeNormalizedWeights)
+
+  #DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+  #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],t(DeNormalizedWeights),BinaryClassification)
+  #barplot(DeNorm.Error,main = "L1 Error :Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question: 4
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
+
+  DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],W.Matrix,BinaryClassification)
+  print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "Q4 penalty.vector Error: spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question:5
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2CV(TrainingData, TrainingLabels,Penalty.Vector)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
 }
 #Linear_ziptrain_Test()
 
@@ -236,8 +405,83 @@ Linear_prostate<-function()
   Fold.vec <- Random_Folds(Rows,Folds)
 
 
-  #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  Projected_K = KNNLearnCV(Local_prostate[,DataColsStart:DataColsEnd], Local_prostate[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+  #Question:1
+  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],30,0.1)
+
+
+
+  #Question:2
+  #DeNormalizedWeights<-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  #ES.List <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec,Folds,30)
+  #print(ES.List)
+  #DeNormalizedWeights <- ES.List$w.mat
+
+
+  #Questions: (3)
+  #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+
+
+  #Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
+
+  #print("Initial weight vector")
+  #print(dim(Initial.W.Vector))
+
+  #TrainingData.mean <- mean(TrainingData)
+  #TrainingData.Sum = 0
+
+  #for( row in 1:nrow(TrainingData))
+  #{
+  #  TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  #}
+
+  #get sd from the calculated sum and number of observations
+  #TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  #Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+
+  #Question: 3 Function call
+  #Penalty.Scalar=2
+  #W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, .31,Initial.W.Vector)
+  #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
+
+  #print(dim(W.Matrix))
+
+  #DeNormalizedWeights<-(t(W.Matrix))/TrainingData.sd
+
+  #print(ES.List$)
+
+  #print("DIM of DeNormalizedWeights")
+  #print(dim(DeNormalizedWeights))
+  #print(DeNormalizedWeights)
+
+  #DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+  #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],t(DeNormalizedWeights),BinaryClassification)
+  #barplot(DeNorm.Error,main = "L1 Error :Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question: 4
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
+
+  DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],W.Matrix,BinaryClassification)
+  print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "Q4 penalty.vector Error: spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question:5
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2CV(TrainingData, TrainingLabels,Penalty.Vector)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
 }
 #Linear_prostate()
 
@@ -271,8 +515,82 @@ Linear_ozone<-function()
   Fold.vec <- Random_Folds(Rows,Folds)
 
 
-  #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  Projected_K = KNNLearnCV(Local_ozone[,DataColsStart:DataColsEnd], Local_ozone[,LabelCol], MaxNeighbors, Fold.vec, Folds)
+  #Question:1
+  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],30,0.1)
 
+
+
+  #Question:2
+  #DeNormalizedWeights<-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  #ES.List <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec,Folds,30)
+  #print(ES.List)
+  #DeNormalizedWeights <- ES.List$w.mat
+
+
+  #Questions: (3)
+  #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+
+
+  #Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
+
+  #print("Initial weight vector")
+  #print(dim(Initial.W.Vector))
+
+  #TrainingData.mean <- mean(TrainingData)
+  #TrainingData.Sum = 0
+
+  #for( row in 1:nrow(TrainingData))
+  #{
+  #  TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  #}
+
+  #get sd from the calculated sum and number of observations
+  #TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  #Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+
+  #Question: 3 Function call
+  #Penalty.Scalar=2
+  #W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, .31,Initial.W.Vector)
+  #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
+
+  #print(dim(W.Matrix))
+
+  #DeNormalizedWeights<-(t(W.Matrix))/TrainingData.sd
+
+  #print(ES.List$)
+
+  #print("DIM of DeNormalizedWeights")
+  #print(dim(DeNormalizedWeights))
+  #print(DeNormalizedWeights)
+
+  #DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+  #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],t(DeNormalizedWeights),BinaryClassification)
+  #barplot(DeNorm.Error,main = "L1 Error :Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question: 4
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
+
+  DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],W.Matrix,BinaryClassification)
+  print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "Q4 penalty.vector Error: spam",xlab = "mean loss value",beside = TRUE)
+
+
+
+  #Question:5
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  W.Matrix<- LMSquareLossL2CV(TrainingData, TrainingLabels,Penalty.Vector)
+
+  #print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  #print(DeNorm.Error)
+  #barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
 }
 #Linear_ozone()
