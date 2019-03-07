@@ -3,13 +3,14 @@
 #' @param Size
 #' @param Folds
 #'
-#' @return mean, numeric/double scalar
+#' @return a List of discrete numbers in the range(1:Folds), this should be used to generate the fold Vector for the following functions
 #' @export
 #'
 #' @examples
-#'
-#'
-#'
+#' Folds =  Random_Folds(10,2)
+#' print(Folds)
+#' Returns:
+#' [1] 1 1 2 2 2 1 1 1 2 1
 #'
 Random_Folds <- function(Size,Folds)
 {
@@ -29,7 +30,8 @@ Random_Folds <- function(Size,Folds)
 #' @export
 #'
 #' @examples
-#' Norm<-NormalizeMatrix(as.matrix(c(1,2,3)))
+#' Norm.Mat = NormalizeMatrix(as.matrix(c(1,2,3)))
+#' print(Norm.Mat)
 #' # Returns:
 #'          [,1]
 #'[1,] -1.224745
@@ -52,9 +54,78 @@ NormalizeMatrix<-function(Matrix)
   return((Matrix - mean)/sd)
 }
 
+
+#' NormalizeMatrix_List
+#'
+#' @param Matrix [X x Y]
+#'
+#' @return Same as NormalizeMatrix, but returns contents within a list, so the standard deviation can be used later
+#'
+#' Uses the formula: ((Matrix - Matrix.mean)/Matrix.sd)
+#'
+#' @export
+#'
+#' @examples
+#' Norm_List = NormalizeMatrix_List(as.matrix(c(1,2,3)))
+#' print(Norm_List)
+#' # Returns:
+#' $NormalizedMatrix
+#' [,1]
+#' [1,] -1.224745
+#' [2,]  0.000000
+#' [3,]  1.224745
+#'
+#' $sd
+#' [1] 0.8164966
+NormalizeMatrix_List<-function(Matrix)
+{
+  # vector of mean column values
+  mean <- mean(Matrix)
+  # sum all of all columns for each row
+  sum = 0
+  for( row in 1:nrow(Matrix))
+  {
+    sum = sum + sum((Matrix[row,] - mean)^2)
+  }
+
+  # get sd from the calculated sum and number of observations
+  sd = sqrt(sum / length(Matrix))
+  # return the new matrix
+  return
+  ReturnList <-
+    list(
+      NormalizedMatrix = ((Matrix - mean)/sd),
+      sd = sd
+    )
+}
+
+
+
+#' NormalizeVector
+#'
+#' @param Vector [X]
+#'
+#' @return takes the absolute sum making the total distance, and divides by the length
+#'
+#' Uses the formula: ((Matrix - Matrix.mean)/Matrix.sd)
+#'
+#' @export
+#'
+#' @examples
+#' Norm_List = NormalizeMatrix_List(as.matrix(c(1,2,3)))
+#' print(Norm_List)
+#' # Returns:
+#' $NormalizedMatrix
+#' [,1]
+#' [1,] -1.224745
+#' [2,]  0.000000
+#' [3,]  1.224745
+#'
+#' $sd
+#' [1] 0.8164966
 NormalizeVector<-function(Vector)
 {
-  return<- Vector /sum(Vector)
+  return<- Vector /sum(abs(Vector))
 }
 
 #' LMSquare_Gradient
@@ -64,8 +135,9 @@ NormalizeVector<-function(Vector)
 #' @param W.Vector
 #'
 #' @return returns the gradient of the W.Vector, in respect to the TrainingData, and TrainingLabels
-#'
-#'
+#' Uses the following equation to find the gradients:
+#' #Weight.Gradient = sum(W.Vector*TrainingData - TrainingLabels)*TrainingLabels
+#' #BiasGradient = sum(Yb.hat - TrainingLabels)
 #'
 #' @export
 #'
@@ -79,7 +151,7 @@ LMSquare_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
   #print(dim(Bias))
   #print(dim(Weights))
 
-  #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+  #Gradient = 2*sum(W.Vector*TrainingData - TrainingLabels)*TrainingLabels
   Y.hat = data.matrix(TrainingData) %*% (Weights)
   #print("YB hat")
   Yb.hat = Y.hat + Bias[1]
@@ -106,8 +178,8 @@ LMSquare_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 #'@param TrainingLabels numberic input label vector [n]
 #'either all 0/1 for binary classification or other real numbers for regression
 #'@param StepSize.Scalar scalar integer, determines the size of each step.
-#'@param W.Vector
-#'@param Penalty Scalar that indicates the
+#'@param W.Vector Weight values representing the Linear funciton [p+1],
+#'@param Penalty Scalar that is used to control the L2 regularization operation, to turn off just use '0'(Zero)
 #'
 #'@return returns the gradient of the W.Vector, in respect to the TrainingData, and TrainingLabels
 #'@return numeric matrix of the weight matrix at each step, from 1 to Iterations.
@@ -131,9 +203,9 @@ LMSquare_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vecto
   #print("Bias:")
   #print(Bias)
 
-  print("Y.Hat")
+  #print("Y.Hat")
   #print(dim(TrainingData))
-  print(dim(Bias))
+  #print(dim(Bias))
   #print(dim(Weights))
 
   #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
@@ -144,8 +216,9 @@ LMSquare_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vecto
 
   # with a scalar of 2 , but its not needed becasue This vector will be normalized
   #print((Penalty)*diag(nrow(W.Vector)))
-  print("Penalty:")
-  print(Penalty)
+  #print("Penalty:")
+  #print(Penalty)
+
   #print(t(W.Vector)%*%data.matrix(W.Vector))
   #L2_W = data.matrix(t(W.Vector)%*%data.matrix(W.Vector))
 
@@ -157,9 +230,9 @@ LMSquare_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vecto
   #W.Bias.Gradient = Gradient + (Penalty*W.Vector.Distance)
   BiasGradient = sum(Yb.hat - TrainingLabels)
 
-  print("BiasGradient")
-  print(Bias)
-  print(BiasGradient)
+  #print("BiasGradient")
+  #print(Bias)
+  #print(BiasGradient)
 
   #print("Dim of L2Reg gradient")
   #print(dim(t(as.matrix(rbind(BiasGradient,0)))))
@@ -186,7 +259,7 @@ LMSquare_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vecto
 #'@param TrainingLabels numberic input label vector [n]
 #'either all 0/1 for binary classification or other real numbers for regression
 #'@param StepSize.Scalar scalar integer, determines the size of each step.
-#'@param W.Matrix
+#'@param W.Matrix Weight values representing the Linear funciton [p+1,Iterations],
 #'@param BinaryClassification binary or integer value that determines how the algorithm classifies the retulsts
 #'If (BinaryClassification):
 #'  Then Classification is either 0 or 1.
@@ -246,7 +319,7 @@ Find_Wmatrix_MeanL2Error<-function(TestingData,TestingLables,W.Matrix,BinaryClas
 #'@param TrainingLabels numberic input label vector [n]
 #'either all 0/1 for binary classification or other real numbers for regression
 #'@param StepSize.Scalar scalar integer, determines the size of each step.
-#'@param W.Matrix
+#'@param W.Matrix Weight values representing the Linear funciton [p+1,Iterations],
 #'@param BinaryClassification binary or integer value that determines how the algorithm classifies the retulsts
 #'If (BinaryClassification):
 #'  Then Classification is either 0 or 1.
@@ -575,7 +648,7 @@ LMSquareLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,fol
 #'
 LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
 {
-  StepSize.Scalar = .01*penalty
+  StepSize.Scalar = .01*penalty**2
   print("Starting LMSquareLossL2")
   BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
 
@@ -585,8 +658,10 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
 
   #initial Matrix for iteration 1
   print("Initial matrix")
-  print(dim(initial.weight.vec))
-  W.Matrix = array(initial.weight.vec,dim=c(1,NCOL(initial.weight.vec)))
+  print(dim(as.matrix(initial.weight.vec)))
+  print(t(as.matrix(initial.weight.vec)))
+
+  W.Matrix = array(as.matrix(initial.weight.vec),dim=c(2,NCOL(initial.weight.vec)))
   print(dim(W.Matrix))
 
   Error = 0
@@ -597,23 +672,26 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
   #Itterate # of times
   #---------------------------------------------------------------------------------------------
   #for(Iteration in 1:100)
-  Iteration=0
-  while((L1_norm.val > opt.thresh)&&(Iteration <250))
+  Iteration=1
+  while((L1_norm.val > opt.thresh)&&(Iteration <100))
   {
     Iteration = Iteration+1
-    print("Iteration")
-    print(Iteration)
+
+    #print("LMSquareLossL2 Iteration")
+    #print(Iteration)
+
+
     #Gradient = LMSquare_Gradient(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,])
     Gradient = LMSquare_Gradient_L2Regularization(Normalized_TrainingData,TrainingLabels,W.Matrix[Iteration,],penalty)
     #print(Gradient)
     Regularized.Gradient <- data.matrix(NormalizeVector(Gradient))*StepSize.Scalar
-    print(dim(Regularized.Gradient))
+    #print(dim(Regularized.Gradient))
     W.Matrix <- rbind(W.Matrix, W.Matrix[Iteration,]+(Regularized.Gradient))
 
-    print("L1 Norm")
+    #print("L1 Norm")
     L1_norm.val <- Find_Wmatrix_MeanL1Error(Normalized_TrainingData, TrainingLabels,W.Matrix[Iteration,],BinaryClassification)
     L1Error.vector<-rbind(L1Error.vector,L1_norm.val)
-    print(L1_norm.val)
+    #print(L1_norm.val)
 
     #print("L1_normv > opt.thresh?")
     #print(L1_normv)
@@ -640,13 +718,19 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
       selected.steps  = Index
     }
   }
-  print(SmallestLoss)
-  print(selected.steps)
+
+  #print(SmallestLoss)
+  #print(selected.steps)
 
   #print(W.Matrix)
   #print(W.Matrix[nrow(W.Matrix),])
   #Output: optimal weight vector for the given penalty parameter.
-  return(W.Matrix[selected.steps,])
+  print(dim(W.Matrix))
+  print(L1Error.AverageVector)
+  print("Selected steps")
+  print(selected.steps+1)
+
+  return(W.Matrix[selected.steps+1,])
 }
 
 
@@ -670,25 +754,31 @@ LMSquareLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.t
 #'
 #'@examples
 #'
-LMSquareLossL2penalties<-function(X.mat, y.vec,penalty.vec)
+LMSquareLossL2penalties<-function(TrainingData, TrainingLabels,penalty.vec)
 {
-  Penalty.Vector
-
   #this function should begin by scaling X.mat to obtain X.scaled.mat with each column mean=0 and sd=1
-  X.mat.mean = sum(X.mat)/NROW(X.mat)
-  Normalized_TrainingData<-NormalizeMatrix(X.mat)
-  opt.thresh = 1
-  Optimal.W.Vector = rep(0,NCOL(y.vec))
-  W.mat = 0
-  for(penalty in penalty.vec)
-  {
-    W.Vector <- LMSquareLossL2(Normalized_TrainingData, y.vec, penalty, opt.thresh, Optimal.W.Vector )
+  Normalized_List <- NormalizeMatrix_List(TrainingData)
+  Normalized_TrainingData <- Normalized_List$NormalizedMatrix
 
-    W.mat <- cbind(W.mat, W.vec)
+
+  W.Matrix = array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
+  Optimum.W.Matrix = array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
+  print(dim(W.Matrix))
+
+  for(X in 1:NCOL(penalty.vec))
+  {
+    print("Iteration")
+    print(X)
+
+    return.Matrix <- LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty.vec[X], .1, (Optimum.W.Matrix))
+    Optimum.W.Matrix <- t(return.Matrix)
+    W.Matrix <- rbind(W.Matrix, (Optimum.W.Matrix))
+
+
   }
 
   #Output: W.mat (n_features x n_penalties), weight matrix on original scale, that can be used to get predictions via X.mat %*% W.mat
-  W.mat
+  DeNormalizedWeightMatrix = (t(W.Matrix))/Normalized_List$sd
 }
 
 
@@ -735,11 +825,11 @@ LMSquareLossL2CV<-function(TrainingData, TrainingLabels, fold.vec, penalty.vec)
     trainData <- Data[-testIndexes, ]
 
     #for each train/validation split, use LMSquareLossL2penalties to compute optimal L2-penalized models on the train data, then compute the validation loss of each model.
-    W.Vector = LMSquareLossL2penalties(trainData[,1:DataColsEnd], trainData[,LabelCol],penalty.vec,penalty.vec[testIndexes])
+    W.Vector = LMSquareLossL2penalties(trainData[,1:DataColsEnd], trainData[,LabelCol],penalty.vec)
     W.Matrix = rbind(W.Matrix,W.Vector)
 
     #compute mean.validation.loss.vec, which is a vector (with n_penalties elements) of mean validation loss over all K folds.
-    L2Error.Vector = Find_Wmatrix_L2Error(W.Vector,testData[,1:DataColsEnd],testData[,LabelCol],BinaryClassification)
+    L2Error.Vector = Find_Wmatrix_L1Error(W.Vector,testData[,1:DataColsEnd],testData[,LabelCol],BinaryClassification)
     L2Error.Matrix = rbind(L2Error.Matrix,L2Error.Vector)
   }
 
