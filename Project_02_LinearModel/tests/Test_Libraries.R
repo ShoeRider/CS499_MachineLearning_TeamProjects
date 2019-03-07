@@ -29,14 +29,17 @@ Random_Folds <- function(Size,Folds)
 
 
 #Binary Tests
-KNN_Spam_Test<-function()
+
+
+
+Linear_Spam_Tests<-function()
 {
   print("Starting Spam_Test")
   Folds <- 3
   MaxNeighbors <- 30
   Local_spam<- ElemStatLearn::spam
 
-
+  BinaryClassification = 1
   Local_spam$spam <- sapply(as.character(Local_spam$spam),switch,"spam"=1,"email"=0)
   MaxSample_ofType = length(Local_spam[Local_spam$spam == 1,][,1])
 
@@ -47,7 +50,7 @@ KNN_Spam_Test<-function()
 
   email = Local_spam[0,]
   email <- head(Local_spam[Local_spam$spam == 0,],MaxSample_ofType)
-  print(NROW(email))
+  #print(NROW(email))
 
   Cliped<-rbind(Spam,email)
   Cliped<-Cliped[sample(nrow(Cliped)),]
@@ -57,22 +60,80 @@ KNN_Spam_Test<-function()
   Rows          = NROW(Cliped)
 
   #Create New Fold Column to hold Fold Values
-  Fold <- Random_Folds(Rows,Folds)
-  print(Cliped)
+  fold.vec <- Random_Folds(Rows,Folds)
 
-  #Double Folding ? ~still a little confused where to implement the two instances of the Folds
-  KNNLearnCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], MaxNeighbors, Fold, Folds)
+  TrainingLabels <- data.matrix(Cliped[,LabelCol])
+  TrainingData   <- data.matrix(Cliped[,DataColsStart:DataColsEnd])
+
+  #Question:1
+  #DeNormalizedWeights <- LMSquareLossIterations(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],30,0.1)
 
 
 
+  #Question:2
+  #DeNormalizedWeights<-LMSquareLossEarlyStoppingCV(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol], fold.vec,Folds,30)
+  #ES.List <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec,Folds,30)
+  #print(ES.List)
+  #DeNormalizedWeights <- ES.List$w.mat
+
+
+  #Questions: (3)
+  #Penalty.Vector <-array(rep(0.01,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)))
+  Penalty.Vector <-array(seq(1, 0.1, by=-0.1),dim=c(1,10))
+  Initial.W.Vector<-array(rep(0,NCOL(TrainingData)),dim=c(1,NCOL(TrainingData)+1))
+
+  print("Initial weight vector")
+  print(dim(Initial.W.Vector))
+
+  TrainingData.mean <- mean(TrainingData)
+  TrainingData.Sum = 0
+
+  for( row in 1:nrow(TrainingData))
+  {
+    TrainingData.Sum = TrainingData.Sum + sum((TrainingData[row,] - TrainingData.mean)^2)
+  }
+
+  #get sd from the calculated sum and number of observations
+  TrainingData.sd = sqrt(TrainingData.Sum / length(TrainingData))
+  Normalized_TrainingData <- data.matrix(NormalizeMatrix(TrainingData))
+
+  #Question: 3 Function call
+  Penalty.Scalar=2
+  W.Matrix <-LMSquareLossL2(Normalized_TrainingData,  TrainingLabels, Penalty.Scalar, .31,Initial.W.Vector)
+  #LMSquareLossL2(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
+
+  #print(dim(W.Matrix))
+
+  DeNormalizedWeights<-(t(W.Matrix))/TrainingData.sd
+
+  #print(ES.List$)
+
+  print("DIM of DeNormalizedWeights")
+  #print(dim(DeNormalizedWeights))
+  #print(DeNormalizedWeights)
+
+  #DeNorm.Error <-Find_Wmatrix_MeanL2Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],DeNormalizedWeights,BinaryClassification)
+  DeNorm.Error <-Find_Wmatrix_MeanL1Error(Cliped[,DataColsStart:DataColsEnd], Cliped[,LabelCol],t(DeNormalizedWeights),BinaryClassification)
+  #barplot(DeNorm.Error,main = "L1 Error :Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+  print("DIM of DeNorm.Error")
+  #print(dim(DeNorm.Error))
+  print(DeNorm.Error)
+  barplot(DeNorm.Error,main = "LM SquareLoss:Question 3 spam",xlab = "mean loss value",beside = TRUE)
+
+
+  #Question: 4
+  #W.Matrix<- LMSquareLossL2penalties(TrainingData, TrainingLabels,Penalty.Vector)
 }
-#KNN_Spam_Test()
+Linear_Spam_Tests()
+
+
 
 
 
 
 #ElemStatLearn::SAheart 2-class [462, 9] output is last column (chd).
-KNN_SAheart_Test<-function()
+Linear_SAheart_Test<-function()
 {
   print("Starting Local_SAheart")
   Folds <- 3
@@ -101,12 +162,12 @@ KNN_SAheart_Test<-function()
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
   Projected_K = KNNLearnCV(Local_SAheart[,DataColsStart:DataColsEnd], Local_SAheart[,LabelCol], MaxNeighbors, Local_SAheart$Fold, Folds)
 }
-#KNN_SAheart_Test()
+#Linear_SAheart_Test()
 
 
 
 #ElemStatLearn::zip.train: 10-class [7291, 256] output is first column. (ignore classes other than 0 and 1)
-KNN_ziptrain_Test<-function()
+Linear_ziptrain_Test<-function()
 {
   #output is first column,
   #  and ignore classes other than 0 and 1
@@ -145,13 +206,13 @@ KNN_ziptrain_Test<-function()
 
   print(((Projected_K)))
 }
-KNN_ziptrain_Test()
+#Linear_ziptrain_Test()
 
 
 
 #Regression.
 #ElemStatLearn::prostate [97 x 8] output is lpsa column, ignore train column.
-KNN_prostate<-function()
+Linear_prostate<-function()
 {
 
   print("Starting KNN_prostate")
@@ -181,10 +242,10 @@ KNN_prostate<-function()
   #Double Folding ? ~still a little confused where to implement the two instances of the Folds
   Projected_K = KNNLearnCV(Local_prostate[,DataColsStart:DataColsEnd], Local_prostate[,LabelCol], MaxNeighbors, Fold.vec, Folds)
 }
-#KNN_prostate()
+#Linear_prostate()
 
 #ElemStatLearn::ozone [111 x 3] output is first column (ozone)
-KNN_ozone<-function()
+Linear_ozone<-function()
 {
   #output is first column,
   #  and ignore classes other than 0 and 1
@@ -217,4 +278,4 @@ KNN_ozone<-function()
   Projected_K = KNNLearnCV(Local_ozone[,DataColsStart:DataColsEnd], Local_ozone[,LabelCol], MaxNeighbors, Fold.vec, Folds)
 
 }
-#KNN_ozone()
+#Linear_ozone()
