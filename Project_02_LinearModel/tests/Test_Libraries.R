@@ -8,9 +8,6 @@ context("LinearModel")
 
 
 
-#source("R/knn.R")
-
-
 
 
 
