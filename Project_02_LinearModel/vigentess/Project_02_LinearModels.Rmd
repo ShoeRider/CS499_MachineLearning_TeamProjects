@@ -9,13 +9,18 @@ vignette: >
   \usepackage[utf8]{inputenc}
 
 ---
-
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
 
 <a id="top"></a>
 
 # Project 2 LM Vignette
 ### <authors>
-#### NAU Febuary 28, 2019
+#### NAU March 1, 2019
 
 > [Introduction](#intro)
 > [Installation](#install)
@@ -32,29 +37,422 @@ vignette: >
 > [LMLogLossL2](#log.LogLossL2)
 > [LMLogLossL2penalties](#log.LogLossPen)
 > [LMLogLossL2CV](#log.LogLossL2CV)
-<a id="intro"></a>
 
+<a id="intro"></a>
 
 ## Introduction
 
 The second machine learning project for our class is to create Linear Learning Models using Logistic Loss for binary classification and Square Loss for other classification problems. We have to use what we discussed in class to code the linear regression and cross validation functions in order to minimize the loss. 
 
+### Linear Regression
+
+
+#### LMSquareLossIterations
+
+
+**Fromula: ** **$\hat{y} = XW + B$**
+Y.hat = data.matrix(TestingData) %*% data.matrix(W.Matrix) + 
+
+**Gradient: ** **${W'} = 2X^T(WX-y)^2$**
+Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+
+**Bias Gradient: ** **${W'} = 2I^T((WX+IB)-y)^2$**
+#Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+
+
+
+#### Linear L2 equations
+**We are Looking for : ** **$\hat{W}^{Lambda} = argmin_{W\in R^{P}}$**
+
+**Regularization Gradient: ** **${W'} = 2X^T(X-y)^2 + 2*(Labmda)*W$**
+
+
+
+
+
+
+
+### Logistic equations
+
+#### Logistic Iteration equations
+**Fromula: ** **$\hat{y} = 1/(1+e^{XW})+B$**
+Y.hat = 1/(1+exp(-TrainingLabels%*% data.matrix(TrainingData) %*% data.matrix(W.Vector)))
+
+**Gradient: ** **${W'} = 1/(1+e^{-yXW})-y$**
+Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+
+#### Linear L2 equations
+**We are Looking for : ** **$\hat{W}^{Lambda} = argmin_{W\in R^{P}}$**
+
+**Regularization Gradient: ** **${W'} = 2X^T(X-y)^2 + 2*(Labmda)*W$**
 
 
 ## Testing With Data Sets 
 we are going to run our code on the following data sets.
 
+
+# How to use the 'ElemStatLearn' Libraries:
+
+
+How To use this Linear Models Library:
+1. Organize your data into:
+  a. Training Data:
+  Your data should be a matrix with the Column's containing Feature's, and Row's containing the different training Instances 
+    
+  b.Training Labels:
+  Your data should be a single colomn of numerical values, 
+    Note: if all labels are (0 or 1)  training will be classified as Binary classification, and be trained accordingly. otherwise, training will be Regressive.
+
+
+
+
+# Tests with 'ElemStatLearn' Libraries:
+We will include the library(LinearModel), to have access to the given functionality.
+
+The R script Prep_Libraries.R in the tests/testthat folder contains some simple data manipulation to prep the data to be used for the LinearModel Algorithms.
+```{r}
+#library(LinearModel)
+source("../tests/testthat/Prep_Libraries.R")
+```
+
 ## Data set 1: spam
-### Matrix of loss values
 
-print out and/or plot the matrix.
+### Matrix of loss values ## 4 x 3 matrix of Error results table
 
-comment on difference between NN and baseline.
+Here the matrix of loss values:
+(4 points for each data set (2 points each for loss matrix and train/validation loss plot))
+
+```{r}
+library(LinearModel)
+source("../tests/testthat/Prep_Libraries.R")
+
+# Data set 1: spam
+#----------------------Data Initialization-------------------------------
+#For a more specific view, just look at the file :("../tests/testthat/Prep_Libraries.R"), to see the data manipulation/ sanitization of each library.
+Spam<- Prep_Spam()
+#------------------------------------------------------------------------
+ 
+LossMat.fold.n  <- 4
+LossMat.fold.vec<-Random_Folds(Spam$n_Elements,LossMat.fold.n)
+
+Data = cbind(Spam$TrainingData ,Spam$TrainingLabels)
+#Randomly shuffle the data
+Data<-Data[sample(nrow(Data)),]
+
+#Perform folds.n fold cross validation
+for(i in 1:(LossMat.fold.n))
+{
+  testIndexes <- which(LossMat.fold.vec==i,arr.ind=TRUE)
+  testData    <- as.matrix(Data[testIndexes, ])
+  trainData   <- as.matrix(Data[-testIndexes, ])
+  
+  #-------------------------LMSquareLossIterations (SLI_Error)--------------
+  Scalar.Step = 0.1
+  Iterations  = 30
+  LMSquareLossIterations.W.Vec <- LMSquareLossIterations(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],Iterations,Scalar.Step)
+  SLI.WholeError.Vec <-Find_Wmatrix_MeanL2Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
+  SLI.TrainError.Vec <-Find_Wmatrix_MeanL2Error(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
+  SLI.TestError.Vec  <-Find_Wmatrix_MeanL2Error(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
+  
+  #------------------------------------------------------------------------
+  #--------------------LMSquareLossEarlyStoppingCV (ES_CV_Error)-----------
+   ES_CV_Error.fold.n  <- 4
+   ES_CV_Error.fold.vec<-Random_Folds(Spam$n_Elements,ES_CV_Error.fold.n)
+  
+   ES.List <-LMSquareLossEarlyStoppingCV(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],ES_CV_Error.fold.vec,ES_CV_Error.fold.n,Iterations)
+   
+   DeNormalizedWeights <- ES.List$w.mat
+   DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam$TrainingData, Spam$TrainingLabels,(DeNormalizedWeights),Spam$BinaryClassification)
+   barplot(DeNorm.Error,main = "Question 2: LMSquareLossEarlyStoppingCV:Spam",xlab = "Iteration",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+  #-------------------------LMSquareLossIterations-------------------------
+  
+  #------------------------------------------------------------------------
+  #-------------------------LMSquareLossIterations-------------------------
+  
+  #------------------------------------------------------------------------
+  
+}
+
+
+
+
+#-------------------------Matrix of Loss Values--------------------------
+
+#------------------------------------------------------------------------
+
+
+```
+
+| Test Set  | Early Stoping | L2 Regularized Predictor | Baseline (30 Iterations)(0.1 step)  | 
+|:----------|:--------------|:-------------------------|:------------------------------------|
+| 1         |               |                          |  0.3963045                          |  
+| 2         |               |                          |                                     |  
+| 3         |               |                          |                                     |  
+| 4         |               |                          |                                     |  
+| Avg.      |               |                          |                                     |
+
+comment on difference in accuracy.
+The Accuracy inttially improves drametically, but then deviates away from the optimal solution. 
+
+For each data set, compute a 4 x 3 matrix of mean test loss values:
+each of the four rows are for a specific test set,
+the first column is for the early stopping predictor,
+the second column is for the L2 regularized predictor,
+the third column is for the baseline/un-informed predictor.
+
+
+
+
 
 ### Train/validation loss plot
 
 plot the two loss functions.
 
-What is the optimal number of neighbors?
+
+```{r}
+#--------------------LMSquareLossIterations------------------------
+
+#-----------------------------------------------------------------------
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+
+#------------------------------------------------------------------------
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+
+#------------------------------------------------------------------------
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+
+#------------------------------------------------------------------------
+
+
+#------------------------Train/validation loss plot----------------------
+
+#------------------------------------------------------------------------
+
+```
+
+For each data set, use 4-fold cross-validation to evaluate the prediction accuracy of your code. For each split s=1 to 4, set aside the data in fold s as a test set. Use ___CV to train a model on the other folds (which should be used in your ___CV function as internal train/validation sets/splits), then make a prediction on the test fold s.
+
+For each train/test split, to show that your algorithm is actually learning something non-trivial from the inputs/features, compute a baseline predictor that ignores the inputs/features.
+Regression: the mean of the training labels/outputs.
+Binary classification: the most frequent class/label/output in the training data.
+
+
+What are the optimal regularization parameters?
+
+
+
+```{r}
+
+```
+
+
+
+
+Make one or more plot(s) or table(s) that compares these test loss values. For each of the five data sets, is early stopping more accurate than L2 regularization? Are the linear models more accurate than the baseline?
+
+for each data set, run ___CV functions on the entire data set, and plot the mean validation loss as a function of the regularization parameter. plot the mean train loss in one color, and the mean validation loss in another color. Plot a point and/or text label to emphasize the regularization parameter selected by minimizing the mean validation loss function.
+
+
+## Data set 2: 
+
+### Matrix of loss values
+
+Here is an example of how to use the LMSquareLossIterations function:
+//Currently having build issues, but code works within R.Studio 
+```{r}
+
+# Data set 2: SAheart_Test
+#----------------------Data Initialization-------------------------------
+SAheart<- Prep_SAheart()
+#------------------------------------------------------------------------
+  
+ 
+LossMat.fold.n  <- 4
+LossMat.fold.vec<-Random_Folds(Spam$n_Elements,LossMat.fold.n)
+
+Data = cbind(Spam$TrainingData ,Spam$TrainingLabels)
+#Randomly shuffle the data
+Data<-Data[sample(nrow(Data)),]
+
+#Perform folds.n fold cross validation
+for(i in 1:(LossMat.fold.n))
+{
+  testIndexes <- which(LossMat.fold.vec==i,arr.ind=TRUE)
+  testData    <- as.matrix(Data[testIndexes, ])
+  trainData   <- as.matrix(Data[-testIndexes, ])
+  
+  #-------------------------LMSquareLossIterations (SLI_Error)--------------
+  Scalar.Step = 0.1
+  Iterations  = 30
+  LMSquareLossIterations.W.Vec <- LMSquareLossIterations(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],Iterations,Scalar.Step)
+  SLI.WholeError.Vec <-Find_Wmatrix_MeanL2Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
+  SLI.TrainError.Vec <-Find_Wmatrix_MeanL2Error(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
+  SLI.TestError.Vec  <-Find_Wmatrix_MeanL2Error(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
+  
+  #------------------------------------------------------------------------
+  #--------------------LMSquareLossEarlyStoppingCV (ES_CV_Error)-----------
+   ES_CV_Error.fold.n  <- 4
+   ES_CV_Error.fold.vec<-Random_Folds(Spam$n_Elements,ES_CV_Error.fold.n)
+  
+   ES.List <-LMSquareLossEarlyStoppingCV(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],ES_CV_Error.fold.vec,ES_CV_Error.fold.n,Iterations)
+   
+   DeNormalizedWeights <- ES.List$w.mat
+   DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam$TrainingData, Spam$TrainingLabels,(DeNormalizedWeights),Spam$BinaryClassification)
+   barplot(DeNorm.Error,main = "Question 2: LMSquareLossEarlyStoppingCV:Spam",xlab = "Iteration",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+  #-------------------------LMSquareLossIterations-------------------------
+  
+  #------------------------------------------------------------------------
+  #-------------------------LMSquareLossIterations-------------------------
+  
+  #------------------------------------------------------------------------
+  
+}
+
+
+
+#-------------------------Matrix of Loss Values--------------------------
+
+#------------------------------------------------------------------------
+```
+| Test Set  | Early Stoping | L2 Regularized Predictor | Baseline (30 Iterations)(0.1 step)  | 
+|:----------|:--------------|:-------------------------|:------------------------------------|
+| 1         |               |                          |  0.3963045                          |  
+| 2         |               |                          |                                     |  
+| 3         |               |                          |                                     |  
+| 4         |               |                          |                                     |  
+| Avg.      |               |                          |                                     |
+
+comment on difference in accuracy.
+The Accuracy inttially improves drametically, but then deviates away from the optimal solution. 
+
+For each data set, compute a 4 x 3 matrix of mean test loss values:
+each of the four rows are for a specific test set,
+the first column is for the early stopping predictor,
+the second column is for the L2 regularized predictor,
+the third column is for the baseline/un-informed predictor.
+
+comment on difference in accuracy.
+The Accuracy inttially improves drametically, but then deviates away from the optimal solution. 
+
+### Train/validation loss plot
+
+plot the two loss functions.
+
+
+```{r}
+#--------------------LMSquareLossIterations------------------------
+
+#-----------------------------------------------------------------------
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+
+#------------------------------------------------------------------------
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+
+#------------------------------------------------------------------------
+#--------------------LMSquareLossEarlyStoppingCV------------------------
+
+#------------------------------------------------------------------------
+
+
+#------------------------Train/validation loss plot----------------------
+
+#------------------------------------------------------------------------
+```
+
+
+comment on difference in accuracy.
+
+
+### Train/validation loss plot
+
+plot the two loss functions.
+
+What are the optimal regularization parameters?
+
+For each data set, use 4-fold cross-validation to evaluate the prediction accuracy of your code. For each split s=1 to 4, set aside the data in fold s as a test set. Use ___CV to train a model on the other folds (which should be used in your ___CV function as internal train/validation sets/splits), then make a prediction on the test fold s.
+
+For each train/test split, to show that your algorithm is actually learning something non-trivial from the inputs/features, compute a baseline predictor that ignores the inputs/features.
+Regression: the mean of the training labels/outputs.
+Binary classification: the most frequent class/label/output in the training data.
+
+For each data set, compute a 4 x 3 matrix of mean test loss values:
+each of the four rows are for a specific test set,
+the first column is for the early stopping predictor,
+the second column is for the L2 regularized predictor,
+the third column is for the baseline/un-informed predictor.
+
+ 
+
+## Error results table
+| Test Set  | Early Stoping | L2 Regularized Predictor | Baseline (30 Iterations)(0.1 step)  | 
+|:----------|:--------------|:-------------------------|:------------------------------------|
+| 1         |               |                          |                            |  
+| 2         |               |                          |                                     |  
+| 3         |               |                          |                                     |  
+| 4         |               |                          |                                     |  
+| Avg.      |               |                          |                                     |
+
+
+## Data set 3: 
+
+### Matrix of loss values
+
+Here is an example of how to use the LMSquareLossIterations function:
+//Currently having build issues, but code works within R.Studio 
+```{r}
+
+
+```
+
+
+comment on difference in accuracy.
+
+
+### Train/validation loss plot
+
+plot the two loss functions.
+
+
+
+For each data set, use 4-fold cross-validation to evaluate the prediction accuracy of your code. For each split s=1 to 4, set aside the data in fold s as a test set. Use ___CV to train a model on the other folds (which should be used in your ___CV function as internal train/validation sets/splits), then make a prediction on the test fold s.
+
+For each train/test split, to show that your algorithm is actually learning something non-trivial from the inputs/features, compute a baseline predictor that ignores the inputs/features.
+Regression: the mean of the training labels/outputs.
+Binary classification: the most frequent class/label/output in the training data.
+
+
+What are the optimal regularization parameters?
+
+For each data set, compute a 4 x 3 matrix of mean test loss values:
+each of the four rows are for a specific test set,
+the first column is for the early stopping predictor,
+the second column is for the L2 regularized predictor,
+the third column is for the baseline/un-informed predictor.
+
+
+## Error results table
+| Test Set  | Early Stoping | L2 Regularized Predictor | Baseline (30 Iterations)(0.1 step)  | 
+|:----------|:--------------|:-------------------------|:------------------------------------|
+| 1         |               |                          |                            |  
+| 2         |               |                          |                                     |  
+| 3         |               |                          |                                     |  
+| 4         |               |                          |                                     |  
+| Avg.      |               |                          |                                     |
+
+
+
+
+
+
+# LMSquareLossL2CV Vs binary classification data set
+2-6 points extra credit if, in your Rmd report, you also use LMSquareLossL2CV functions on the binary classification data sets, and comment on the difference in accuracy between logistic/square losses. (2 points per data set)
+
+
+# KNN Vs Linear and Logistic Models
+2-10 points extra credit if, in your Rmd report, you also compare against NNLearnCV, and comment on whether or not linear models or nearest neighbors is more accurate (2 points per data set).
+
+
 
 
