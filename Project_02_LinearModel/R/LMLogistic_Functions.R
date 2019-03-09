@@ -19,14 +19,21 @@ Random_Folds <- function(Size,Folds)
 
 NormalizeMatrix<-function(Matrix)
 {
-  # ---------- This creates a scaled vector with sd = 1 mean = 0 for each column in matrix-------
-  scaled.mat = matrix(nrow = nrow(Matrix),ncol = ncol(Matrix))
-  for(col in 1:ncol(Matrix))
+  # vector of mean column values
+  mean <- mean(Matrix)
+  # sum all of all columns for each row
+  sum = 0
+  for( row in 1:nrow(Matrix))
   {
-    scaled.mat[,col] = (Matrix[,col] - colMeans(Matrix)[col])/sd(Matrix[,col])
-
+    sum = sum + sum((Matrix[row,] - mean)^2)
   }
-  return(as.matrix(scaled.mat))
+
+  # get sd from the calculated sum and number of observations
+  sd = sqrt(sum / length(Matrix))
+  # return the new matrix
+  print("sd")
+  print(sd)
+  return((Matrix - mean)/sd)
 }
 
 
