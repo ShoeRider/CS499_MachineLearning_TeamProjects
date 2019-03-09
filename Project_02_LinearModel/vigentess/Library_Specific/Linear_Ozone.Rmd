@@ -7,7 +7,7 @@ source("../../tests/testthat/LinearModels_Test_Libraries.R")
 
 ```{r}
 # Data set 2: OZone
-  OZone<-Prep_OZone()
+  OZone<-Prep_Ozone()
   print((OZone$n_Elements))
 ```
 
