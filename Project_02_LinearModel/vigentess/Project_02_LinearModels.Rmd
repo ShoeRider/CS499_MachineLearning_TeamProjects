@@ -1,10 +1,10 @@
 ---
 title: "Linear Models Report"
-author: "Anthony Schroeder,"
+author: "Anthony Schroeder,Chadd Frasier"
 date: ""
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Linear Models Report}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 
@@ -37,6 +37,8 @@ knitr::opts_chunk$set(
 > [LMLogLossL2](#log.LogLossL2)
 > [LMLogLossL2penalties](#log.LogLossPen)
 > [LMLogLossL2CV](#log.LogLossL2CV)
+>[Testing With Data Sets](#test)
+
 
 
 <a id="intro"></a>
@@ -155,6 +157,7 @@ Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
 **Regularization Gradient: ** **${W'} = 2X^T(X-y)^2 + 2*(Labmda)*W$**
 
 
+<a id= 'test'></a>
 ## Testing With Data Sets
 we are going to run our code on the following data sets for Binary Classification
 - ElemStatLearn::spam 2-class [4601, 57] output is last column (spam).
@@ -164,8 +167,24 @@ And we will be using the following for regression:
 - ElemStatLearn::prostate [97 x 8] output is lpsa column, ignore train column.
 - ElemStatLearn::ozone [111 x 3] output is first column (ozone).
 
-# How to use the 'ElemStatLearn' Libraries:
+```{r, results='hide'}
+# Spam Data Set
+data(spam, package = "ElemStatLearn")
 
+# SAheart Data Set
+data(SAheart, package = "ElemStatLearn")
+
+# zip.train Data Set
+data(zip.train, package = "ElemStatLearn")
+
+# prostate Data Set
+data(prostate, package = "ElemStatLearn")
+
+# OZone Data Set
+data(ozone, package = "ElemStatLearn")
+```
+
+# How to use the 'ElemStatLearn' Libraries:
 
 How To use this Linear Models Library:
 1. Organize your data into:
