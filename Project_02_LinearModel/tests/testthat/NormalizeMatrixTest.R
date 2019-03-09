@@ -174,3 +174,41 @@ testthat("Test LMSquareLossIterations Function"){
   output.mat <-LMSquareLossIterations(TrainingData,TrainingLabels,iterations,0.5)
   expect_equal(ncol(output.mat),iterations + 1)
 }
+
+
+testthat("Test LMSquareLossEarlyStoppingCV Function"){
+  data(ozone, package = "ElemStatLearn")
+
+  iterations <- 20
+  Labels <- ozone[,1] # first col is output of the data
+  Data <- ozone[,2:ncol(ozone)]
+
+  TrainingData <- as.matrix(Data)[1:57,]
+  TestData <- as.matrix(Data)[58:ncol(TrainingData),]
+
+  TrainingLabels <- Labels[1:57]
+  TestLabels <- Labels[58:length(Labels)]
+  fold.vec <- Random_Folds(nrow(TrainingData),4)
+
+  output.mat <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels,fold.vec,4,iterations)
+
+}
+
+testthat("Test LMSquareLossEarlyStoppingCV Function"){
+  data(ozone, package = "ElemStatLearn")
+
+  iterations <- 20
+  Labels <- ozone[,1] # first col is output of the data
+  Data <- ozone[,2:ncol(ozone)]
+
+  TrainingData <- as.matrix(Data)[1:57,]
+  TestData <- as.matrix(Data)[58:ncol(TrainingData),]
+
+  TrainingLabels <- Labels[1:57]
+  TestLabels <- Labels[58:length(Labels)]
+  fold.vec <- Random_Folds(nrow(TrainingData),4)
+  penalty.vec <- sort(array(c(1:20)), decreasing= TRUE)
+
+  output.mat <-LMSquareLossL2penalties(TrainingData,TrainingLabels,penalty.vec)
+
+}
