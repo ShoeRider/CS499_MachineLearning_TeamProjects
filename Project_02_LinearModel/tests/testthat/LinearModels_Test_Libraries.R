@@ -6,7 +6,10 @@ library(ElemStatLearn)
 library(LinearModel)
 context("LinearModel")
 
-source("tests/testthat/Prep_Libraries.R")
+
+
+#need to uncomment this for testing !! !!
+#source("tests/testthat/Prep_Libraries.R")
 
 
 
@@ -42,7 +45,7 @@ Linear_Spam_Tests<-function()
     DeNormalizedWeights <- LMSquareLossIterations(Spam$TrainingData, Spam$TrainingLabels,Spam$Iterations,Scalar.Step)
     #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam[""], Spam[],(DeNormalizedWeights),Spam$BinaryClassification)
     DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(DeNormalizedWeights),SAheart$BinaryClassification)
-    print(DeNorm.Error)
+    #print(DeNorm.Error)
     barplot(DeNorm.Error,main = "Question 1: LMSquareLossIterations:Spam",xlab = "Iteration",ylab = "Error",beside = TRUE)
   }
 
@@ -52,7 +55,7 @@ Linear_Spam_Tests<-function()
   {
    print("Linear_Spam_Tests: Question:2")
    ES.List <-LMSquareLossEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,Spam$Folds.Vec,Spam$Folds.n,Spam$Iterations)
-   print(ES.List)
+   #print(ES.List)
    DeNormalizedWeights <- ES.List$w.mat
    DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam$TrainingData, Spam$TrainingLabels,(DeNormalizedWeights),Spam$BinaryClassification)
    barplot(DeNorm.Error,main = "Question 2: LMSquareLossEarlyStoppingCV:Spam",xlab = "Iteration",ylab = "Error",beside = TRUE)
@@ -120,13 +123,13 @@ Linear_SAheart_Test<-function()
     if(FALSE)
     {
       DeNorm.Error <-Find_Wmatrix_MeanL1Error(SAheart$TrainingData, SAheart$TrainingLabels,as.matrix(DeNormalizedWeights),SAheart$BinaryClassification)
-      print(DeNorm.Error)
+      #print(DeNorm.Error)
       barplot(DeNorm.Error,main = "Question 1: LMSquareLossIterations:SAheart",xlab = "Iteration",ylab = "Error",beside = TRUE)
     }
     if(TRUE)
     {
       DeNorm.Error <-Find_Wmatrix_MeanL2Error(SAheart$TrainingData, SAheart$TrainingLabels,as.matrix(DeNormalizedWeights),SAheart$BinaryClassification)
-      print(DeNorm.Error)
+      #print(DeNorm.Error)
       barplot(DeNorm.Error,main = "Question 1: Find_Wmatrix_MeanL2Error:SAheart",xlab = "Iteration",ylab = "Error",beside = TRUE)
     }
 
@@ -138,7 +141,7 @@ Linear_SAheart_Test<-function()
   {
     print("Linear_SAheart_Tests: Question:2")
     ES.List <-LMSquareLossEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,SAheart$Folds.Vec,SAheart$Folds.n,SAheart$Iterations)
-    print(ES.List)
+    #print(ES.List)
     DeNormalizedWeights <- ES.List$w.mat
     DeNorm.Error <-Find_Wmatrix_MeanL1Error(SAheart$TrainingData, SAheart$TrainingLabels,(DeNormalizedWeights),SAheart$BinaryClassification)
     barplot(DeNorm.Error,main = "Question 2: LMSquareLossEarlyStoppingCV:SAheart",xlab = "Iteration",ylab = "Error",beside = TRUE)
@@ -225,7 +228,7 @@ Linear_Ziptrain_Test<-function()
   {
     print("Linear_Ziptrain_Tests: Question:2")
     ES.List <-LMSquareLossEarlyStoppingCV(Ziptrain$TrainingData, Ziptrain$TrainingLabels,Ziptrain$Folds.Vec,Ziptrain$Folds.n,Ziptrain$Iterations)
-    print(ES.List)
+    #print(ES.List)
     DeNormalizedWeights <- ES.List$w.mat
     DeNorm.Error <-Find_Wmatrix_MeanL1Error(Ziptrain$TrainingData, Ziptrain$TrainingLabels,(DeNormalizedWeights),Ziptrain$BinaryClassification)
     barplot(DeNorm.Error,main = "Question 2: LMSquareLossEarlyStoppingCV:Ziptrain",xlab = "Iteration",ylab = "Error",beside = TRUE)
@@ -291,7 +294,7 @@ Linear_Prostate_Test<-function()
     DeNormalizedWeights <- LMSquareLossIterations(Prostate$TrainingData, Prostate$TrainingLabels,Prostate$Iterations,Scalar.Step)
     #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Prostate[""], Prostate[],(DeNormalizedWeights),Prostate$BinaryClassification)
     DeNorm.Error <-Find_Wmatrix_MeanL1Error(Prostate$TrainingData, Prostate$TrainingLabels,as.matrix(DeNormalizedWeights),Prostate$BinaryClassification)
-    print(DeNorm.Error)
+    #print(DeNorm.Error)
     barplot(DeNorm.Error,main = "Question 1: LMSquareLossIterations:Prostate",xlab = "Iteration",ylab = "Error",beside = TRUE)
   }
 
@@ -423,57 +426,6 @@ Linear_Ozone_Test<-function()
     barplot(DeNorm.Error,main = "Question 5: mean.validation.loss :Ozone",xlab = "Iteration",ylab = "Error",beside = TRUE)
   }
 }
-Linear_Ozone_Test()
-
-
-Generate_LossMatrix_With_CrossValidation(fold.vec,folds.n)
-{
-
-
-
-
-
-
-}
-
-
-Generate_TrainValidation_LossPlot()
-{
-  #-------------------------LMSquareLossIterations-------------------------
-  Scalar.Step = 0.1
-  DeNormalizedWeights <- LMSquareLossIterations(Spam$TrainingData, Spam$TrainingLabels,Spam$Iterations,Scalar.Step)
-  #------------------------------------------------------------------------
-  #-------------------------LMSquareLossIterations-------------------------
-
-  #------------------------------------------------------------------------
-  #-------------------------LMSquareLossIterations-------------------------
-
-  #------------------------------------------------------------------------
-  #-------------------------LMSquareLossIterations-------------------------
-
-  #------------------------------------------------------------------------
-
-
-}
-
-
-
-
-
-
-
-
-
-
-#TODO: Fix implementation
-Test_Norm_DeNorm_Function<-function()
-{
-  Spam = Prep_Spam()
-  Norm_List = COL_NormalizeMatrix_List(Spam$TrainingData)
-  print(COL_DeNormalizeMatrix_List(Norm_List))
-  print(Spam$TrainingData)
-  print(sum(COL_DeNormalizeMatrix_List(Norm_List)) - sum(Spam$TrainingData))
-}
-#Test_Norm_DeNorm_Function()
+#Linear_Ozone_Test()
 
 
