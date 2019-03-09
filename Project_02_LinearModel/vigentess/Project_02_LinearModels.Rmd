@@ -1,7 +1,8 @@
 ---
 title: "Linear Models Report"
-author: "Anthony Schroeder,Chadd Frasier"
-date: ""
+author: "Anthony Schroeder"
+contributor: "Chadd Frasier"
+date: "03/08/2019"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Linear Models Report}
@@ -19,12 +20,11 @@ knitr::opts_chunk$set(
 <a id="top"></a>
 
 # Project 2 LM Vignette
-### <authors>
+### Anthony Schroeder
 #### NAU March 1, 2019
 
 > [Introduction](#intro)
 > [Installation](#install)
-> [Steps to Run](#qs)
 > [Linear Regression](#lin)
 > [LMSquareLossIterations](#lin.SqrLoss)
 > [LMSquareLossEarlyStoppingCV](#lin.SqrLossCV)
@@ -37,7 +37,7 @@ knitr::opts_chunk$set(
 > [LMLogLossL2](#log.LogLossL2)
 > [LMLogLossL2penalties](#log.LogLossPen)
 > [LMLogLossL2CV](#log.LogLossL2CV)
->[Testing With Data Sets](#test)
+> [Testing With Data Sets](#test)
 
 
 
@@ -100,8 +100,6 @@ Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
 
 **Bias Gradient: ** **${W'} = 2I^T((WX+IB)-y)^2$**
 #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
-
-
 
 
 #### Linear L2 equations
