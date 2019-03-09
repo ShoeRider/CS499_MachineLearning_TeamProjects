@@ -4,7 +4,7 @@ context("NormalizeMatrix")
 
 #' checks to see if the normalize matrix function creates a matrix with
 #' sd=1 mean=0 for all cols in the matrix
-testthat("Testing Normalize Matrix Function"){
+testthat("Testing Normalize Matrix Function",{
   data(spam,package = "ElemStatLearn")
   step.size <- 0.1
   iterations <- 20
@@ -40,9 +40,9 @@ testthat("Testing Normalize Matrix Function"){
       expect_gte(mean(norm.mat[,col]), 0) & expect_lt(mean(norm.mat[,col]), .01)
   }
 
-}
+})
 
-testthat("LogisticLossIterations Function checks for bad data"){
+testthat("LogisticLossIterations Function checks for bad data",{
   data(spam, package = "ElemStatLearn")
 
   spam = list(
@@ -54,9 +54,9 @@ testthat("LogisticLossIterations Function checks for bad data"){
 
 
   LMLogisticLossIterations(spam$features,spam$labels,20,20)
-}
+})
 
-testthat("Testing Logistic Early Stopping CV Function"){
+testthat("Testing Logistic Early Stopping CV Function",{
   data(spam,package = "ElemStatLearn")
   step.size <- 0.1
   iterations <- 20
@@ -86,10 +86,10 @@ testthat("Testing Logistic Early Stopping CV Function"){
 
   LMLogisticLossEarlyStoppingCV(TrainingData,TrainingLabels,fold.vec,5)
 
-}
+})
 
 
-testthat("Testing Logistic L2 CV Function"){
+testthat("Testing Logistic L2 CV Function",{
   data(spam,package = "ElemStatLearn")
   step.size <- 0.1
   iterations <- 20
@@ -120,11 +120,10 @@ testthat("Testing Logistic L2 CV Function"){
   LMLogisticLossL2(NormalizeMatrix(TrainingData),TrainingLabels,fold.vec,penaly.vec)
   # should fail because of penalty vec
 
-}
+})
 
 
-
-testthat("Testing LMLogisticLossL2penalties Function"){
+testthat("Testing LMLogisticLossL2penalties Function",{
   data(spam,package = "ElemStatLearn")
   step.size <- 0.1
   iterations <- 20
@@ -156,9 +155,9 @@ testthat("Testing LMLogisticLossL2penalties Function"){
   LMLogisticLossL2penalties(NormalizeMatrix(TrainingData),TrainingLabels,penaly.vec)
   # should fail because of penalty vec
 
-}
+})
 
-testthat("Test LMSquareLossIterations Function"){
+testthat("Test LMSquareLossIterations Function",{
   data(ozone, package = "ElemStatLearn")
 
   iterations <- 20
@@ -173,10 +172,10 @@ testthat("Test LMSquareLossIterations Function"){
 
   output.mat <-LMSquareLossIterations(TrainingData,TrainingLabels,iterations,0.5)
   expect_equal(ncol(output.mat),iterations + 1)
-}
+})
 
 
-testthat("Test LMSquareLossEarlyStoppingCV Function"){
+testthat("Test LMSquareLossEarlyStoppingCV Function",{
   data(ozone, package = "ElemStatLearn")
 
   iterations <- 20
@@ -192,9 +191,9 @@ testthat("Test LMSquareLossEarlyStoppingCV Function"){
 
   output.mat <-LMSquareLossEarlyStoppingCV(TrainingData,TrainingLabels,fold.vec,4,iterations)
 
-}
+})
 
-testthat("Test LMSquareLossEarlyStoppingCV Function"){
+testthat("Test LMSquareLossEarlyStoppingCV Function",{
   data(ozone, package = "ElemStatLearn")
 
   iterations <- 20
@@ -211,4 +210,18 @@ testthat("Test LMSquareLossEarlyStoppingCV Function"){
 
   output.mat <-LMSquareLossL2penalties(TrainingData,TrainingLabels,penalty.vec)
 
-}
+})
+
+test_that("Test LMLogistic_Gradient Function", {
+  library(ElemStatLearn)
+  data(zip.train, package= "ElemStatLearn")
+  i01 <- which(zip.train[,1] %in% c(0,1))
+  train.i <- i01[1:5]
+  test.i <- i01[6]
+  x <- zip.train[train.i,-1]
+  y <- zip.train[train.i, 1]
+
+  W.vec <- array(0,length(x))
+  test <- LMLogistic_Gradient(x,y,W.vec)
+  expect_equal(ncol(test),nrow(as.matrix(x)))
+})
