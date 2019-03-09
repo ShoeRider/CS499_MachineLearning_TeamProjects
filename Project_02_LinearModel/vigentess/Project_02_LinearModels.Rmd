@@ -38,17 +38,57 @@ knitr::opts_chunk$set(
 > [LMLogLossL2penalties](#log.LogLossPen)
 > [LMLogLossL2CV](#log.LogLossL2CV)
 
+
 <a id="intro"></a>
-
 ## Introduction
+  The second machine learning project for our class is to create Linear Models using different gradient decent algorithms. We have to use what we discussed in class to code the regression and cross validation functions in order to predict the labels of the test data which is based on two things; the weight vector(obtained through regression) and the test data we are given. 
+  We will use the cross validation function to select the optimal number of steps in the regression and then perform the linear regression on the training/validation data for all the folds to obtain the result matrix of all functions run on all train/validation splits. We can use the most accurate fold to predict the labels of the test data using $ cbind(1, X.mat) * W.mat$
 
-The second machine learning project for our class is to create Linear Learning Models using Logistic Loss for binary classification and Square Loss for other classification problems. We have to use what we discussed in class to code the linear regression and cross validation functions in order to minimize the loss. 
+  Gradient descent will be done using the gerneral form $w^t = w^(t-1) - \alpha\bigtriangledown\mathcal{l(w)}$. 
+  
+<a id="lin"></a>
+## Linear Regression
+Linear regression is a linear modeling method that helps to analyse the relationship between a dependant variable and one or more independent variables. In this project we will be using multiple linear regression which will make a vector of predictions based on the relationship observed during gradient decent. We will be calculating our regressions first with the L1 Norm and then the L2 Norm. 
+- L1 $$L1 = \stackrel{argmax}{w\epsilon\rm I\!R^p}\sum_{i=1}^n|X_i|$$
+- Squared L2 Loss $$\mathcal{L}(w) = \frac{1}{n}||Xw-y||^2_2$$
+- Gradient L2 $$\bigtriangledown \mathcal{L}(w) = 2(Xw-y)*X^T$$
 
-### Linear Regression
+<a id="lin.SqrLoss"></a>
+## LMSquareLossIterations
+This function will take a matrix of training input (n_train x n_features), a vector of labels for the training data vectors (n_train x 1), it will take a scaler value that is the maximum number of iterations in the decent algorithm(scalar > 1), and lastly it will take in a step size which is the size of each step in the gradent descent(scaler > 0). This function will take the matrix of training data and the vector of labels to perform gradient descent on each vector and then create a matrix of weight vectors created from the gradient decent. The function will output th weight matrix by creating a vector for each iteration (n_features+1 x max.iterations). The matrix is larger than the training data so in order to perform matrix multiplication the first element of the weight vectors should be the intercept term. This function will need to minimize the mean loss, not the total loss or eles the gradient decent may not converge. Another method for convergence is to scale the trainign data matrix to a smaller size so the steps of the algorithm will not have to be as large and we will get a much more accurate convergence value. We will compute a scaled input matrix, with a mean of 0 and standard deviation of 1 for each column. This is how we accomplished the matrix normalization.
+```{r}
+NormalizeMatrix<-function(Matrix)
+{
+  # ---------- This creates a scaled vector with sd = 1 mean = 0 for each column in matrix-------
+  scaled.mat = matrix(nrow = nrow(Matrix),ncol = ncol(Matrix))
+  for(col in 1:ncol(Matrix))
+  {
+    scaled.mat[,col] = (Matrix[,col] - colMeans(Matrix)[col])/sd(Matrix[,col])
 
+  }
+  return(as.matrix(scaled.mat))
+}
+```
+Code Block 1
 
-#### LMSquareLossIterations
+<a id="lin.SqrLossCV"></a>
+## LMSquareLossEarlyStoppingCV
+This function will accept a matrix of data (n_train x n_features) and a vector of labels for the training data vectors (n_train x 1), as well as a fold vector (n_train x 1) as well as the maximum number of iterations that can be selected as optimal. This function will perform K-fold cross validation on all the train/validation splits to compute the validation loss of each model to determine the optimal number of steps and iterations where steps = max.iterations. Lastly, we will use LMSquareLossIterations(max.iterations=selected.steps) on the whole training data set to output a list with named elements; mean.validation.loss, mean.train.loss.vec, selected.steps, weight.vec, and predict(testX.mat), which will be a function that takes a test features matrix and returns a vector of predictions.
 
+<a id="lin.SqrLossL2"></a>
+## LMSquareLossL2
+This function uses the L2 Squared Loss and the cost functiin with a penalty to perform the regression and create a simple fitted model. The inputs of the function will be the scaled input matrix (n_train x n_features) and the label vector (n_train x 1). The function will require an inputed penalty value (int > 0) and an optimum threshold value (int > 0) that the regression will aim to achieve. Lastly the function will take in a step size (int > 0) and the initial weigth vector of the matrix. This function assumes that the matrix is already scaled as discussed above. This function's job is to find the optimal weight vector that minimizes the following cost function.
+$$\sum_{i=1}^n \mathcal{L}[w^T x_i, y_i] + \lambda||w||^2_2$$, 
+Where $\mathcal{L}$ is the square loss.
+This function will output a weight vector for a given penalty parameter. 
+
+<a id="lin.SqrLossPen"></a>
+## LMSquareLossL2penalties
+This function will accept an unscaled matrix (n_train x n_features) that will need to be scaled as described above, as well as the label vector(n_train x 1). The last input that this function requires is a penalty vector that holds decreasing penalty values to try. This function will then loop over the penalty values calling the LMSquareLossL2 function to recieve a scaled optimal weight vector for each penalty. We then need to unscale the vector using the standard deviation of the columns and we will also use warm starting to converge on the optimal much faster. This function outputs a weight matrix (n_features+1 x n_penalties), weight matrix on original scale, that can be used to get predictions via $cbind(1, X.mat) %*% W.mat$
+
+<a id="lin.SqrLossL2CV"></a>
+## LMSquareLossL2CV
+This function will accept inputs in the form of an input matrix (n_train x n_features) and the usual label vector (n_train x 1). For cross validation we will  need to recieve a fold vector that is size (n_train x 1) and a penalty vector to pass to the LMSquareLossL2penalties to compute the optimal L2 model. This function will use k fold cross validation to perform the modeling on the train/test split and then comput the mean.validation.loss for each fold to find the best fit model. We will be computing a vector of size n_penalties of mean validation loss values. Minimizing the mean validation loss will help us determine the optimal penalty value. Then we will use these optimals to plug back into the LMSquareLossL2penalties function with the whole data set. Lastly, we will output a list with the following named elements; mean.validation.loss, mean.train.loss.vec, penalty.vec, selected.penalty, weight.vec, the weight vector found by using gradient descent with selected.penalty on the whole training data set, and a predict(testX.mat), which is a function that takes a test features matrix and returns a vector of predictions.
 
 **Fromula: ** **$\hat{y} = XW + B$**
 Y.hat = data.matrix(TestingData) %*% data.matrix(W.Matrix) + 
@@ -61,19 +101,47 @@ Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
 
 
 
+
 #### Linear L2 equations
 **We are Looking for : ** **$\hat{W}^{Lambda} = argmin_{W\in R^{P}}$**
 
 **Regularization Gradient: ** **${W'} = 2X^T(X-y)^2 + 2*(Labmda)*W$**
 
 
+<a id="log"></a>
+## Logistic Regression
+Logistic regression is a linear model that can be used to estimate the parameters of a logistic model such as a win/loss or yes/no decision parameter using multiple independent variables. In thins project we will be using the logistic loss to find the log likelyhood of the test data. We will use the probability parameter to determine if the label is a 0 or 1 for a specific observation. The major difference in these two regression models is the  
+
+<a id="log.LogLoss"></a>
+## LMLogisticLossIterations
+
+This function will take a matrix of training input (n_train x n_features), a vector of labels for the training data vectors (n_train x 1), it will take a scaler value that is the maximum number of iterations in the decent algorithm(scalar > 1), and lastly it will take in a step size which is the size of each step in the gradent descent(scaler > 0). This function will take the matrix of training data and the vector of labels to perform gradient descent on each vector and then create a matrix of weight vectors created from the gradient decent. The function will output th weight matrix by creating a vector for each iteration (n_features+1 x max.iterations). The matrix is larger than the training data so in order to perform matrix multiplication the first element of the weight vectors should be the intercept term. This function will need to minimize the mean loss, not the total loss or eles the gradient decent may not converge. Another method for convergence is to scale the trainign data matrix to a smaller size so the steps of the algorithm will not have to be as large and we will get a much more accurate convergence value. We will compute a scaled input matrix, with a mean of 0 and standard deviation of 1 for each column. This is how we accomplished the matrix normalization. 
+The only major difference will be in the way the gradient decent is calculated. Below is how the logistic regression will be calulating the gradient loss. 
+
+- Binary Loss $$\bigtriangledown\mathcal{L(w)} =\sum_{i=1}^n\frac{exp(-\hat{y}w^Tx_i)}{1+exp(-\hat{y}w^Tx_i)}(-\hat{y}x_i)$$
+
+<a id="log.LogLossCV"></a>
+## LMLogisticLossEarlyStoppingCV
+
+This function will accept a matrix of data (n_train x n_features) and a vector of labels for the training data vectors (n_train x 1), as well as a fold vector (n_train x 1) as well as the maximum number of iterations that can be selected as optimal. This function will perform K-fold cross validation on all the train/validation splits to compute the validation loss of each model to determine the optimal number of steps and iterations where steps = max.iterations. Lastly, we will use LMLogisticLossIterations(max.iterations=selected.steps) on the whole training data set to output a list with named elements; mean.validation.loss, mean.train.loss.vec, selected.steps, weight.vec, and predict(testX.mat), which will be a function that takes a test features matrix and returns a vector of predictions.
 
 
+<a id="log.LogLossL2"></a>
+## LMLogLossL2
+This function uses the L2 Squared Loss and the cost functiin with a penalty to perform the regression and create a simple fitted model. The inputs of the function will be the scaled input matrix (n_train x n_features) and the label vector (n_train x 1). The function will require an inputed penalty value (int > 0) and an optimum threshold value that the regression will aim to achieve. Lastly the function will take in a step size (int > 0) and the initial weigth vector of the matrix. This function assumes that the matrix is already scaled as discussed above. This function's job is to find the optimal weight vector that minimizes the following cost function.
+$$\sum_{i=1}^n \mathcal{L}[w^T x_i, y_i] + \lambda||w||^2_2$$, 
+Where $\mathcal{L}$ is the logistic loss.
+This function will output a weight vector for a given penalty parameter.
 
+<a id="log.LogLossPen"></a>
+## LMLogLossL2penalties
+This function will accept an unscaled matrix (n_train x n_features) that will need to be scaled as described above, as well as the label vector(n_train x 1). The last input that this function requires is a penalty vector that holds decreasing penalty values to try. This function will then loop over the penalty values calling the LMLogisticLossL2 function to recieve a scaled optimal weight vector for each penalty. We then need to unscale the vector using the standard deviation of the columns and we will also use warm starting to converge on the optimal much faster. This function outputs a weight matrix (n_features+1 x n_penalties), weight matrix on original scale, that can be used to get predictions via $cbind(1, X.mat) %*% W.mat$
 
+<a id="log.LogLossL2CV"></a>
+## LMLogLossL2CV
+This function will accept inputs in the form of an input matrix (n_train x n_features) and the usual label vector (n_train x 1). For cross validation we will  need to recieve a fold vector that is size (n_train x 1) and a penalty vector to pass to the LMSquareLossL2penalties to compute the optimal L2 model. This function will use k fold cross validation to perform the modeling on the train/test split and then comput the mean.validation.loss for each fold to find the best fit model. We will be computing a vector of size n_penalties of mean validation loss values. Minimizing the mean validation loss will help us determine the optimal penalty value. Then we will use these optimals to plug back into the LMLogisticLossL2penalties function with the whole data set. Lastly, we will output a list with the following named elements; mean.validation.loss, mean.train.loss.vec, penalty.vec, selected.penalty, weight.vec, the weight vector found by using gradient descent with selected.penalty on the whole training data set, and a predict(testX.mat), which is a function that takes a test features matrix and returns a vector of predictions.
 
 ### Logistic equations
-
 #### Logistic Iteration equations
 **Fromula: ** **$\hat{y} = 1/(1+e^{XW})+B$**
 Y.hat = 1/(1+exp(-TrainingLabels%*% data.matrix(TrainingData) %*% data.matrix(W.Vector)))
@@ -88,8 +156,13 @@ Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
 
 
 ## Testing With Data Sets 
-we are going to run our code on the following data sets.
-
+we are going to run our code on the following data sets for Binary Classification
+- ElemStatLearn::spam 2-class [4601, 57] output is last column (spam).
+- ElemStatLearn::SAheart 2-class [462, 9] output is last column (chd).
+- ElemStatLearn::zip.train: 10-class [7291, 256] output is first column. (ignore classes other than 0 and 1)
+And we will be using the following for regression:
+- ElemStatLearn::prostate [97 x 8] output is lpsa column, ignore train column.
+- ElemStatLearn::ozone [111 x 3] output is first column (ozone).
 
 # How to use the 'ElemStatLearn' Libraries:
 
