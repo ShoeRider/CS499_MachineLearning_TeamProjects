@@ -1,0 +1,19 @@
+---
+title: "Report for project 1 on K Nearest Neighbors"
+author: "Sixian Zhang, Zaoyi Chi, Hao Wang"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Report for project 1 on K Nearest Neighbors}
+  %\VignetteEngine{knitr::knitr}
+  %\usepackage[UTF-8]{inputenc}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
