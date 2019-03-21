@@ -74,8 +74,16 @@ print(as.double(KNNLearnCV.List$train.loss.mat[,1]))
 ### Train/validation loss plot
 ```{r}
   plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
-  lines(rowMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "red")
-  legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  
+dot.x <- KNNLearnCV.List$selected.KNN
+dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+matpoints(x = dot.x,
+          y = dot.y,
+          col = 2,
+          pch = 19)
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
 ```
 
 ## Data set 2: SAheart
@@ -110,8 +118,16 @@ print(as.double(KNNLearnCV.List$TestMeanError.mat[,1]))
 ### Train/validation loss plot
 ```{r}
   plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
-  lines(rowMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "red")
-  legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  
+dot.x <- KNNLearnCV.List$selected.KNN
+dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+matpoints(x = dot.x,
+          y = dot.y,
+          col = 2,
+          pch = 19)
+ # legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
 ```
 
 
@@ -148,8 +164,15 @@ print(as.double(KNNLearnCV.List$TestMeanError.mat[,1]))
 ### Train/validation loss plot
 ```{r}
   plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
-  lines(rowMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "red")
-  legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  dot.x <- KNNLearnCV.List$selected.KNN
+  dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+  
+  matpoints(x = dot.x,
+            y = dot.y,
+            col = 2,
+            pch = 19)
 ```
   
 
@@ -183,8 +206,16 @@ print(Prostate_LossMatrix)
 ### Train/validation loss plot
 ```{r}
   plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
-  lines(rowMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "red")
-  legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  
+  dot.x <- KNNLearnCV.List$selected.KNN
+  dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+  matpoints(x = dot.x,
+            y = dot.y,
+            col = 2,
+            pch = 19)
 ```
 
 
@@ -220,6 +251,15 @@ print(as.double(KNNLearnCV.List$TestMeanError.mat[,1]))
 ### Train/validation loss plot
 ```{r}
   plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
-  lines(rowMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "red")
-  legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  
+  dot.x <- KNNLearnCV.List$selected.KNN
+  dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+  matpoints(x = dot.x,
+            y = dot.y,
+            col = 2,
+            pch = 19)
+  
 ```
