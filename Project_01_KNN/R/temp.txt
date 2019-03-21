@@ -1,4 +1,0 @@
-# result.list <- .C("knn_interface", as.numeric(unlist(x.mat)), as.numeric(unlist(y.vec)),
-#                   as.numeric(unlist((testx.vec))),as.integer(nrow(x.mat)),
-#                   as.integer(ncol(x.mat)),as.integer(max.neighbors),
-#                   predictions=double(100),PACKAGE="NearestNeighbors")
