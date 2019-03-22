@@ -1,203 +1,12 @@
-#' Random_Folds
-#'
-#' @param Size
-#' @param Folds
-#'
-#' @return a List of discrete numbers in the range(1:Folds), this should be used to generate the fold Vector for the following functions
-#' @export
-#'
-#' @examples
-#' Folds =  Random_Folds(10,2)
-#' print(Folds)
-#' Returns:
-#' [1] 1 1 2 2 2 1 1 1 2 1
-#'
-Random_Folds <- function(Size,Folds)
-{
-  try(if(Size < 0) stop("Invalid Size Value: cannot preform random Folds when (Size < 0) !!"))
-  try(if(Folds < 0) stop("Invalid Folds Value: cannot preform random Folds when (Size < 0) !!"))
-  sample(1:(Folds),Size,replace=T)
-}
-
-#' COLNormalizedMatrix
-#'
-#' @param Matrix [X x Y]
-#'
-#' @return returns a NormalizedMatrix with the points in respect to the Matrix's Mean.
-#'
-#' Uses the formula: ((Matrix - Matrix.mean)/Matrix.sd)
-#'
-#' @export
-#'
-#' @examples
-#' Norm.Mat = NormalizeMatrix(as.matrix(c(1,2,3)))
-#' print(Norm.Mat)
-#' # Returns:
-#'          [,1]
-#'[1,] -1.224745
-#'[2,]  0.000000
-#'[3,]  1.224745
-COL_NormalizeMatrix_List<-function(Matrix)
-{
-  scaled.mat = matrix(nrow = nrow(Matrix),ncol = ncol(Matrix))
-  col.means = as.matrix(rep(0,NCOL(Matrix)),dim=c(0,NCOL(Matrix)))
-  col.sd = as.matrix(rep(0,NCOL(Matrix)),dim=c(0,NCOL(Matrix)))
-
-  for(col in 1:ncol(Matrix))
-  {
-    scaled.mat[,col] = (Matrix[,col] - colMeans(Matrix)[col])/sd(Matrix[,col])
-    col.means[col] = colMeans(Matrix)[col]
-    col.sd[col] =  sd(Matrix[,col])
-  }
-
-  ReturnList <-
-    list(
-      Matrix = as.matrix(scaled.mat),
-      col.means = col.means,
-      col.sd = col.sd
-    )
-}
-
-COL_DeNormalizeMatrix_List<-function(COL_NormalizeMatrix_List)
-{
-  Norm.Mat = COL_NormalizeMatrix_List$Matrix
-  DeNorm.mat = matrix(nrow = nrow(Norm.Mat),ncol = ncol(Norm.Mat))
-  #as.matrix(rep(0,NCOL(Matrix)),dim=c(0,NCOL(Matrix)))
-
-  col.sd =as.matrix(COL_NormalizeMatrix_List$sd)
-  col.means = as.matrix(COL_NormalizeMatrix_List$col.means)
-
-  print(ncol(Norm.Mat))
-  for(col in 1:ncol(Norm.Mat))
-  {
-    DeNorm.mat[,col] = (Norm.Mat[,col]+col.means[col])#*col.sd[col]
-
-    #print("VS")
-    #print(dim(as.matrix(Norm.Mat[,col]+col.means[col])))
-    #print(dim(col.sd))
-  }
-
-  return (as.matrix(DeNorm.mat))
-}
+source("R/General.R")
 
 
-
-
-#' NormalizeMatrix
-#'
-#' @param Matrix [X x Y]
-#'
-#' @return returns a NormalizedMatrix with the points in respect to the Matrix's Mean.
-#'
-#' Uses the formula: ((Matrix - Matrix.mean)/Matrix.sd)
-#'
-#' @export
-#'
-#' @examples
-#' Norm.Mat = NormalizeMatrix(as.matrix(c(1,2,3)))
-#' print(Norm.Mat)
-#' # Returns:
-#'          [,1]
-#'[1,] -1.224745
-#'[2,]  0.000000
-#'[3,]  1.224745
-NormalizeMatrix<-function(Matrix)
-{
-  # vector of mean column values
-  mean <- mean(Matrix)
-  # sum all of all columns for each row
-  sum = 0
-  for( row in 1:nrow(Matrix))
-  {
-    sum = sum + sum((Matrix[row,] - mean)^2)
-  }
-
-  # get sd from the calculated sum and number of observations
-  sd = sqrt(sum / length(Matrix))
-  # return the new matrix
-  return((Matrix - mean)/sd)
-
-}
-
-
-#' NormalizeMatrix_List
-#'
-#' @param Matrix [X x Y]
-#'
-#' @return Same as NormalizeMatrix, but returns contents within a list, so the standard deviation can be used later
-#'
-#' Uses the formula: ((Matrix - Matrix.mean)/Matrix.sd)
-#'
-#' @export
-#'
-#' @examples
-#' Norm_List = NormalizeMatrix_List(as.matrix(c(1,2,3)))
-#' print(Norm_List)
-#' # Returns:
-#' $NormalizedMatrix
-#' [,1]
-#' [1,] -1.224745
-#' [2,]  0.000000
-#' [3,]  1.224745
-#'
-#' $sd
-#' [1] 0.8164966
-NormalizeMatrix_List<-function(Matrix)
-{
-  # vector of mean column values
-  mean <- mean(Matrix)
-  # sum all of all columns for each row
-  sum = 0
-  for( row in 1:nrow(Matrix))
-  {
-    sum = sum + sum((Matrix[row,] - mean)^2)
-  }
-
-  # get sd from the calculated sum and number of observations
-  sd = sqrt(sum / length(Matrix))
-  # return the new matrix
-  ReturnList <-
-    list(
-      NormalizedMatrix = ((Matrix - mean)/sd),
-      sd = sd
-    )
-}
-
-
-
-#' NormalizeVector
-#'
-#' @param Vector [X]
-#'
-#' @return takes the absolute sum making the total distance, and divides by the length
-#'
-#' Uses the formula: ((Matrix - Matrix.mean)/Matrix.sd)
-#'
-#' @export
-#'
-#' @examples
-#' Norm_List = NormalizeMatrix_List(as.matrix(c(1,2,3)))
-#' print(Norm_List)
-#' # Returns:
-#' $NormalizedMatrix
-#' [,1]
-#' [1,] -1.224745
-#' [2,]  0.000000
-#' [3,]  1.224745
-#'
-#' $sd
-#' [1] 0.8164966
-NormalizeVector<-function(Vector)
-{
-  #return<- Vector /sum(abs(Vector))
-  return<- Vector /sum(Vector)
-}
 
 #' LMLogistic_Gradient
 #'
-#' @param TrainingData
-#' @param TrainingLabels
-#' @param W.Vector
+#'@param TrainingData numeric imput feature matrix [n x p]
+#'@param TrainingLabels numberic input label vector [n]
+#'@param W.Vector Weight values representing the Linear funciton [p+1],
 #'
 #' @return returns the gradient of the W.Vector, in respect to the TrainingData, and TrainingLabels
 #' Uses the following equation to find the gradients:
@@ -209,6 +18,43 @@ NormalizeVector<-function(Vector)
 #' @examples
 LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 {
+  print("LMLogistic_Gradient")
+  TrainingData  = data.matrix(TrainingData)
+  TrainingLabels = data.matrix(TrainingLabels)
+
+  Bias    =  data.matrix(W.Vector[1])
+  Weights = data.matrix(W.Vector[2:length(W.Vector)])
+
+  print(dim(Weights))
+  print(dim(TrainingLabels))
+  print(dim(TrainingData))
+
+  #Gradient = 2*sum(W.Vector*TrainingData - TrainingLabels)*TrainingLabels
+  Y.hat = 1/(1+exp(-(TrainingData %*% (Weights))))
+
+
+  W.gradient.vec = -t(TrainingData) %*% (TrainingLabels / (1 + exp(TrainingLabels * (TrainingData %*% W.Vector + rep(1,n.train) * Bias ))))
+  # Calculate L(beta)'
+
+  #beta.gradient <-
+  #  -sum(y.vec / (1 + exp(y.vec * (
+  #    X.scaled.mat %*% W.temp.vec + rep(1,n.train) * beta.temp
+  #  ))))/n.train
+
+
+GradientY.hat = as.matrix((exp(-(TrainingData %*% (Weights))))/(1+exp(-(TrainingData %*% Weights)))**2)
+print(dim(GradientY.hat))
+stop("YO Bro 3 ")
+
+
+  FullGradient <- as.matrix(rbind(BiasGradient,(as.matrix(rowMeans(Gradient)))))
+  FullGradient <- FullGradient/sum(FullGradient)
+  #stop("O NO2")
+  return <- t(FullGradient)
+}
+OG_LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
+{
+  print("LMLogistic_Gradient")
   TrainingData  = data.matrix(TrainingData)
   TrainingLabels = data.matrix(TrainingLabels)
 
@@ -216,11 +62,15 @@ LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
   Weights = data.matrix(W.Vector[2:length(W.Vector)])
 
   #print(dim(data.matrix(W.Vector)))
-  #print(dim(Bias))
-  #print(dim(Weights))
+  print(dim(TrainingLabels))
+  print(dim(TrainingData))
 
   #Gradient = 2*sum(W.Vector*TrainingData - TrainingLabels)*TrainingLabels
-  Y.hat = 1/(1+exp(-data.matrix(TrainingLabels)%*% data.matrix(TrainingData) %*% data.matrix(W.Vector)))
+  #%*% t(data.matrix(TrainingData))
+  Y.hat = data.matrix(TrainingData) %*% (Weights)
+  #print("YB hat")
+  Yb.hat = Y.hat + Bias[1]
+  Y.hat = 1/(1+exp(-data.matrix(TrainingLabels) %*% data.matrix(W.Vector)))
   #print("YB hat")
   Yb.hat = Y.hat + Bias[1]
 
@@ -243,7 +93,7 @@ Temp_LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
   #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
   #Y.hat = data.matrix(TrainingData) %*% data.matrix(W.Vector)
 
-  Y.hat = 1/(1+exp(-TrainingLabels%*% data.matrix(TrainingData) %*% data.matrix(W.Vector)))
+  Y.hat = 1/(1+exp(-(TrainingData %*% (Weights))))
 
   SquaredNorm = (Y.hat - TrainingLabels)
 
@@ -253,7 +103,7 @@ Temp_LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 
 #'LMLogistic_Gradient_L2Regularization
 #'
-#' Makes iterative steps using gradient decent to find a solution to the Logistic Models problem
+#' Makes iterative steps using gradient decent to find a solution to the Logistic Models problem.
 #'
 #'@param TrainingData numeric imput feature matrix [n x p]
 #'@param TrainingLabels numberic input label vector [n]
@@ -268,6 +118,9 @@ Temp_LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 #'@export
 #'
 #' @examples
+#'## Example: 1 With The Spam DataSet:##
+#'
+#'## Example: 2  With The ZipTrain Dataset:##
 #'
 LMLogistic_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vector,Penalty=0)
 {
@@ -291,7 +144,7 @@ LMLogistic_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vec
   #print(dim(Weights))
 
   #Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
-  Y.hat = (data.matrix(TrainingData) %*% Weights)
+  Y.hat = 1/(1+exp(-(TrainingData %*% (Weights))))
   Yb.hat = Y.hat + Bias[1]
 
   LogisticdNorm = (Y.hat - TrainingLabels)
@@ -354,8 +207,11 @@ LMLogistic_Gradient_L2Regularization<-function(TrainingData,TrainingLabels,W.Vec
 #'@export
 #'
 #' @examples
+#'## Example: 1 With The Spam DataSet:##
 #'
-Find_Wmatrix_MeanL2Error<-function(TestingData,TestingLables,W.Matrix,BinaryClassification)
+#'## Example: 2  With The ZipTrain Dataset:##
+#'
+FindLogistic_Wmatrix_MeanL2Error<-function(TestingData,TestingLables,W.Matrix,BinaryClassification)
 {
   #print(dim(W.Matrix))
   W.Matrix = data.matrix(W.Matrix)
@@ -373,8 +229,8 @@ Find_Wmatrix_MeanL2Error<-function(TestingData,TestingLables,W.Matrix,BinaryClas
   L2Error.matrix = 0
 
 
-  Y.hat = as.matrix(TestingData %*% Weights)
-
+  #Y.hat = as.matrix(TestingData %*% Weights)
+  Y.hat = 1/(1+exp(-(TestingData %*% (Weights))))
   #print(dim(Y.hat))
 
   Yb.hat = 0
@@ -414,6 +270,9 @@ Find_Wmatrix_MeanL2Error<-function(TestingData,TestingLables,W.Matrix,BinaryClas
 #'@export
 #'
 #' @examples
+#'## Example: 1 With The Spam DataSet:##
+#'
+#'## Example: 2  With The ZipTrain Dataset:##
 #'
 FindLogistic_Wmatrix_MeanL1Error<-function(TestingData,TestingLables,W.Matrix,BinaryClassification)
 {
@@ -432,7 +291,8 @@ FindLogistic_Wmatrix_MeanL1Error<-function(TestingData,TestingLables,W.Matrix,Bi
   #print(dim(TestingData))
 
 
-  Y.hat = as.matrix(TestingData %*% Weights)
+  #Y.hat = as.matrix(TestingData %*% Weights)
+  Y.hat = 1/(1+exp(-(TestingData %*% (Weights))))
   #print(dim(Y.hat))
 
   Yb.hat = 0
@@ -451,10 +311,10 @@ FindLogistic_Wmatrix_MeanL1Error<-function(TestingData,TestingLables,W.Matrix,Bi
   }else{
     Error_Vector = abs((Yb.hat) - as.integer(TestingLables))
   }
-  print("Yb.hat-TestingLables")
-  print(dim(Yb.hat))
-  print(dim(TestingLables))
-  print(Yb.hat-as.integer(TestingLables))
+  #print("Yb.hat-TestingLables")
+  #print(dim(Yb.hat))
+  #print(dim(TestingLables))
+  #print(Yb.hat-as.integer(TestingLables))
 
   #print()
 
@@ -479,15 +339,9 @@ FindLogistic_Wmatrix_MeanL1Error<-function(TestingData,TestingLables,W.Matrix,Bi
 #'@export
 #'
 #'@examples
-#' #Example1: set up data
-#' TrainingData   <-
-#' TrainingLabels <-
-#' Steps    <- 30
-#' StepSize <- 0.1
-#' #The acctual function call
-#' DeNormalizedWeights <- LMLogisticLossIterations(TrainingData, TrainingLabels,Steps,StepSize)
+#'## Example: 1 With The Spam DataSet:##
 #'
-#' print(dim(DeNormalizedWeights)) # returns [Steps x NCOL(TrainingData)] or [Steps x Training_Labels + 1]
+#'## Example: 2  With The ZipTrain Dataset:##
 #'
 LMLogisticLossIterations<-function(TrainingData, TrainingLabels,Iterations = 10,StepSize.Scalar)
 {
@@ -587,6 +441,9 @@ LMLogisticLossIterations<-function(TrainingData, TrainingLabels,Iterations = 10,
 #'@export
 #'
 #'@examples
+#'## Example: 1 With The Spam DataSet:##
+#'
+#'## Example: 2  With The ZipTrain Dataset:##
 #'
 LMLogisticLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,folds.n=4,max.iterations=30)
 {
@@ -716,18 +573,6 @@ LMLogisticLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,f
 }
 
 
-#LMLogisticLossL2
-#--------------------------------------------------------------------------------------------------------------
-#Finds the optimal weight vector that minimizes the following cost function:
-# Sum   (L[w^T x_i, y_i] + penalty * ||w|| )
-#i=1^n
-
-#penalty  (non-negative numeric scalar)
-
-#Gradient cliping ?
-#opt.thresh (positive numeric scalar)
-#opt.thresh should be a threshold on the L1-norm (sum of absolute values) of the gradient.
-#I will test your code to make sure that the L1-norm of the gradient of your solution is less than opt.thresh.
 
 #'LMLogisticLossL2
 #'
@@ -745,6 +590,9 @@ LMLogisticLossEarlyStoppingCV<-function(TrainingData, TrainingLabels, fold.vec,f
 #'@export
 #'
 #'@examples
+#'## Example: 1 With The Spam DataSet:##
+#'
+#'## Example: 2  With The ZipTrain Dataset:##
 #'
 LMLogisticLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt.thresh, initial.weight.vec)
 {
@@ -772,7 +620,7 @@ LMLogisticLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt
   #Itterate # of times
   #---------------------------------------------------------------------------------------------
   #for(Iteration in 1:100)
-  Iteration=1
+  Iteration=0
   while((L1_norm.val > opt.thresh)&&(Iteration <250))
   {
     Iteration = Iteration+1
@@ -854,6 +702,9 @@ LMLogisticLossL2<-function(Normalized_TrainingData, TrainingLabels, penalty, opt
 #'@export
 #'
 #'@examples
+#'## Example: 1 With The Spam DataSet:##
+#'
+#'## Example: 2  With The ZipTrain Dataset:##
 #'
 LMLogisticLossL2penalties<-function(TrainingData, TrainingLabels,penalty.vec)
 {
@@ -900,6 +751,9 @@ LMLogisticLossL2penalties<-function(TrainingData, TrainingLabels,penalty.vec)
 #'@export
 #'
 #'@examples
+#'## Example: 1 With The Spam DataSet:##
+#'
+#'## Example: 2  With The ZipTrain Dataset:##
 #'
 LMLogisticLossL2CV<-function(TrainingData, TrainingLabels, fold.vec, penalty.vec)
 {
