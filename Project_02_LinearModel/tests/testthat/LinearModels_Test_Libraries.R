@@ -9,26 +9,10 @@ context("LinearModel")
 
 
 #need to uncomment this for testing !! !!
-#source("tests/testthat/Prep_Libraries.R")
-
-
-
-
-#This function works better with larger lists!!
-#note RandomNumbers generate (0,Folds)
-Random_Folds <- function(Size,Folds)
-{
-  try(if(Size < 0) stop("Invalid Size Value: cannot preform random Folds when (Size < 0) !!"))
-  try(if(Folds < 0) stop("Invalid Folds Value: cannot preform random Folds when (Size < 0) !!"))
-  sample(1:(Folds),Size,replace=T)
-}
-
+source("tests/testthat/Prep_Libraries.R")
 
 
 #Binary Tests
-
-
-
 
 
 
@@ -38,13 +22,13 @@ Linear_Spam_Tests<-function()
   Spam<-Prep_Spam()
 
   #Question:1
-  if(FALSE)
+  if(TRUE)
   {
     print("Linear_Spam_Tests: Question:1")
     Scalar.Step = 0.1
     DeNormalizedWeights <- LMSquareLossIterations(Spam$TrainingData, Spam$TrainingLabels,Spam$Iterations,Scalar.Step)
     #DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam[""], Spam[],(DeNormalizedWeights),Spam$BinaryClassification)
-    DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(DeNormalizedWeights),SAheart$BinaryClassification)
+    DeNorm.Error <-Find_Wmatrix_MeanL1Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(DeNormalizedWeights),Spam$BinaryClassification)
     #print(DeNorm.Error)
     barplot(DeNorm.Error,main = "Question 1: LMSquareLossIterations:Spam",xlab = "Iteration",ylab = "Error",beside = TRUE)
   }
@@ -94,7 +78,7 @@ Linear_Spam_Tests<-function()
 
 
   #Question:5
-  if(TRUE)
+  if(FALSE)
   {
     print("Linear_Spam_Tests: Question:5")
     LMSquareLossL2CV_List <- LMSquareLossL2CV(Spam$TrainingData, Spam$TrainingLabels,Spam$Folds.Vec, Spam$Penalty.Vector)
@@ -103,7 +87,7 @@ Linear_Spam_Tests<-function()
     barplot(DeNorm.Error,main = "Question 5: mean.validation.loss :Spam",xlab = "Iteration",ylab = "Error",beside = TRUE)
   }
 }
-#Linear_Spam_Tests()
+Linear_Spam_Tests()
 
 
 #ElemStatLearn::SAheart 2-class [462, 9] output is last column (chd).
@@ -352,7 +336,7 @@ Linear_Prostate_Test<-function()
     barplot(DeNorm.Error,main = "Question 5: mean.validation.loss :Prostate",xlab = "Iteration",ylab = "Error",beside = TRUE)
   }
 }
-Linear_Prostate_Test()
+#Linear_Prostate_Test()
 
 
 #ElemStatLearn::ozone [111 x 3] output is first column (ozone)
