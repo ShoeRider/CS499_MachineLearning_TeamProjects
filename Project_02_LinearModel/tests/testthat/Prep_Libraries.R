@@ -39,7 +39,7 @@ Prep_Spam<-function()
 
   ReturnList<-list(
     n_Elements = Rows,
-	  MaxNeighbors = MaxNeighbors,
+    MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
     Folds.Vec = Random_Folds(Rows,Folds),
@@ -88,7 +88,7 @@ Prep_SAheart<-function()
 
   ReturnList<-list(
     n_Elements = Rows,
-  	MaxNeighbors = MaxNeighbors,
+    MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
     Folds.Vec = Random_Folds(Rows,Folds),
@@ -100,7 +100,7 @@ Prep_SAheart<-function()
   )
 }
 
-Prep_Ziptrain<-function()
+Prep_ZipTrain<-function()
 {
   Folds                <- 3
   MaxNeighbors         <- 30
@@ -130,7 +130,7 @@ Prep_Ziptrain<-function()
 
   ReturnList<-list(
     n_Elements = Rows,
-  	MaxNeighbors = MaxNeighbors,
+    MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
     Folds.Vec = Random_Folds(Rows,Folds),
@@ -166,7 +166,7 @@ Prep_Prostate<-function()
 
   ReturnList<-list(
     n_Elements = Rows,
-  	MaxNeighbors = MaxNeighbors,
+    MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
     Folds.Vec = Random_Folds(Rows,Folds),
@@ -203,7 +203,7 @@ Prep_Ozone<-function()
 
   ReturnList<-list(
     n_Elements = Rows,
-  	MaxNeighbors = MaxNeighbors,
+    MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
     Folds.Vec = Random_Folds(Rows,Folds),
