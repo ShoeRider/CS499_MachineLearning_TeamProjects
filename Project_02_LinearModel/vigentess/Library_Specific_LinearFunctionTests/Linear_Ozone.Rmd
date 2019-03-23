@@ -1,7 +1,7 @@
 ```{r}
-#library(LinearModel)
+library(LinearModel)
 source("../../tests/testthat/Prep_Libraries.R")
-source("../../tests/testthat/LinearModels_Test_Libraries.R")
+#source("../../tests/testthat/LinearModels_Test_Libraries.R")
 ```
 
 
