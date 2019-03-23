@@ -1,0 +1,282 @@
+---
+title: "Project 1: K Nearest Neighbors"
+author: "Anthony Schroeder"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Report for project 1 on K Nearest Neighbors}
+  %\VignetteEngine{knitr::knitr}
+  %\usepackage[UTF-8]{inputenc}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+```
+
+## Introduction
+
+
+**Manhattan distance(L1): **  **$d(i,j)=\sum_{1}^{n}(|X_1-X_2|+|Y_1-Y_2|)$**
+
+**Nearest neighbor prediction function: **
+
+**The optimal number of neighbors:      **
+
+## Lets Import some general functionality
+```{r}
+library(LinearModel)
+#source("R/General.R")
+print(getwd())
+#source("R/knn.R")
+#source("R/NN1toKmaxPredict.R")
+#source("R/NNLearnCV.R")
+#source("R/NNLearnCV_interface.R")
+source("tests/testthat/Prep_Libraries.R")
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+```
+
+## Data set 1: spam
+### Code
+Note, i am using some 'Prep' functions i made to make managing the code easier, and more Efficient.
+
+
+```{r}
+  #--------------------NN1ToKmaxPredict------------------------------------
+  Spam<-Prep_Spam()
+  print("Linear_Spam_Test: Question/Requrement:1")
+  Fold.vec = Random_Folds(Spam$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(Spam$TrainingData, Spam$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "Spam: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  
+  #------------------------------------------------------------------------
+
+```
+
+### Matrix of loss values
+```{r}
+#-------------------UntrainedCV-------------------------------------
+  Spam_LossMatrix <-rbind(as.double(KNNLearnCV.List$TestMeanError.mat[,1]),as.double(KNNLearnCV.List$TestMeanError.mat[,KNNLearnCV.List$selected.KNN]))
+print(as.double(KNNLearnCV.List$train.loss.mat[,1]))
+#print(as.double(KNNLearnCV.List$train.loss.mat[,as.integer(KNNLearnCV.List$selected.KNN)]))
+
+  colnames(Spam_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Spam_LossMatrix)<-c("Untrained","Trained")
+  barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+```
+
+### Train/validation loss plot
+```{r}
+  plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+
+dot.x <- KNNLearnCV.List$selected.KNN
+dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+matpoints(x = dot.x,
+          y = dot.y,
+          col = 2,
+          pch = 19)
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+```
+
+The optimal number of neighbors is: **`r KNNLearnCV.List$selected.KNN`**
+
+
+## Data set 2: SAheart
+### Code
+```{r}
+  #
+
+  #--------------------NN1ToKmaxPredict------------------------------------
+  SAheart<-Prep_SAheart()
+
+  print("KNN_SAheart_Tests: Question:1")
+  Fold.vec = Random_Folds(SAheart$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(SAheart$TrainingData, SAheart$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "SAheart: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+
+
+```
+
+### Matrix of loss values
+```{r}
+#-------------------UntrainedCV-------------------------------------
+  SAheart_LossMatrix <-rbind(as.double(KNNLearnCV.List$TestMeanError.mat[,1]),as.double(KNNLearnCV.List$TestMeanError.mat[,KNNLearnCV.List$selected.KNN]))
+  print(as.double(KNNLearnCV.List$TestMeanError.mat[,1]))
+  #print(as.double(KNNLearnCV.List$train.loss.mat[,as.integer(KNNLearnCV.List$selected.KNN)]))
+
+  colnames(SAheart_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(SAheart_LossMatrix)<-c("Untrained","Trained")
+  barplot(SAheart_LossMatrix, xlab = "Iterations", ylab = "Error",main = "SAheart_LossMatrix",legend = (rownames(SAheart_LossMatrix)),beside = TRUE)
+```
+
+### Train/validation loss plot
+```{r}
+  plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+
+dot.x <- KNNLearnCV.List$selected.KNN
+dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+matpoints(x = dot.x,
+          y = dot.y,
+          col = 2,
+          pch = 19)
+ # legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+```
+
+The optimal number of neighbors is: **`r KNNLearnCV.List$selected.KNN`**
+
+
+## Data set 3: Zip.train
+### Code and itteration loss
+```{r}
+
+
+  Ziptrain<-Prep_ZipTrain()
+  print("KNN_Ziptrain_Tests: ")
+  Fold.vec = Random_Folds(Ziptrain$n_Elements,4)
+  Fold.n   = 4
+
+
+
+  #--------------------KNNLearnCV------------------------------------
+  KNNLearnCV.List = KNNLearnCV(Ziptrain$TrainingData, Ziptrain$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "Ziptrain: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+```
+
+### Matrix of loss values
+```{r}
+#-------------------UntrainedCV-------------------------------------
+  ZipTrain_LossMatrix <-rbind(as.double(KNNLearnCV.List$TestMeanError.mat[,1]),as.double(KNNLearnCV.List$TestMeanError.mat[,KNNLearnCV.List$selected.KNN]))
+print(as.double(KNNLearnCV.List$TestMeanError.mat[,1]))
+#print(as.double(KNNLearnCV.List$train.loss.mat[,as.integer(KNNLearnCV.List$selected.KNN)]))
+
+  colnames(ZipTrain_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(ZipTrain_LossMatrix)<-c("Untrained","Trained")
+  barplot(ZipTrain_LossMatrix, xlab = "Iterations", ylab = "Error",main = "",legend = (rownames(ZipTrain_LossMatrix)),beside = TRUE)
+```
+
+### Train/validation loss plot
+```{r}
+  plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+  dot.x <- KNNLearnCV.List$selected.KNN
+  dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+  matpoints(x = dot.x,
+            y = dot.y,
+            col = 2,
+            pch = 19)
+```
+The optimal number of neighbors is: **`r KNNLearnCV.List$selected.KNN`**
+
+## Data set 4: prostate
+### Code
+```{r}
+
+  #--------------------NN1ToKmaxPredict------------------------------------
+  Prostate<-Prep_Prostate()
+  print("NN1ToKmax_Prostate_Tests: ")
+  Fold.vec = Random_Folds(Prostate$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(Prostate$TrainingData, Prostate$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "Prostate: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+
+```
+
+### Matrix of loss values
+```{r}
+#-------------------UntrainedCV-------------------------------------
+  Prostate_LossMatrix <-rbind(as.double(KNNLearnCV.List$TestMeanError.mat[,1]),as.double(KNNLearnCV.List$TestMeanError.mat[,KNNLearnCV.List$selected.KNN]))
+print(Prostate_LossMatrix)
+#print(as.double(KNNLearnCV.List$train.loss.mat[,as.integer(KNNLearnCV.List$selected.KNN)]))
+
+  colnames(Prostate_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Prostate_LossMatrix)<-c("Untrained","Trained")
+  barplot(Prostate_LossMatrix, xlab = "Iterations", ylab = "Error",main = "",legend = (rownames(Prostate_LossMatrix)),beside = TRUE)
+```
+
+### Train/validation loss plot
+```{r}
+  plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+
+  dot.x <- KNNLearnCV.List$selected.KNN
+  dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+  matpoints(x = dot.x,
+            y = dot.y,
+            col = 2,
+            pch = 19)
+```
+The optimal number of neighbors is: **`r KNNLearnCV.List$selected.KNN`**
+
+## Data set 5: ozone
+### Code
+```{r}
+  #
+
+  #--------------------NN1ToKmaxPredict------------------------------------
+  Ozone<-Prep_Ozone()
+  print("NN1ToKmax_Ozone_Tests: ")
+  Fold.vec = Random_Folds(Ozone$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(Ozone$TrainingData, Ozone$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "Ozone: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+
+
+
+```
+
+### Matrix of loss values
+```{r}
+#-------------------UntrainedCV-------------------------------------
+  Ozone_LossMatrix <-rbind(as.double(KNNLearnCV.List$TestMeanError.mat[,1]),as.double(KNNLearnCV.List$TestMeanError.mat[,KNNLearnCV.List$selected.KNN]))
+print(as.double(KNNLearnCV.List$TestMeanError.mat[,1]))
+#print(as.double(KNNLearnCV.List$train.loss.mat[,as.integer(KNNLearnCV.List$selected.KNN)]))
+
+  colnames(Ozone_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Ozone_LossMatrix)<-c("Untrained","Trained")
+  barplot(Ozone_LossMatrix, xlab = "Iterations", ylab = "Error",main = "",legend = (rownames(Ozone_LossMatrix)),beside = TRUE)
+```
+
+### Train/validation loss plot
+```{r}
+  plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  #legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+
+  dot.x <- KNNLearnCV.List$selected.KNN
+  dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+  matpoints(x = dot.x,
+            y = dot.y,
+            col = 2,
+            pch = 19)
+
+```
+
+
+
+
+The optimal number of neighbors is: **`r KNNLearnCV.List$selected.KNN`**
