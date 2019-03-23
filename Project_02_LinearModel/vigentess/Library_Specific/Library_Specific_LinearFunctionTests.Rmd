@@ -1,7 +1,7 @@
 ```{r}
-#library(LinearModel)
-source("../tests/testthat/Prep_Libraries.R")
-source("../tests/testthat/LinearModels_Test_Libraries.R")
+library(LinearModel)
+#print(getwd())
+source("../../tests/testthat/Prep_Libraries.R")
 ```
 
 
@@ -36,15 +36,15 @@ for(i in 1:(LossMat.fold.n))
     Iterations  = 30
     LMSquareLossIterations.W.Vec <- LMSquareLossIterations(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],Iterations,Scalar.Step)
     SLI.WholeError.Vec <-Find_Wmatrix_MeanL2Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
-    print("dim SLI.WHoleError")
-    print(dim(as.matrix(SLI.WholeError.Vec)))
-    SLI.WholeError.Mat <- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
-
+    #print("dim SLI.WHoleError")
+    #print(dim(as.matrix(SLI.WholeError.Vec)))
+    #SLI.WholeError.Mat <- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+    
     SLI.TrainError.Vec <-Find_Wmatrix_MeanL2Error(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
     SLI.TrainError.Mat <- cbind(SLI.TrainError.Mat,SLI.TrainError.Vec)
-
+  
     SLI.TestError.Vec  <-Find_Wmatrix_MeanL2Error(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
-   SLI.TestError.Mat<- cbind(SLI.TrainError.Mat,SLI.TrainError.Vec)
+    SLI.TestError.Mat<- cbind(SLI.TestError.Mat,SLI.TestError.Vec)
   }
   #------------------------------------------------------------------------
 }
@@ -198,15 +198,15 @@ for(i in 1:(LossMat.fold.n))
     SL_L2_Pen.W.Mat <-LMSquareLossL2penalties(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)], Spam$Penalty.Vector)
 
     #DeNorm.Error <-Find_Wmatrix_MeanL2Error(Spam$TrainingData, Spam$TrainingLabels,t(DeNormalized.W.Matrix),Spam$BinaryClassification)
-    print("SL_L2_Pen.WholeError.Vec")
+    #print("SL_L2_Pen.WholeError.Vec")
     SL_L2_Pen.WholeError.Vec <-Find_Wmatrix_MeanL1Error(Spam$TrainingData, Spam$TrainingLabels,(SL_L2_Pen.W.Mat),Spam$BinaryClassification)
     SL_L2_Pen.WholeError.Mat <- rbind(SL_L2_Pen.WholeError.Mat,SL_L2_Pen.WholeError.Vec)
     
-    print("SL_L2_Pen.TestError.Vec")
+    #print("SL_L2_Pen.TestError.Vec")
     SL_L2_Pen.TestError.Vec <-Find_Wmatrix_MeanL1Error(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],(SL_L2_Pen.W.Mat),Spam$BinaryClassification)
     SL_L2_Pen.TestError.Mat <- rbind(SL_L2_Pen.TestError.Mat,SL_L2_Pen.TestError.Vec)
     
-    print("SL_L2_Pen.TrainError.Vec")
+    #print("SL_L2_Pen.TrainError.Vec")
     SL_L2_Pen.TrainError.Vec <- Find_Wmatrix_MeanL1Error(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],(SL_L2_Pen.W.Mat),Spam$BinaryClassification)
     SL_L2_Pen.TrainError.Mat <- rbind(SL_L2_Pen.TrainError.Mat,SL_L2_Pen.TrainError.Vec)
   }
@@ -215,12 +215,23 @@ for(i in 1:(LossMat.fold.n))
 
 print(dim(as.matrix(SL_L2_Pen.WholeError.Mat)))
 print(SL_L2_Pen.WholeError.Mat)
+print(dim(as.matrix(SL_L2_Pen.TestError.Mat)))
+print(SL_L2_Pen.TestError.Mat)
+
+plot(as.matrix((SL_L2_Pen.TestError.Mat[2:NROW(SL_L2_Pen.TestError.Mat)])),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
+#plot(as.matrix(SL_L2.TrainError.Mat[2:NROW(SL_L2.TrainError.Mat)]),type="o", col = "red", xlab = "Iterations", ylab = "Error",main = "")
+lines(as.matrix((SL_L2_Pen.TrainError.Mat[2:NROW(SL_L2_Pen.TrainError.Mat)])),type="o", col = "red")
+```
+```{r}
 print(dim(as.matrix(SL_L2_Pen.WholeError.Mat)))
 print(SL_L2_Pen.WholeError.Mat)
+print(dim(as.matrix(SL_L2_Pen.TestError.Mat)))
+print(SL_L2_Pen.TestError.Mat)
 
-  plot(as.matrix(rowMeans(SL_L2_Pen.TestError.Mat[2:NROW(SL_L2.TestError.Mat)])),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
-  #plot(as.matrix(SL_L2.TrainError.Mat[2:NROW(SL_L2.TrainError.Mat)]),type="o", col = "red", xlab = "Iterations", ylab = "Error",main = "")
-  lines(as.matrix(rowMeans(SL_L2_Pen.TrainError.Mat[2:NROW(SL_L2.TestError.Mat)])),type="o", col = "red")
+plot(as.matrix((SL_L2_Pen.TestError.Mat[2:NROW(SL_L2_Pen.TestError.Mat)])),type="o", col = "orange", xlab = "Iterations", ylab = "Error",main = "")
+#plot(as.matrix(SL_L2.TrainError.Mat[2:NROW(SL_L2.TrainError.Mat)]),type="o", col = "red", xlab = "Iterations", ylab = "Error",main = "")
+lines(as.matrix((SL_L2_Pen.TrainError.Mat[2:NROW(SL_L2_Pen.TrainError.Mat)])),type="o", col = "red")
+
 ```
 
 
@@ -291,7 +302,17 @@ print(SL_L2_Pen.WholeError.Mat)
 ```
 
 
+```{r}
+  print(dim(as.matrix(SL_L2CV.TestError.Mat)))
+  print(SL_L2CV.TestError.Mat)
+  print(dim(as.matrix(SL_L2CV.TrainError.Mat)))
+  print(SL_L2CV.TrainError.Mat)
 
+  plot(as.matrix((SL_L2CV.TestError.Mat[2:NROW(SL_L2CV.TestError.Mat)])),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
+  #plot(as.matrix(SL_L2.TrainError.Mat[2:NROW(SL_L2.TrainError.Mat)]),type="o", col = "red", xlab = "Iterations", ylab = "Error",main = "")
+  lines(as.matrix((SL_L2CV.TrainError.Mat[2:NROW(SL_L2CV.TrainError.Mat)])),type="o", col = "red")
+
+```
 
 
 
