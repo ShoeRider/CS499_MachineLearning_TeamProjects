@@ -2,7 +2,10 @@
 % Please edit documentation in R/knn.R
 \name{knn}
 \alias{knn}
-\title{K Nearest Neighbor Algorithm}
+\title{K Nearest Neighbor Algorithm
+This function uses the Commonly used algorithm, K Nearest Neighbor's to select a prediction of a given instance. 
+This function Wraps around c++ code to call it using r. The actual implmentation is written in Cpp, and is located 
+in the Src/knn.cpp. The R code does call the Interface.cpp implementation in the same folder.}
 \usage{
 knn(x.mat, y.vec, testx.vec, max.neighbors)
 }
@@ -17,20 +20,19 @@ either all 0/1 for binary classification or other real numbers for regression}
 \item{max.neighbors}{scalar integer, max number of neighbors}
 }
 \value{
-numeric vector of size max.neighbors, predictions from 1 to max.neighbors
+Returns a vector predicting the label, Y.Hat. The dimensions being [max.neighbors], for the prediction of each itteration of k.
 }
 \description{
-Wraps around c++ code to call it using r
+Note: This function preforms parameter checking to verify that the input parameters are correct, before calling the .cpp implementation which does more.
 }
 \examples{
-data(zip.train, packages= "ElemStatLearn")
-i01 <- which(zip.train[,1] \%in\% c(0,1))
-train.i <- i01[1:5]
-test.i <- i01[6]
-x <- zip.train[train.i,-1]
-y <- zip.train[train.i, 1]
-testx <- zip.train[test.i, -1]
-knn(x,y,testx,3)
-zip.train[test.i,1]
+################### Binary Classification ######################
+Spam<-Prep_Spam()
+Fold.vec = Random_Folds(Spam$n_Elements,4)
+Fold.n   = 4
+KNNLearnCV.List = KNNLearnCV(Spam$TrainingData, Spam$TrainingLabels, 30, Fold.vec, Fold.n)
+barplot(KNNLearnCV.List$train.loss.vec,main = "Spam: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+
+######################## Regression #########################
 
 }

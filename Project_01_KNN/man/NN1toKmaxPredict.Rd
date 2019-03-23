@@ -23,6 +23,7 @@ numeric vector of size [test.x.vec x max.neighbors] max.neighbors, predictions f
 Wraps around c++ knn_interface code to call it using r
 }
 \examples{
+~~ Example 1 ~~
 Spam<-Prep_Spam()
 Fold.vec = Random_Folds(Spam$n_Elements,4)
 Fold.n   = 4
@@ -30,4 +31,7 @@ KNNLearnCV.List = NN1toKmaxPredict(TrainingData, TrainingLabels,TestData, 30)
 #Where KNNLearnCV.List is a list containing the elements above, and you are free to use the returned values as you wish.
 
 barplot(KNNLearnCV.List$train.loss.vec,main = "Spam: KNNLearnCV.L2TestError.FoldMeans",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+
+~~ Example 2 ~~
+
 }

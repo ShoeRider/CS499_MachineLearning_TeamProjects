@@ -14,6 +14,8 @@ KNNLearnCV(TrainingInput, TrainingLabel, max.neighbors = 30,
 \arguments{
 \item{max.neighbors}{scalar integer, max number of neighbors}
 
+\item{fold.vec}{vector indicating the fold each element is in [n]}
+
 \item{TrainingData}{numeric imput feature matrix [n x p],}
 
 \item{TrainingLabels}{numberic input label vector [n], 
@@ -21,7 +23,7 @@ either all 0/1 for binary classification or other real numbers for regression}
 
 \item{TestData}{numberic test festure vector [p], that is used to test the different hyperparameters for k (1 to MAX.K) of KNN}
 
-\item{fold.n}{}
+\item{fold.n}{the number of folds that are to be preformed}
 }
 \value{
 Returns a list with the following elements 
