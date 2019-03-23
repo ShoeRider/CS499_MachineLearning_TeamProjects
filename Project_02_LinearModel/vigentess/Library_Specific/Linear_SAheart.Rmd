@@ -1,7 +1,7 @@
 ```{r}
-#library(LinearModel)
+library(LinearModel)
+#print(getwd())
 source("../../tests/testthat/Prep_Libraries.R")
-source("../../tests/testthat/LinearModels_Test_Libraries.R")
 ```
 
 
@@ -33,7 +33,7 @@ for(i in 1:(LossMat.fold.n))
   #-------------------------LMSquareLossIterations (SLI_Error)--------------
   if(TRUE)
   {
-    Scalar.Step = 0.1
+    Scalar.Step = 0.01
     Iterations  = 30
     LMSquareLossIterations.W.Vec <- LMSquareLossIterations(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],Iterations,Scalar.Step)
     SLI.WholeError.Vec <-Find_Wmatrix_MeanL2Error(SAheart$TrainingData, SAheart$TrainingLabels,as.matrix(LMSquareLossIterations.W.Vec),SAheart$BinaryClassification)
@@ -100,7 +100,7 @@ for(i in 1:(LossMat.fold.n))
   }
   #------------------------------------------------------------------------
 }
-
+print(dim(ES_CV_Error.TestError.Vec))
   plot(rowMeans(as.matrix(ES_CV_Error.TestError.Vec)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "")
   plot(rowMeans(as.matrix(ES_CV_Error.TrainError.Vec)),type="o", col = "red", xlab = "Iterations", ylab = "Error",main = "")
   #lines(rowMeans(as.matrix(ES_CV_Error.TrainError.Vec)),type="o", col = "red")
