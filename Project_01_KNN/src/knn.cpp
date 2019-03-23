@@ -77,8 +77,8 @@ int NN1toKmaxPredict(const int n_train_observations,
                  double * test_input_ptr, // n_test_observations x n_features
                  double * test_predict_ptr) // n_test_observations x max_neighbors
 {
-  
   // error checking
+  
   
   // validate positive train data dimensions
   if (n_train_observations < 1)
@@ -103,20 +103,73 @@ int NN1toKmaxPredict(const int n_train_observations,
   {
     return KMAX_TOO_LARGE_ERR;
   }
+  Eigen::Map<Eigen::MatrixXd> train_inputs_mat((double *) train_input_ptr, n_test_observations, n_features);
   
-  Eigen::Map<Eigen::MatrixXd> test_input_mat(
-      test_input_ptr,n_features, n_test_observations);
-  Eigen::Map<Eigen::MatrixXd> test_predict_mat(
-    test_predict_ptr, max_neighbors, n_test_observations);
   
-  for (int i = 0; i < n_test_observations; i++)
+  Eigen::Map<Eigen::MatrixXd> test_input_mat(test_input_ptr,n_features, n_test_observations);
+  Eigen::Map<Eigen::MatrixXd> test_predict_mat(test_predict_ptr, max_neighbors, n_test_observations);
+
+  Eigen::VectorXd distance_vec(n_train_observations);
+  Eigen::VectorXi sorted_index_vec(n_train_observations);
+
+  for (int x = 0; x < n_test_observations; x++)
   {
-    knn(train_input_ptr, train_label_ptr,
-        test_input_mat.col(i).data(),
-        n_train_observations, n_features, max_neighbors,
-        test_predict_mat.col(i).data());
+    //printf("%d \n",i);
+    //Take Test instance and
+    //+Sort for specific test Instance
+    for (int i = 0; i < n_train_observations; i++)
+    {
+      distance_vec(i) = (train_inputs_mat.row(i).transpose() - test_input_mat.row(x)).cwiseAbs().sum(); // manhattan distance?
+      sorted_index_vec(i) = i;
+    }
+//printf("V1.02\n");
+
+    std::sort(
+      sorted_index_vec.data(),
+      sorted_index_vec.data() + sorted_index_vec.size(),
+      [&distance_vec](int left, int right) {return distance_vec(left) < distance_vec(right);}
+    );
+    
+    /*
+     *     std::sort(
+     sorted_index_vec.data(),
+     sorted_index_vec.data() + sorted_index_vec.size(),
+     [&distance_vec](int left, int right) {return distance_vec(left) < distance_vec(right);}
+     );
+     */
+    //find predictions for test instance, for each nearest neighbor 
+    if(0)
+    {
+    printf("\n<");
+    }
+    int row; int neighbors; double total_labels = 0.0;
+    for (int y = 0; y < max_neighbors; y++)
+    {
+      
+      //+Find Prediction
+      //Todo: change the reference to include row/col to store solution..
+      row = sorted_index_vec(y);
+      neighbors = y + 1;
+      //total_labels += test_predict_ptr[row];
+      total_labels += train_label_ptr[row];
+      
+      
+      test_predict_mat(y,x) = total_labels/neighbors;
+      if(0)
+      {
+        //test_predict_mat(y,x) = 10;
+        printf("({%d,%d}%f++>",x,y,train_label_ptr[row]);
+        printf("%f/%d=>%f) ",total_labels,neighbors,test_predict_mat(y,x));
+      }
+
+    }
+    if(0)
+    {
+    printf(">\n");
+    }
+
   }
-  
+   
   return 0;
 }
         

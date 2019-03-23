@@ -12,11 +12,11 @@ void knn_interface(
     double * test_predict_ptr // max_neighbors
 )
 {
-  int status = knn(train_input_ptr, train_label_ptr,
+int status = knn(train_input_ptr, train_label_ptr,
                    test_input_ptr, *n_observations_ptr,
                    *n_features_ptr, *max_neighbors_ptr,
                    test_predict_ptr);
-  
+
   // error messages
   if (status != 0)
   {
@@ -42,15 +42,15 @@ void knn_interface(
   }
 }
 
-void NN1toKmaxPredict_interface
-  (const int * n_train_observations_ptr,
-   const int * n_test_observations_ptr,
-   const int * n_features_ptr,
-   const int * max_neighbors_ptr,
-   double * train_input_ptr, // n_train_observations x n_features
-   double * train_label_ptr, // n_train_observations
-   double * test_input_ptr, // n_test_observations x n_features
-   double * test_predict_ptr // n_test_observations x max_neighbors
+void NN1toKmaxPredict_interface(
+    const int * n_train_observations_ptr,
+    const int * n_test_observations_ptr,
+    const int * n_features_ptr,
+    const int * max_neighbors_ptr,
+    double * train_input_ptr, // n_train_observations x n_features
+    double * train_label_ptr, // n_train_observations
+    double * test_input_ptr, // n_test_observations x n_features
+    double * test_predict_ptr // n_test_observations x max_neighbors
   )
 {
   int status = NN1toKmaxPredict(*n_train_observations_ptr,
@@ -94,8 +94,7 @@ void NN1toKmaxPredict_interface
 
 R_CMethodDef cMethods[] = {
   {"knn_interface", (DL_FUNC) &knn_interface, 7},
-  {"NN1toKmaxPredict_interface",
-   (DL_FUNC) &NN1toKmaxPredict_interface, 8},
+  {"NN1toKmaxPredict_interface", (DL_FUNC) &NN1toKmaxPredict_interface, 8},
   {NULL, NULL, 0}
 };
 
