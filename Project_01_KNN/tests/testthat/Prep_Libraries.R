@@ -87,6 +87,7 @@ Prep_SAheart<-function()
 
 
   ReturnList<-list(
+    n_Elements = Rows,
   	MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
@@ -128,6 +129,7 @@ Prep_Ziptrain<-function()
 
 
   ReturnList<-list(
+    n_Elements = Rows,
   	MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
@@ -163,6 +165,7 @@ Prep_Prostate<-function()
 
 
   ReturnList<-list(
+    n_Elements = Rows,
   	MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
@@ -199,6 +202,7 @@ Prep_Ozone<-function()
 
 
   ReturnList<-list(
+    n_Elements = Rows,
   	MaxNeighbors = MaxNeighbors,
     TrainingData = TrainingData,
     TrainingLabels = TrainingLabels,
