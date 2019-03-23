@@ -4,8 +4,8 @@
 
 
 #print(getwd())
-source("R/General.R")
-source("R/NN1toKmaxPredict.R")
+#source("R/General.R")
+#source("R/NN1toKmaxPredict.R")
 #R CMD build 
 
 
@@ -70,7 +70,7 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
   
   
   L2TestError.Matrix = 0
-  
+  L2TrainError.Matrix = 0
   #print(folds.vec)
   #loop over (n.folds)folds validation
   for(i in 1:n.folds){
@@ -88,31 +88,26 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
     train.Labels <- as.matrix(train.FoldData[,LabelCol])
     
     Prediction.1ToMaxPrediction <- NN1toKmaxPredict(train.Data, train.Labels, test.Data, max.neighbors)
-    
-    #Find Error, and add to Error Matrix
-    if(FALSE)
-    {
-      print(dim(Prediction.1ToMaxPrediction))
-      print(Prediction.1ToMaxPrediction[,99])
-      print(Prediction.1ToMaxPrediction[,100])
-      print(Prediction.1ToMaxPrediction[,101])
-    }
-    
     L2TestError.1ToMax.Vector = Find.L2ErrorMean(Prediction.1ToMaxPrediction,test.Labels,BinaryClassification)
+    
+    Prediction.1ToMaxPrediction <- NN1toKmaxPredict(train.Data, train.Labels, train.Data, max.neighbors)
+    L2TrainError.1ToMax.Vector = Find.L2ErrorMean(Prediction.1ToMaxPrediction,train.Labels,BinaryClassification)
     #print("Something cool")
+    
     L2TestError.Matrix = rbind(L2TestError.Matrix,t(L2TestError.1ToMax.Vector))
+    L2TrainError.Matrix = rbind(L2TrainError.Matrix,t(L2TrainError.1ToMax.Vector))
     
   }
-  MeanError.vec<- as.matrix(L2TestError.Matrix[2:nrow(L2TestError.Matrix),])
-  dim(MeanError.vec) = c(nrow(L2TestError.Matrix)-1,max.neighbors)
-
-  L2TestError.Means = as.matrix(colMeans(MeanError.vec))
-  dim(L2TestError.Means)<- c(1,max.neighbors)
-  #print(t(L2TestError.Means))
-  #find column mean of Error Matrix
-  #print(colMeans(Testing.L1Error.matrix))
-  #print(colMeans(Testing.L2Error.matrix))
-  #print(colMeans(Training.L1Error.matrix))
+  TrainMeanError.mat <-as.matrix(L2TrainError.Matrix[2:nrow(L2TrainError.Matrix),])
+  dim(TrainMeanError.mat) = c(nrow(L2TestError.Matrix)-1,max.neighbors)
+  TrainMeanError.Means = as.matrix(colMeans(TrainMeanError.mat))
+  dim(TrainMeanError.Means)<- c(1,max.neighbors)
+  
+  
+  TestMeanError.mat<- as.matrix(L2TestError.Matrix[2:nrow(L2TestError.Matrix),])
+  dim(TestMeanError.mat) = c(nrow(L2TestError.Matrix)-1,max.neighbors)
+  TestMeanError.Means = as.matrix(colMeans(TestMeanError.mat))
+  dim(TestMeanError.Means)<- c(1,max.neighbors)
   
   #select Smallest Loss
 
@@ -120,9 +115,9 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
   selected.KNN = 0
   for(Index in 1:max.neighbors)
   {
-    if(L2TestError.Means[Index] < SmallestLoss)
+    if(TestMeanError.Means[Index] < SmallestLoss)
     {
-      SmallestLoss    = L2TestError.Means[Index]
+      SmallestLoss    = TestMeanError.Means[Index]
       selected.KNN    = Index
     }
   }
@@ -163,9 +158,11 @@ KNNLearnCV.Algorithm<-function(X.mat, Y.vec, max.neighbors=30, fold.vec=NULL, n.
     list(
       X.mat              = X.mat,
       y.vec              = Y.vec,
-      train.loss.mat     = MeanError.vec,
-      train.loss.vec     = L2TestError.Means,
-      selected.neighbors = selected.KNN,
+      TestMeanError.mat    = TestMeanError.mat,
+      TestMeanError.Means  = TestMeanError.Means,
+      TrainMeanError.mat   = TrainMeanError.mat,
+      TrainMeanError.Means = TrainMeanError.Means,
+      selected.KNN       = selected.KNN,
       Predict            = Predict
     )
 }

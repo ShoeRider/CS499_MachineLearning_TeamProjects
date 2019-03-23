@@ -1,5 +1,5 @@
 print(getwd())
-source("R/General.R")
+#source("R/General.R")
 
 #' NN1toKmaxPredict
 #'
@@ -15,6 +15,7 @@ source("R/General.R")
 #'@export
 #'
 #'@examples
+#'~~ Example 1 ~~
 #'Spam<-Prep_Spam()
 #'Fold.vec = Random_Folds(Spam$n_Elements,4)
 #'Fold.n   = 4
@@ -22,6 +23,9 @@ source("R/General.R")
 #' #Where KNNLearnCV.List is a list containing the elements above, and you are free to use the returned values as you wish.
 #' 
 #'barplot(KNNLearnCV.List$train.loss.vec,main = "Spam: KNNLearnCV.L2TestError.FoldMeans",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+#'
+#'~~ Example 2 ~~
+#'
 NN1toKmaxPredict <- function(TrainingData, TrainingLabels, TestData, max.neighbors)
 {
   # n_test_observations

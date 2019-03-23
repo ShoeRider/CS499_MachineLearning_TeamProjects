@@ -1,5 +1,9 @@
 #knn_interface
-source("R/NNLearnCV.R")
+#source("R/NNLearnCV.R")
+
+
+
+
 # @param hyperparameter k, The Number of Nearest neighbors compaired to when predicting a value.
 
 #' KNNLearnCV, This function validates the data, and verifies that the parameters are conformed to each other, and that they are indeed 
@@ -14,8 +18,8 @@ source("R/NNLearnCV.R")
 #'either all 0/1 for binary classification or other real numbers for regression
 #'@param TestData numberic test festure vector [p], that is used to test the different hyperparameters for k (1 to MAX.K) of KNN
 #'@param max.neighbors scalar integer, max number of neighbors
-#'@param fold.vec
-#'@param fold.n
+#'@param fold.vec vector indicating the fold each element is in [n]
+#'@param fold.n the number of folds that are to be preformed
 #'
 #'@return Returns a list with the following elements 
 #'      X.mat              = TrainingData numeric imput feature matrix [n x p],
