@@ -30,10 +30,25 @@ knitr::opts_chunk$set(
   We will then loop over each for (K) and sum up all of the distances that were calculated from the L1 Norm. After we sum all the rows we divide by the current fold number and then save that as the prediction for each K. The output will be a list of predictions (max_neighbors x 1) 
 
 **The optimal number of neighbors:  ** 
-  The Cross validation functions is what we will impliment in order to select the optimal number of neighbors for the given test set. The NNLearnCV functions will accept the whole train data set (n_observations_ x n_features) and the labels of that data set (n_features x 1). Optionally the we can pass; the max.neighbors to the function as an integer, and that will default to 30, a fold vector that must be [n_features x 1] and when given nothing will automatically generate a vector of the correct size, and lastly an integer that will represent the nummber of folds to be used in the cross validation.
-  Firstly, the function will need to check the dimensions of all the input that needs it. The function requires that the number of columns in X.mat is equal to the number of rows in the label vector Y.vec. The Y.vec needs to be the same size as the fold.vec and lastly, the fold.vec will need to have all content checked to make sure it is lower than the max number of folds given as an argument. 
-  Secondly, the function will perform cross validation on each of the fold numbers calculating two matrices of mean loss values (max.neighbors x folds). One of them is for the training data set and the other is for the test/validation set. We will be checking if all of the labels in the Y.vec are inbetween 0 and 1 so that we can use the proper loss function in our calculations. For binary classification we will use the 01-loss while for regression we will use the square loss. This function will call the NN1toKmaxPredict function to calculate a matrix of predications and we can use that to create a matrix of loss values. Then the colMeans() are store for the rows of the return matrix.
-  This function returns a list of 
+  The Cross validation functions is what we will impliment in order to select the optimal number of neighbors for the given test set.
+  The NNLearnCV functions will accept the whole train data set (n_observations_ x n_features) and the labels of that data set 
+  (n_features x 1). Optionally the we can pass; the max.neighbors to the function as an integer, and that will default to 30, a fold
+  vector that must be [n_features x 1] and when given nothing will automatically generate a vector of the correct size, and lastly 
+  an integer that will represent the nummber of folds to be used in the cross validation.
+  Firstly, the function will need to check the dimensions of all the input that needs it. The function requires that the number of
+  columns in X.mat is equal to the number of rows in the label vector Y.vec. The Y.vec needs to be the same size as the fold.vec 
+  and lastly, the fold.vec will need to have all content checked to make sure it is lower than the max number of folds given 
+  as an argument. 
+  Secondly, the function will perform cross validation on each of the fold numbers calculating two matrices of mean loss values
+  (max.neighbors x folds). One of them is for the training data set and the other is for the test/validation set. We will be 
+  checking if all of the labels in the Y.vec are inbetween 0 and 1 so that we can use the proper loss function in our calculations.
+  For binary classification we will use the 01-loss while for regression we will use the square loss. This function will call the
+  NN1toKmaxPredict function to calculate a matrix of predications and we can use that to create a matrix of loss values. Then the
+  colMeans() are store for the rows of the return matrix.
+  This function returns a list with named variables that include X.mat,y.vec which is the training data that was used for the model
+  named as training data. training.loss.mat will be the matrix of loss values generated from the training data and the
+  validation.loss.mat for validation data respectivly. The train.loss.vec variable will the mean loss for all the max neighbor
+  elements and similarly for the validation.loss.vec. The last named element of the list is the predict(testX.mat) which is actually a function that takes the matrix as input and returns a vector of predictions for the "unlabeled" set. 
   
   **Square Loss**
   $\mathcal{L(w)} = ||\mathcal{w}-\mathcal{y_i}||^2_2
