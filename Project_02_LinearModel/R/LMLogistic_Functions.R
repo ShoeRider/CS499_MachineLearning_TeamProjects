@@ -18,23 +18,35 @@ source("R/General.R")
 #' @examples
 LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 {
-  print("LMLogistic_Gradient")
+  #print("LMLogistic_Gradient")
   TrainingData  = data.matrix(TrainingData)
   TrainingLabels = data.matrix(TrainingLabels)
 
   Bias    =  data.matrix(W.Vector[1])
   Weights = data.matrix(W.Vector[2:length(W.Vector)])
 
-  print(dim(Weights))
-  print(dim(TrainingLabels))
-  print(dim(TrainingData))
+  #print(dim(Weights))
+  #print(dim(TrainingLabels))
+  #print(dim(TrainingData))
 
   #Gradient = 2*sum(W.Vector*TrainingData - TrainingLabels)*TrainingLabels
-  Y.hat = 1/(1+exp(-(TrainingData %*% (Weights))))
+  Yb.hat = (1/(1+exp(-(TrainingData %*% (Weights))))) + 0
+  #print("Calculating W.Gradient")
+
+  #W.gradient.vec = -t(TrainingData) %*% (TrainingLabels / (1 + exp(TrainingLabels * (TrainingData %*% Weights + rep(1,n.train) * Bias ))))
+  ExponentTemp = exp(as.integer(-t(TrainingLabels) %*% TrainingData %*% Weights))
 
 
-  W.gradient.vec = -t(TrainingData) %*% (TrainingLabels / (1 + exp(TrainingLabels * (TrainingData %*% W.Vector + rep(1,n.train) * Bias ))))
+  #### demonimator
+  Gradient = ExponentTemp*(-t(TrainingLabels) %*% TrainingData) / (1+ExponentTemp)
+  print("Itteration")
+  print(ExponentTemp)
+  print(Gradient)
+  #print(dim(Gradient))
+  #W.gradient.vec = exp(-TrainingLabels)
+
   # Calculate L(beta)'
+  #print("Calculating BiasGradient")
 
   #beta.gradient <-
   #  -sum(y.vec / (1 + exp(y.vec * (
@@ -42,51 +54,23 @@ LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
   #  ))))/n.train
 
 
-GradientY.hat = as.matrix((exp(-(TrainingData %*% (Weights))))/(1+exp(-(TrainingData %*% Weights)))**2)
-print(dim(GradientY.hat))
-stop("YO Bro 3 ")
+  BiasGradient = -sum(Yb.hat - TrainingLabels)
+  #BiasGradient = 0
+  #print(dim(BiasGradient))
+  #stop("YO Bro 3 ")
 
+  #print(dim(Gradient))
 
-  FullGradient <- as.matrix(rbind(BiasGradient,(as.matrix(rowMeans(Gradient)))))
+  FullGradient <- as.matrix(cbind(BiasGradient,(as.matrix((Gradient)))))
+  #print("full gradient")
+  #print(FullGradient)
   FullGradient <- FullGradient/sum(FullGradient)
-  #stop("O NO2")
+  #print(dim(FullGradient))
+  #print(FullGradient)
   return <- t(FullGradient)
 }
-OG_LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
-{
-  print("LMLogistic_Gradient")
-  TrainingData  = data.matrix(TrainingData)
-  TrainingLabels = data.matrix(TrainingLabels)
-
-  Bias    =  data.matrix(W.Vector[1])
-  Weights = data.matrix(W.Vector[2:length(W.Vector)])
-
-  #print(dim(data.matrix(W.Vector)))
-  print(dim(TrainingLabels))
-  print(dim(TrainingData))
-
-  #Gradient = 2*sum(W.Vector*TrainingData - TrainingLabels)*TrainingLabels
-  #%*% t(data.matrix(TrainingData))
-  Y.hat = data.matrix(TrainingData) %*% (Weights)
-  #print("YB hat")
-  Yb.hat = Y.hat + Bias[1]
-  Y.hat = 1/(1+exp(-data.matrix(TrainingLabels) %*% data.matrix(W.Vector)))
-  #print("YB hat")
-  Yb.hat = Y.hat + Bias[1]
-
-  Difference = (Y.hat - TrainingLabels)
-  BiasGradient = sum(Yb.hat - TrainingLabels)
 
 
-  # with a scalar of 2 , but its not needed becasue This vector will be normalized
-  Gradient = (t(TrainingData) %*% Difference)
-
-
-  FullGradient <- as.matrix(rbind(BiasGradient,Gradient))
-  FullGradient <- FullGradient/sum(FullGradient)
-
-  return <- t(FullGradient)
-}
 
 Temp_LMLogistic_Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 {
@@ -302,7 +286,7 @@ FindLogistic_Wmatrix_MeanL1Error<-function(TestingData,TestingLables,W.Matrix,Bi
   }
 
   print(BinaryClassification)
-  if(BinaryClassification)
+  if(0)
   {
     Error_Vector = ifelse(Yb.hat>0.5,1,0) != as.integer(TestingLables)
     #Error_Vector = abs((Y.hat) - as.integer(TestingLables))
@@ -370,12 +354,12 @@ LMLogisticLossIterations<-function(TrainingData, TrainingLabels,Iterations = 10,
   #make sure to compute a scaled input matrix, which has mean=0 and sd=1 for each column, and keep track of
   # the mean/sd of each column, so you can return W.mat on the original scale (if you use the unscaled X.mat
   # during gradient descent, it will not converge – numerical instability).
-  BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
+  BinaryClassification = all(TrainingLabels == 1 & TrainingLabels == 0)
 
   #initial Matrix for iteration 1
   W.Matrix = array(rep(0,NCOL(TrainingData)+1),dim=c(0,NCOL(TrainingData))+1)
   Error = 0
-  print(dim(W.Matrix))
+  #print(dim(W.Matrix))
 
   #Itterate # of times
   #---------------------------------------------------------------------------------------------
@@ -387,7 +371,7 @@ LMLogisticLossIterations<-function(TrainingData, TrainingLabels,Iterations = 10,
     #print("Gradient and Itteration")
     #print(dim(data.matrix(W.Matrix[Iteration,])))
     #print(dim(t(StepSize.Gradient)))
-    W.Matrix <- rbind(W.Matrix, W.Matrix[Iteration,]+(StepSize.Gradient))
+    W.Matrix <- rbind(W.Matrix, W.Matrix[Iteration,]+t(StepSize.Gradient))
     #print("added to W.Matrix")
 
     #error of each iteration
@@ -408,7 +392,8 @@ LMLogisticLossIterations<-function(TrainingData, TrainingLabels,Iterations = 10,
   #*colMeans(W.Matrix)
   #-t(W.Matrix/TrainingData.sd)
   DeNormalizedWeightMatrix = (t(W.Matrix))/TrainingData.sd
-  #print(DeNormalizedWeightMatrix)
+  #print(dim(DeNormalizedWeightMatrix))
+  print(DeNormalizedWeightMatrix)
 
   #DeNorm.Error <-Find_Wmatrix_MeanL2Error(TrainingData,TrainingLabels,DeNormalizedWeightMatrix,BinaryClassification)
   #Norm.Error   <-Find_Wmatrix_MeanL2Error(Normalized_TrainingData,TrainingLabels,t(W.Matrix),BinaryClassification)
