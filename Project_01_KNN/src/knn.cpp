@@ -1,6 +1,20 @@
 #include <Eigen/Dense>
 #include "knn.h"
-
+/*
+ * @func: knn
+ * @arg: const double* train_input_ptr (n_observations x n_features)
+ * @arg: const double* train_label_ptr (n_observations)
+ * @arg: const double* test_input_ptr  (n_features)
+ * @arg: const int n_observations
+ * @arg: const int n_features
+ * @arg: const int max_neighbors
+ * @arg: double* test_predict_ptr (max_neighbors)
+ * @desc:
+ *    This function will use the NN1toKmaxPredict to calculate 
+ *    the distance vectors and decide on the K nearest neighbors to the
+ *     test data 
+ * @return: int representing a status
+ */
 int knn(
     const double * train_input_ptr, // n_observations x n_features
     const double * train_label_ptr, // n_observations
@@ -67,7 +81,22 @@ int knn(
   return 0;
 }
 
-
+/*
+ * @func: NN1toKmaxPredict
+ * @arg: const int n_train_observations
+ * @arg: const int n_test_observations
+ * @arg: const int n_features
+ * @arg: const int max_neighbors
+ * @arg: double * train_input_ptr (n_train_observations x n_features)
+ * @arg: double * train_label_ptr (n_train_observations)
+ * @arg: double * test_input_ptr, (n_test_observations x n_features)
+ * @arg: double * test_predict_ptr (n_test_observations x max_neighbors)
+ * @des:
+ *  the function will perform cross validation on each of
+ *  the fold numbers calculating two matrices of mean loss values
+ *  
+ * @return: int representing status
+ */
 int NN1toKmaxPredict(const int n_train_observations,
                  const int n_test_observations,
                  const int n_features,
@@ -169,16 +198,5 @@ int NN1toKmaxPredict(const int n_train_observations,
     }
 
   }
-   
   return 0;
 }
-        
-  
-  
-  
-  
-  
-  
-  
-  
-  
