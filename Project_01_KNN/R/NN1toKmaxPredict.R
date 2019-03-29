@@ -39,7 +39,7 @@ NN1toKmaxPredict <- function(TrainingData, TrainingLabels, TestData, max.neighbo
                     as.double(TrainingData),
                     as.double(TrainingLabels),
                     as.double(TestData),
-                    predictions=as.double(as.matrix(rep(0,nrow(TestData)*max.neighbors),dim=c(nrow(TestData),max.neighbors))),
+                    predictions=as.double(matrix(0, nrow = nrow(as.matrix(TestData)), ncol = as.integer(max.neighbors))),
                     PACKAGE="NearestNeighbors")
 
   dim(result.list$predictions)<- c(max.neighbors,nrow(TestData))
