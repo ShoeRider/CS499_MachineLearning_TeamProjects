@@ -1,0 +1,11 @@
+Package: NeuralNetwork
+Type: Package
+Title: nearest neighbors
+Version: 2019.04.02
+Author: Chadd Frasier, Anthony M Schroeder
+Maintainer: Chadd Frasier <cmf339@nau.edu>, Anthony M Schroeder <as3379@nau.edu>
+Description: Demonstrates nearest neighbors algorithm.
+License: GPL-3
+RoxygenNote: 6.1.1
+LinkingTo: RcppEigen
+Suggests: ElemStatLearn, testthat

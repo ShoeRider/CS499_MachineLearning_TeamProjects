@@ -1,4 +1,4 @@
 library(testthat)
-library(LinearModel)
-test_check("LinearModel")
+library(NeuralNetwork)
+test_check("NeuralNetwork")
 

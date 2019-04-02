@@ -1,4 +1,4 @@
-library(LinearModel)
+library(NeuralNetwork)
 library(testthat)
 context("NormalizeMatrix")
 
