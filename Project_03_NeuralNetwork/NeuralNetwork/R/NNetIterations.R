@@ -1,5 +1,3 @@
-
-
 #NNetIterations
 #
 #Inputs: X.mat (feature matrix, n_observations x n_features), y.vec (label vector, n_observations x 1), max.iterations (int scalar > 1), step.size, n.hidden.units (number of hidden units), is.train (logical vector of size n_observations, TRUE if the observation is in the train set, FALSE for the validation set).
@@ -87,10 +85,11 @@ NNetIterations<-function(X.mat, Y.vec, max.iterations=30, step.size, n.hidden.un
     is.binary <- TRUE
   }else{is.binary <- FALSE}
 
+  returnList <- breakData(x.mat, y.vec, is.train)
+
   if(!is.binary)
     { # regression
-    # scale the matrix down
-    scaled.x.mat <- scale(X.mat)
+
 
     train.loss.vec <- rep(0,max.iterations)
 
@@ -98,13 +97,34 @@ NNetIterations<-function(X.mat, Y.vec, max.iterations=30, step.size, n.hidden.un
 
     # row 1 will be all the colmeans and row 2 will be all col std
     sd.vec <- rep(0,ncol = ncol(X.mat))
+
+    # get col means
     means.vec <- colMeans(X.mat)
+
+    # stores the features at which the sd is 0,
+    #         thus these are the indeces needed to fix the V.mat before return
+    #   vals will be 0 if that column has sd = 0 and 1 otherwise
+    zero.sd.vec <- rep(0,ncol = ncol(X.mat))
+
     # compute and store the mean and sd for each row to return the matrix at the origional scale
-    for (col in range(1,ncol(X.mat))){
+    for (col in seq(1,ncol(X.mat))){
       sd.vec[col] <- sd(X.mat[,col])
-    }
+      if(sd.vec[col] == 0){
+        zero.sd.vec[col] = 1
+      }
+      else if(is.na(sd.vec[col])){
+        zero.sd.vec[col] = 0
+      }
+    } # end for loop
+
+    # remove nulls from both the y.vec and the
+    show(as.numeric(zero.sd.vec))
     rescale.mat <- rbind(means.vec, sd.vec)
     #show(rescale.mat)
+
+    # scale the matrix down
+    scaled.x.mat <- scale(X.mat)
+    V.mat <- matrix(0,nrow= ncol(scaled.x.mat)+1, ncol= n.hidden.units)
 
     # seed for testing reasons
     set.seed(20)
@@ -116,7 +136,8 @@ NNetIterations<-function(X.mat, Y.vec, max.iterations=30, step.size, n.hidden.un
     # create weigth vec
     w <- c(rnorm(n.hidden.units))
     # show(w)
-    ## TODO: for loop goes here to extract and save all the weights for each hidden node V.mat
+
+    ## TODO: for loop goes here to perform the gradient decent
     for (iteration in seq(1,max.iterations)) {
 
       # get value for A [observations x hidden.units]
@@ -148,14 +169,36 @@ NNetIterations<-function(X.mat, Y.vec, max.iterations=30, step.size, n.hidden.un
       # show(sum(abs(c(gradient.w,as.numeric(gradient.v)))))
       train.loss.vec[iteration] <- sum(abs(c(gradient.w,as.numeric(gradient.v))))
       # show(train.loss.vec)
+
+
     }
+
+    # create the return V.mat
+    V.mat <- rbind(1,V.mat) %*% w
+
     # TODO: use this valiable to plot the lines later
     print("TRAIN LOSS VECTOR TO BE PLOTTED FOR REPORT")
     show(train.loss.vec)
+    print("LAST V.mat that was calculated")
+    rownames(V) <- NULL
+    show(as.matrix(V))
+    print("LAST w.vec that was calculated")
+    show(w)
   }else{
     # this is a binary label set
   }
   return(0)
+}
+
+breakData<- function(x.mat, y.vec, bool.vec){
+  for (val in bool.vec){
+    # train data
+    if(as.logical(val) == TRUE){
+    #TODO
+    }else{ # validation/test data
+     #TODO
+    }
+  }
 }
 
 sigmoid <- function(x){
