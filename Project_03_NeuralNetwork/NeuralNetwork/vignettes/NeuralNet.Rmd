@@ -26,44 +26,36 @@ knitr::opts_chunk$set(
 > [Introduction](#intro)
 > [Installation](#install)
 > [Neural Networks](#NeuNet)
-> [Binary Classification](#nn.bc)
-> [Linear Regression](#nn.lr)
 > [NNetIterations](#nn.iter)
 > [NNetEarlyStoppingCV](#nn.escv)
 > [Testing With Data Sets](#test)
 > [Conclusion](#con)
 
 
-
 <a id="intro"></a>
 ## Introduction
+  In Machine Learning, a neural network is a model that attmepts to make decisions in the same way a human brain does. Using serveral interconnected path ways that can make many predictions on multiple types of the same data gives the model much deeper learning capabilities. In this project implimentation we will be developing a single hidden layer Neural Network to make predictions on a large data sample. This will be done using k-fold cross validation and gradient descent on the two loss parameters. By breaking data into train and test sets we can train a learning model that is capable of making preditions on the test data. We will be stepping through the descent using the basic gradient decent algorithm on both parameters like so:
   
-
-  Gradient descent will be done using the gerneral form $w^t = w^(t-1) - \alpha\bigtriangledown\mathcal{l(w)}$.
-
+  $w^t = w^(t-1) - \alpha\bigtriangledown\mathcal{l(w)}$.
+  $v^t = v^(t-1) - \alpha\bigtriangledown\mathcal{l(v)}$
 <a id="NeuNet"></a>
 ## Neural Networks
+For this machine learning project we will be writing two functions to handle both regression and binary classification of input matrices to predic output labels of test data features. In order to achieve both of these things we will be implimenting a generic algorithm that uses both versions of the loss function when either is needed. 
+Loss Function: $$L(f(x),y_i) = \frac{1}{2}\sum_{i=1}^n[f(x_i)-y_i]$$
+Starting from this function we can use the f(x) function to substitute in new variables for the loss function. When we rewrite the loss function in terms of v and w we get the function: $\mathcal{L}(w,v) = \frac{1}{2}\sum_{i=1}^n[w^TS(V^Tx_i) - y_i]$|where$S[a] = \frac{1}{1+exp(-ax)}$ This is the function that our gradient descent will use to minimize the mean loss, and build the resulting weight matrix. This type of gradient descent will only work for regression and if we are expecting to perform binary classification we will need a new loss function. 
 
-
-- Loss Function: $$L(f(x),y_i) = \frac{1}{2}\sum_{i=1}^n[f(x_i)-y_i]$$
-- Written with w and v: $$\mathcal{L}(w,v) = \frac{1}{2}\sum_{i=1}^n[w^TS(V^Tx_i) - y_i]$$ |where $$S[a] = frac{1}{1+e^(-ax)}$$
-- Log Loss: $$L(f(x),y_i) = \sum_{i=1}^n[log(1+exp(-y_i f(x_i))]$$
-
-<a id="nn.bc"></a>
-## Binary Classification
-
-
-<a id="nn.lr"></a>
-## Linear Regression
+Looking at binary classification we will need to adopt the same gradien decent concepts using the Logistic Loss function. Written in term of the input features and labels we observe: $L(f(x),y_i) = \sum_{i=1}^n[log(1+exp(-y_i f(x_i))]$ Following the same idea as before we must exchange the current loss function with variables form the f(x) function and then after deriving the gradient of the loss we observe that we will need to minimize, $L(b_i,y_i) = \frac{-y_i}{1+exp(\tilde{y_i}b_i)}$ throughout the gradient descent. 
 
 <a id="nn.iter"></a>
 ## NNetIterations
-$$\sum_{i=1}^n \mathcal{L}[w^T x_i, y_i] + \lambda||w||^2_2$$,
-Where $\mathcal{L}$ is the square loss.
-This function will output a weight vector for a given penalty parameter.
+The NNetIterations function will be in charge of performing the gradient descent on the current train/validation split and reporting the resulting V.mat and w.mat that can be used for the predictions. This function accepts a feature matrix of data values (n_observations x n_features). Next the function will need to accept a label vector that corrosponds to the label of each feature in the matrix (n_observations x 1). The function all requires some integers as input. We will need max.iterations (int > 1), step.size(double), n.hidden.units (int > 3), and lastly we will need a second vector that will be called is.train (n_observations x 1). This is.train vector will be used in the NNetIteration function specifically to break the train and test data into their own matrices, TRUE if the observation is in the train set, and FALSE for the validation set. This can be done immediatly like so $X.train <- X.mat[is.train,]$ the feature matrix and $y.train <- Y.vec[is.train]$ for the training label vector. 
+One of the key compentents to this function is that fact that we basically perform the same algorithm for both binary classification and regression we just use a different loss function for the delta.W parameter that is calculated in the algorithm. So in order to minimize redundant code we will be implimenting an is.binary value that will run the correct line of code depending on if we need to use the logistic loss or the square loss. After the calulations are finished this function needs to return a list with multiple named elements including the pred.mat(n_observations x max.iterations) that will be a matrix of predictions on each observation and for each iteration of the gradient descent. This function will also return a V.mat(n_features+1 x n.hidden.units) where the first row of the matrix are the intercept terms for each feature. This function will return the last w.vec (n.hidden.units+1) that was calculated by the descent where the first term in the vector is the intercept term, and lastly the function will return a predict(testX.mat) function that will accept an unscaled input matrix and predicts the unknown outputs/labels of the observations in the test matrix.
 
 <a id="nn.escv"></a>
 ## NNetEarlyStoppingCV
+The NNetEarlyStoppingCV will be a function that uses the NNetIterations function to create mean.loss.vectors for both the validation splits and the training set. These are the mean.loss vectors that will go into plotting the mean validation/training lines. This function will use the NNetIterations function to trace the train validation loss means until the vaidation loss starts to grow again. Where the validation loss starts to grow is when we want to stop the processing of the means. In order to get this function started it will need to have a feature matrix, X.mat (n_observations x n_features), the label vector y.vec (n_features x 1),  a fold.vec (n_features x 1) like before in the cross validation sections. and if presented with null data or an incorrect vector size we can fix it by ranomly assigning a vector of the correct size like this `fold.vec=sample(rep(1:n.folds), length(y.vec))`, max.iterations(int), step.size(double), n.hidden.units(int), and lastly we will send the proper amount of folds found in the vector, as n.folds (int).
+In order for the NNetIterations function to work properly we will need to scult a is.train vector of boolean arguments to denote which set is the current training set and validation set. Since we will be doing cross validation we will need to do this dynamically becuase each fold with be very different than the one before it. Secondly, in this function we will need to check and see if the current data is for binary classification or regression because in order to calculate the loss vectors we will need either the 01-Loss for binary data and the square loss for regression.
+After we run the data on all the folds we will be selecting the ideal step.size using the resulting data and lastly, we will run the NNetIterations function with the new ideal selected step.size that way we can maximize the guessing capabilities while saving ourselves time from processing up to that step.size
 
 <a id= 'test'></a>
 ## Testing With Data Sets
@@ -121,7 +113,7 @@ How To use this Linear Models Library:
 - The R script Prep_Libraries.R in the tests/testthat folder contains some simple data manipulation to prep the data to be used for the LinearModel Algorithms.
 
 ```{r}
-library(LinearModel)
+library(NeuralNetwork)
 #print(getwd())
 source("../tests/testthat/Prep_Libraries.R")
 source("../R/General.R")
