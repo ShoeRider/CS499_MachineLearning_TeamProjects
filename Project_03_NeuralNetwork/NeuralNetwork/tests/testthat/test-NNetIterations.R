@@ -9,6 +9,7 @@ test_that("NNetIterations test size of input: clean run",{
   n.hidden.units <- 5
   step.size <- .1
   Labels <- ozone[,1] # first col is output of the data
+  show(Labels)
   Data <- ozone[,2:ncol(ozone)]
 
   TrainingData <- as.matrix(Data)[1:57,]

@@ -54,6 +54,8 @@ NNetIterations<-function(X.mat, Y.vec, max.iterations=30, step.size, n.hidden.un
   # assuming that X.mat is already scaled properly
   # first check input
 
+  # TODO: must break data into train and test and fix all references to the five X.mat
+
   # verify the size of the label vec and the X.mat
   if(ncol(X.mat) == length(Y.vec)){
     stop("Error: X.mat columns does not match the length of the Y.vec")
@@ -81,112 +83,144 @@ NNetIterations<-function(X.mat, Y.vec, max.iterations=30, step.size, n.hidden.un
   }
 
   # decide if its regression or binary
-  if(all(Y.vec <= 1) && all(Y.vec >= 0)){
+  show(Y.vec)
+  if(all(Y.vec %in% c(0,1))){
     is.binary <- TRUE
-  }else{is.binary <- FALSE}
+  }else{
+    is.binary <- FALSE
+    }
+  # show(is.binary)
 
+  # break apart the train and the validation sets
   returnList <- breakData(x.mat, y.vec, is.train)
 
-  if(!is.binary)
-    { # regression
+  train.loss.vec <- rep(0,max.iterations)
+
+  # TODO ASK ABOUT THE NA VALUES THAT WILL BE RETRIEVED FROM THE STD
+
+  # row 1 will be all the colmeans and row 2 will be all col std
+  sd.vec <- rep(0,ncol = ncol(X.mat))
+
+  # get col means
+  means.vec <- colMeans(X.mat)
+
+  # stores the features at which the sd is 0,
+  #         thus these are the indeces needed to fix the V.mat before return
+  #   vals will be 0 if that column has sd = 0 and 1 otherwise
+  zero.sd.vec <- rep(0,ncol = ncol(X.mat))
+
+  # compute and store the mean and sd for each row to return the matrix at the origional scale
+  for (col in seq(1,ncol(X.mat))){
+    sd.vec[col] <- sd(X.mat[,col])
+    if(sd.vec[col] == 0){
+      zero.sd.vec[col] = 1
+    }
+    else if(is.na(sd.vec[col])){
+      zero.sd.vec[col] = 0
+    }
+  } # end for loop
+
+  # remove nulls from both the y.vec and the final V.mat output matrix
+  # show(as.numeric(zero.sd.vec))
+  # save the mean and std of each col
+  rescale.mat <- rbind(means.vec, sd.vec)
+  #show(rescale.mat)
+
+  # scale the matrix down
+  scaled.x.mat <- scale(X.mat)
+  V.mat <- matrix(0,nrow= ncol(scaled.x.mat)+1, ncol= n.hidden.units)
+
+  # seed for testing reasons
+  set.seed(20)
+
+  # create the V vector which starts as close to all 0s as possible
+  #          cannot be 0 because the gradient will fail to converge
+  V <- matrix(rnorm(ncol(scaled.x.mat) * n.hidden.units), ncol(scaled.x.mat), n.hidden.units)
+  # show(V)
+  # create weigth vec
+  w <- c(rnorm(n.hidden.units))
+  # show(w)
 
 
-    train.loss.vec <- rep(0,max.iterations)
+  # start gradient descent
+  for (iteration in seq(1,max.iterations)) {
 
-    # TODO ASK ABOUT THE NA VALUES THAT WILL BE RETRIEVED FROM THE STD
+    # get value for A [observations x hidden.units]
+    A <- scaled.x.mat %*% V
+    # show(A)
+    # get the Z vector and deriv.A
+    Z <- sigmoid(A)
+    deriv.A <- Z * (1-Z)
+    # show(deriv.A)
 
-    # row 1 will be all the colmeans and row 2 will be all col std
-    sd.vec <- rep(0,ncol = ncol(X.mat))
-
-    # get col means
-    means.vec <- colMeans(X.mat)
-
-    # stores the features at which the sd is 0,
-    #         thus these are the indeces needed to fix the V.mat before return
-    #   vals will be 0 if that column has sd = 0 and 1 otherwise
-    zero.sd.vec <- rep(0,ncol = ncol(X.mat))
-
-    # compute and store the mean and sd for each row to return the matrix at the origional scale
-    for (col in seq(1,ncol(X.mat))){
-      sd.vec[col] <- sd(X.mat[,col])
-      if(sd.vec[col] == 0){
-        zero.sd.vec[col] = 1
-      }
-      else if(is.na(sd.vec[col])){
-        zero.sd.vec[col] = 0
-      }
-    } # end for loop
-
-    # remove nulls from both the y.vec and the
-    show(as.numeric(zero.sd.vec))
-    rescale.mat <- rbind(means.vec, sd.vec)
-    #show(rescale.mat)
-
-    # scale the matrix down
-    scaled.x.mat <- scale(X.mat)
-    V.mat <- matrix(0,nrow= ncol(scaled.x.mat)+1, ncol= n.hidden.units)
-
-    # seed for testing reasons
-    set.seed(20)
-
-    # create the V vector which starts as close to all 0s as possible
-    #          cannot be 0 because the gradient will fail to converge
-    V <- matrix(rnorm(ncol(scaled.x.mat) * n.hidden.units), ncol(scaled.x.mat), n.hidden.units)
-    # show(V)
-    # create weigth vec
-    w <- c(rnorm(n.hidden.units))
-    # show(w)
-
-    ## TODO: for loop goes here to perform the gradient decent
-    for (iteration in seq(1,max.iterations)) {
-
-      # get value for A [observations x hidden.units]
-      A <- scaled.x.mat %*% V
-      # show(A)
-      # get the Z vector and deriv.A
-      Z <- sigmoid(A)
-      deriv.A <- Z * (1-Z)
-      # show(deriv.A)
-
-      # store the b value
-      b <- as.numeric(Z %*% w)
-      # show(b)
-      # calculate delta w
+    # store the b value
+    b <- as.numeric(Z %*% w)
+    # show(b)
+    # calculate delta w
+    if(is.binary){
+      # use the binary alg
+      # this will need to be change to the -Y.train
+      del.w <- -Y.vec * sigmoid(-Y.vec * b)
+    }
+    else{
+      # use the regression alg
+      # TODO: make this a train vec reference not a Y.vec
       del.w <- b - Y.vec
       # show(del.w)
-
-      del.V <- diag(del.w) %*% deriv.A %*% diag(w)
-
-      # calculate gradient parts from in class algorithm
-      gradient.w <- t(Z) %*% del.w/nrow(scaled.x.mat)
-      # show(gradient.w)
-      gradient.v <- t(scaled.x.mat) %*% del.V/nrow(scaled.x.mat)
-
-      # step in the right direction
-      w <- as.numeric(w - step.size * gradient.w)
-      V <- V - step.size * gradient.v
-
-      # show(sum(abs(c(gradient.w,as.numeric(gradient.v)))))
-      train.loss.vec[iteration] <- sum(abs(c(gradient.w,as.numeric(gradient.v))))
-      # show(train.loss.vec)
-
-
     }
 
-    # create the return V.mat
-    V.mat <- rbind(1,V.mat) %*% w
+    del.V <- diag(del.w) %*% deriv.A %*% diag(w)
 
-    # TODO: use this valiable to plot the lines later
-    print("TRAIN LOSS VECTOR TO BE PLOTTED FOR REPORT")
-    show(train.loss.vec)
-    print("LAST V.mat that was calculated")
-    rownames(V) <- NULL
-    show(as.matrix(V))
-    print("LAST w.vec that was calculated")
-    show(w)
-  }else{
-    # this is a binary label set
+    # calculate gradient parts from in class algorithm
+    gradient.w <- t(Z) %*% del.w/nrow(scaled.x.mat)
+    # show(gradient.w)
+    gradient.v <- t(scaled.x.mat) %*% del.V/nrow(scaled.x.mat)
+
+    # step in the right direction
+    w <- as.numeric(w - step.size * gradient.w)
+    V <- V - step.size * gradient.v
+
+    predict.sc <- function(X.tilda){
+      A.mat <- X.tilda %*% V
+      sigmoid(A.mat) %*% w
+    }
+
+    predict.1.orig <- function(X.unsc){
+      X.tilda <- scale(
+        X.unsc, attr(scaled.x.mat, "scaled:center"),attr(scaled.x.mat, "scaled:scale")
+      )
+      predict.sc(X.tilda)
+    }
+
+    predict.2.orig <- function(X.unsc){
+      A.mat <- cbind(1,X.unsc) %*% rbind(as.numeric(b.orig), V.orig)
+      sigmoid(A.mat) %*% w
+    }
+
+    # show(sum(abs(c(gradient.w,as.numeric(gradient.v)))))
+    train.loss.vec[iteration] <- sum(abs(c(gradient.w,as.numeric(gradient.v))))
+    # show(train.loss.vec)
+
+
   }
+
+  # create the return V.mat
+  V.mat <- rbind(1,V.mat) %*% w
+
+  pred.mat <- predict.sc(scaled.x.mat)
+  print('Predictions')
+  show(pred.mat)
+
+  # TODO: use this valiable to plot the lines later
+  print("TRAIN LOSS VECTOR TO BE PLOTTED FOR REPORT")
+  show(train.loss.vec)
+  print("LAST V.mat that was calculated")
+  rownames(V) <- NULL
+  show(as.matrix(V))
+  print("LAST w.vec that was calculated")
+  show(w)
+
+  # must return a list of named elements
   return(0)
 }
 
