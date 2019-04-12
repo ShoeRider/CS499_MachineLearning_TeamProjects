@@ -30,7 +30,7 @@ Prep_Spam<-function()
   Rows          = NROW(Cliped)
 
 
-  TrainingLabels <- as.matrix(Cliped[,LabelCol])
+  TrainingLabels <- as.vector(Cliped[,LabelCol])
   TrainingData   <- as.matrix(Cliped[,DataColsStart:DataColsEnd])
   Initial.Vector <- t(as.matrix(rep(0,NCOL(TrainingData)+1),dim=c(1,NCOL(TrainingData)+1)))
   Penalty.Vector <- array(seq(1, 2, by=0.1),dim=c(1,10))
@@ -79,7 +79,7 @@ Prep_SAheart<-function()
 
 
   TrainingData   <- as.matrix(Local_SAheart[,DataColsStart:DataColsEnd])
-  TrainingLabels <- as.matrix(Local_SAheart[,LabelCol])
+  TrainingLabels <- as.vector(Local_SAheart[,LabelCol])
   BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
   Initial.Vector <- t(as.matrix(rep(0,NCOL(TrainingData)+1),dim=c(1,NCOL(TrainingData)+1)))
   Penalty.Vector <- array(seq(1, 2, by=0.1),dim=c(1,10))
@@ -105,12 +105,12 @@ Prep_ZipTrain<-function()
   Folds                <- 3
   MaxNeighbors         <- 30
   Iterations           <- 30
-  Local_ZipTrain<- ElemStatLearn::zip.train
-
+  Temp_ZipTrain<- ElemStatLearn::zip.train
+  Local_ZipTrain=c()
   for (Filter in c(0,1)){
-    NonZero <- which(Local_ZipTrain[,1]!=Filter,arr.ind=TRUE)
-    #print(testIndexes)
-    Local_ZipTrain  <- Local_ZipTrain[NonZero, ]
+    NonZero <- which(Temp_ZipTrain[,1]==Filter,arr.ind=TRUE)
+    #print(NonZero)
+    Local_ZipTrain<-rbind(Local_ZipTrain,Temp_ZipTrain[NonZero, ])
   }
 
   DataColsStart = 2
@@ -118,10 +118,15 @@ Prep_ZipTrain<-function()
   LabelCol      = 1
   Rows          = NROW(Local_ZipTrain)
 
-
+print(DataColsEnd)
+print(NCOL(Temp_ZipTrain))
 
   TrainingData   <- as.matrix(Local_ZipTrain[,DataColsStart:DataColsEnd])
-  TrainingLabels <- as.matrix(Local_ZipTrain[,LabelCol])
+  print(NCOL(TrainingData))
+  TrainingLabels <- as.vector(Local_ZipTrain[,LabelCol])
+
+
+
   BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
   Initial.Vector <- t(as.matrix(rep(0,NCOL(TrainingData)+1),dim=c(1,NCOL(TrainingData)+1)))
   Penalty.Vector <- array(seq(1, 2, by=0.1),dim=c(1,10))
@@ -141,6 +146,7 @@ Prep_ZipTrain<-function()
     BinaryClassification = BinaryClassification
   )
 }
+Prep_ZipTrain()
 
 Prep_Prostate<-function()
 {
@@ -157,7 +163,7 @@ Prep_Prostate<-function()
 
 
   TrainingData   <- as.matrix(Local_prostate[,DataColsStart:DataColsEnd])
-  TrainingLabels <- as.matrix(Local_prostate[,LabelCol])
+  TrainingLabels <- as.vector(Local_prostate[,LabelCol])
   BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
   Initial.Vector <- t(as.matrix(rep(0,NCOL(TrainingData)+1),dim=c(1,NCOL(TrainingData)+1)))
   Penalty.Vector <- array(seq(1, 2, by=0.1),dim=c(1,10))
@@ -194,7 +200,7 @@ Prep_Ozone<-function()
 
 
   TrainingData   <- as.matrix(Local_ozone[,DataColsStart:DataColsEnd])
-  TrainingLabels <- as.matrix(Local_ozone[,LabelCol])
+  TrainingLabels <- as.vector(Local_ozone[,LabelCol])
   BinaryClassification =  all(TrainingLabels <= 1 & TrainingLabels >= 0)
   Initial.Vector <- t(as.matrix(rep(0,NCOL(TrainingData)+1),dim=c(1,NCOL(TrainingData)+1)))
   Penalty.Vector <- array(seq(1, 2, by=0.1),dim=c(1,10))
