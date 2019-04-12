@@ -1,15 +1,15 @@
 ---
-title: "Linear Models Report"
-author: "Junyu Chen"
-contributor: "Anthony Schroeder","Chadd Frasier","Austin Torrence"
-date: "04/12/2019"
+title: "Project 3: Single Layer Neural Network"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Neural Newtork Models Report}
+  %\VignetteIndexEntry{Report for project 1 on K Nearest Neighbors}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
-
+  %\usepackage[UTF-8]{inputenc}
+  %\VignetteEncoding{UTF-8}
+  
 ---
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -18,21 +18,19 @@ knitr::opts_chunk$set(
 ```
 ```{r}
 library(NeuralNetwork1)
-#source("R/General.R")
-
-source("tests/testthat/Prep_Libraries.R")
+print(getwd())
+#When knitting document, have working directory as the document directory.
+source("../tests/testthat/Prep_Libraries.R")
+source("../R/General.R")
 knitr::opts_chunk$set(fig.width=12, fig.height=8) 
 ```
 
 ## Data set 1: spam
 ### Code
-Note, we using some 'Prep' functions i made to make managing the code easier, and more Efficient.
+Note, we some of the graphs are using some 'Prep' functions made to make managing the code easier, and more Efficient, and less repetitive.
+
 
 ```{r}
-print(getwd())
-#Make Sure you have these files in the working environment!!!!
-source("tests/testthat/Prep_Libraries.R")
-source("R/General.R")
 Spam<-Prep_Spam()
 ```
 
@@ -42,8 +40,10 @@ Spam<-Prep_Spam()
 NNItterations_Spam_LossMatrix:
 
 ```{r, results='hide'}
+
 folds.n = 4
 Scalar.Step = 0.4
+max.iterations = 3000L
 fold.vec = as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 is.train = rep(TRUE,length(Spam$n_Elements))
 PredMat.ByFold = c()
@@ -60,10 +60,10 @@ for(fold.number in 1:folds.n){
   X.validation = Spam$TrainingData[validation.index,]
   y.validation = Spam$TrainingLabels[validation.index]
   
-  return.list <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,100L,Scalar.Step,10,is.train)
+  return.list <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,max.iterations,Scalar.Step,10,is.train)
   PredMat.ByFold<-cbind(PredMat.ByFold,colMeans(return.list$pred.mat))
 }
-  return.list = NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,fold.vec,100L,Scalar.Step,10,n.folds = 4)
+  return.list = NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,fold.vec,max.iterations,Scalar.Step,10,n.folds = 4)
 ```
 ```{r, results='hide'}
   print(dim(PredMat.ByFold))
@@ -78,6 +78,7 @@ for(fold.number in 1:folds.n){
   barplot(Spam_LossMatrix, xlab = "Folds", ylab = "Error",main = "NNItterations_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
 ```
 
+Here is the Loss graph for Spam. The Trained and early stopping are the same because the best  resulting 
 
 ### Train/validation loss plot
 ```{r, results='hide'}
@@ -85,11 +86,13 @@ print("NNetIterations_Spam_Tests: Question:1")
 Spam<-Prep_Spam()
 
 Scalar.Step = 0.4
+max.iterations = 1000L
 folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
 length(folds.vec)=Spam$n_Elements
 
-List <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,1000L,Scalar.Step,10,folds.vec)
+List <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,max.iterations,Scalar.Step,10,folds.vec)
 ```
+
 
 ```{r, results='hide'}
 train.index = which(folds.vec==TRUE)
@@ -99,10 +102,11 @@ train.pred.mat = as.matrix(List$pred.mat[train.index,])
 #print(List$pred.mat[validation.index])
 validation.pred.mat = as.matrix(List$pred.mat[validation.index,])
 
-plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: Spam Loss of each matrix",ylim=c(.4,.9))
+names(validation.pred.mat)="Validation Error"
+plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: Spam Loss of each matrix")
 lines(colMeans(as.matrix(train.pred.mat)),type="o", col = "red")
 ```
-
+For the graph NNItterations:Spam Loss of each matrix, the Blue line is the validation set error, and Redline is the Test set error.
 
 
 NNetEarlyStoppingCV_Spam_Tests
@@ -111,11 +115,12 @@ NNetEarlyStoppingCV_Spam_Tests
 print("NNetEarlyStoppingCV_Spam_Tests:")
 Scalar.Step = 0.5
 folds.n = 4L
+max.iterations = 1000L
 folds.vec=as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 length(folds.vec)=Spam$n_Elements
 
 
-NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,folds.vec,100L,Scalar.Step,10,folds.n)
+NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,folds.vec,max.iterations,Scalar.Step,10,folds.n)
 ```
 
 ```{r}
@@ -146,6 +151,8 @@ NNItterations_SAheart_LossMatrix:
 
 ```{r, results='hide'}
 folds.n = 4
+max.iterations = 1000L
+
 fold.vec = as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 is.train = rep(TRUE,length(SAheart$n_Elements))
 PredMat.ByFold = c()
@@ -162,10 +169,10 @@ for(fold.number in 1:folds.n){
   X.validation = SAheart$TrainingData[validation.index,]
   y.validation = SAheart$TrainingLabels[validation.index]
   
-  return.list <-NNetIterations(SAheart$TrainingData, SAheart$TrainingLabels,100L,Scalar.Step,10,is.train)
+  return.list <-NNetIterations(SAheart$TrainingData, SAheart$TrainingLabels,max.iterations,Scalar.Step,10,is.train)
   PredMat.ByFold<-cbind(PredMat.ByFold,colMeans(return.list$pred.mat))
 }
-return.list = NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,fold.vec,100L,Scalar.Step,10,n.folds = 4)
+return.list = NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,fold.vec,max.iterations,Scalar.Step,10,n.folds = 4)
 ```
 ```{r, results='hide'}
   print(dim(PredMat.ByFold))
@@ -177,7 +184,7 @@ return.list = NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,f
   
   colnames(SAheart_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
   rownames(SAheart_LossMatrix)<-c("Untrained","Trained","Early Stopping")
-  barplot(SAheart_LossMatrix, xlab = "Folds", ylab = "Error",main = "NNItterations_Spam_LossMatrix",legend = (rownames(SAheart_LossMatrix)),beside = TRUE)
+  barplot(SAheart_LossMatrix, xlab = "Folds", ylab = "Error",main = "NNItterations_SAHeart_LossMatrix",legend = (rownames(SAheart_LossMatrix)),beside = TRUE)
 ```
 
 
@@ -185,10 +192,11 @@ return.list = NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,f
 ```{r, results='hide'}
 
 Scalar.Step = 0.4
+max.iterations = 1000L
 folds.vec = as.logical(Random_Folds(SAheart$n_Elements,1))
 length(folds.vec)=SAheart$n_Elements
 
-List <-NNetIterations(SAheart$TrainingData, SAheart$TrainingLabels,1000L,Scalar.Step,10,folds.vec)
+List <-NNetIterations(SAheart$TrainingData, SAheart$TrainingLabels,max.iterations,Scalar.Step,10,folds.vec)
 ```
 
 ```{r, results='hide'}
@@ -215,7 +223,7 @@ folds.vec=as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 length(folds.vec)=SAheart$n_Elements
 
 
-NNetEarlyStoppingList<-NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,folds.vec,100L,Scalar.Step,10,folds.n)
+SAheart.NNetEarlyStoppingList<-NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,folds.vec,100L,Scalar.Step,10,folds.n)
 ```
 
 ```{r}
@@ -245,6 +253,8 @@ The optimal number of steps is: **`r SAheart.NNetEarlyStoppingList$selected.step
 ```{r, results='hide'}
 folds.n = 4
 Scalar.Step=.4
+max.iterations = 1000L
+
 fold.vec = as.double(sample(1:(folds.n),Prostate$n_Elements,replace=T))
 is.train = rep(TRUE,length(Prostate$n_Elements))
 PredMat.ByFold = c()
@@ -261,11 +271,11 @@ for(fold.number in 1:folds.n){
   X.validation = Prostate$TrainingData[validation.index,]
   y.validation = Prostate$TrainingLabels[validation.index]
   
-  return.list <-NNetIterations(Prostate$TrainingData, Prostate$TrainingLabels,100L,Scalar.Step,10,is.train)
+  return.list <-NNetIterations(Prostate$TrainingData, Prostate$TrainingLabels,max.iterations,Scalar.Step,10,is.train)
   PredMat.ByFold<-cbind(PredMat.ByFold,colMeans(return.list$pred.mat))
 }
 
-  return.list = NNetEarlyStoppingCV(Prostate$TrainingData, Prostate$TrainingLabels,fold.vec,100L,Scalar.Step,10,n.folds = 4)
+  return.list = NNetEarlyStoppingCV(Prostate$TrainingData, Prostate$TrainingLabels,fold.vec,max.iterations,Scalar.Step,10,n.folds = 4)
 ```
 
 
@@ -291,6 +301,7 @@ print(return.list$selected.steps)
 ```{r, results='hide'}
 step.size = .5
 n.hidden.units = 4
+max.iterations = 1000L
 data(prostate, package = "ElemStatLearn")
 prostate = list(dataset = as.matrix(
   prostate[, 1:8]),
@@ -318,7 +329,7 @@ prostate = list(dataset = as.matrix(
 
   plot(c(1:max.iterations),mean.loss.train,type="s",xlim = c(1,max.iterations), ylim=c(0,1),
        xlab="interations",ylab="mean.validation",
-       col="blue",main="loss value",pch=c(15))
+       col="blue",main="NNetEarlyStoppingCV Prostate results",pch=c(15))
   dot.x <- select.step
 dot.y <- return.list$mean.validation.loss.vec[dot.x]
 
@@ -330,10 +341,15 @@ matpoints(x = dot.x,
           pch = 19)
 ```
 The optimal number of steps is: **`r select.step`**
-
+For the graph NNItterations:Spam Loss of each matrix, the Blue line is the validation set error, and Redline is the Test set error.
 
 ## Data set 5: ozone
 ### Code
+```{r}
+  Ozone<-Prep_Ozone()
+```
+
+
 ```{r}
   data(ozone, package = "ElemStatLearn")
 
@@ -423,7 +439,7 @@ n.hidden.units = 5
 
   plot(c(1:max.iterations),return.list$mean.train.loss.vec,type="s",xlim = c(1,max.iterations),
        xlab="interations",ylab="mean.validation",
-       col="blue",main="Ozone Early Stoping",pch=c(15))
+       col="blue",main="Ozone NNetEarlyStoppingCV",pch=c(15))
   
 dot.x <- select.step
 dot.y <- return.list$mean.validation.loss.vec[dot.x]
