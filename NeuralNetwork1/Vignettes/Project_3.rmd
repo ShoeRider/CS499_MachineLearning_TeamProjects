@@ -117,11 +117,12 @@ print("NNetEarlyStoppingCV_Spam_Tests:")
 Scalar.Step = .99
 folds.n = 4L
 max.iterations = 4000L
+n.hidden.units = 10
 folds.vec=as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 length(folds.vec)=Spam$n_Elements
 
 
-NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,folds.vec,max.iterations,Scalar.Step,10,folds.n)
+NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,folds.vec,max.iterations,Scalar.Step,n.hidden.units,folds.n)
 ```
 
 ```{r}
@@ -138,7 +139,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-With a step.size of :**`r Scalar.Step **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
+With a step.size of :**`r Scalar.Step **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 2: SAheart
 ### Code
@@ -211,7 +212,7 @@ validation.pred.mat = as.matrix(List$pred.mat[validation.index,])
 plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: SAheart Loss",ylim=c(.1,.9))
 lines(colMeans(as.matrix(train.pred.mat)),type="o", col = "red")
 ```
-For the above graph "NNetEarlyStoppingCV SAheart Loss", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
+For the above graph "NNetEarlyStoppingCV SAheart Loss", the Blue line is the validation set error, and Redline is the Test set error. 
 
 
 NNetEarlyStoppingCV_Spam_Tests
@@ -220,11 +221,12 @@ NNetEarlyStoppingCV_Spam_Tests
 print("NNetEarlyStoppingCV_Spam_Tests:")
 Scalar.Step = 0.5
 folds.n = 4L
+n.hidden.units=10
 folds.vec=as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 length(folds.vec)=SAheart$n_Elements
 
 
-SAheart.NNetEarlyStoppingList<-NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,folds.vec,100L,Scalar.Step,10,folds.n)
+SAheart.NNetEarlyStoppingList<-NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,folds.vec,100L,Scalar.Step,n.hidden.units,folds.n)
 ```
 
 ```{r}
@@ -241,7 +243,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-The optimal number of steps is: **`r SAheart.NNetEarlyStoppingList$selected.steps`**
+With a step.size of :**`r Scalar.Step **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r SAheart.NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
 
 
 ## Data set 4: prostate
@@ -303,6 +305,7 @@ print(return.list$selected.steps)
 step.size = .5
 n.hidden.units = 4
 max.iterations = 1000L
+n.hidden.units=10
 data(prostate, package = "ElemStatLearn")
 prostate = list(dataset = as.matrix(
   prostate[, 1:8]),
@@ -341,7 +344,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
+For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r return.list$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 5: ozone
 ### Code
