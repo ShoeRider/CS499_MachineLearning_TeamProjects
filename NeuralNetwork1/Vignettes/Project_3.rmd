@@ -87,6 +87,7 @@ Spam<-Prep_Spam()
 
 Scalar.Step = 0.4
 max.iterations = 1000L
+
 folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
 length(folds.vec)=Spam$n_Elements
 
@@ -106,16 +107,16 @@ names(validation.pred.mat)="Validation Error"
 plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: Spam Loss of each matrix")
 lines(colMeans(as.matrix(train.pred.mat)),type="o", col = "red")
 ```
-For the graph NNItterations:Spam Loss of each matrix, the Blue line is the validation set error, and Redline is the Test set error.
-
+For the above graph "NNItterations: Spam Loss", the Blue line is the validation set error, and Redline is the Test set error. 
+You can start to see the divergence of Validation and Training data, as the model continues to become more and more “over fit” for the training data.
 
 NNetEarlyStoppingCV_Spam_Tests
 
 ```{r, results='hide'}
 print("NNetEarlyStoppingCV_Spam_Tests:")
-Scalar.Step = 0.5
+Scalar.Step = .99
 folds.n = 4L
-max.iterations = 1000L
+max.iterations = 4000L
 folds.vec=as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 length(folds.vec)=Spam$n_Elements
 
@@ -125,7 +126,7 @@ NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabel
 
 ```{r}
 plot(as.matrix(NNetEarlyStoppingList$mean.train.loss.vec),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNetEarlyStoppingCV: Spam Loss of each matrix",ylim=c(.1,1))
-lines((NNetEarlyStoppingList$mean.validation.loss.vec),type="o", col = "gray")
+lines((NNetEarlyStoppingList$mean.validation.loss.vec),type="o", col = "red")
 
 dot.x <- NNetEarlyStoppingList$selected.steps
 dot.y <- NNetEarlyStoppingList$mean.validation.loss.vec[dot.x]
@@ -137,7 +138,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-The optimal number of steps is: **`r NNetEarlyStoppingList$selected.steps`**
+With a step.size of :**`r Scalar.Step **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 2: SAheart
 ### Code
@@ -151,7 +152,7 @@ NNItterations_SAheart_LossMatrix:
 
 ```{r, results='hide'}
 folds.n = 4
-max.iterations = 1000L
+max.iterations = 4000L
 
 fold.vec = as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 is.train = rep(TRUE,length(SAheart$n_Elements))
@@ -207,10 +208,10 @@ train.pred.mat = as.matrix(List$pred.mat[train.index,])
 #print(List$pred.mat[validation.index])
 validation.pred.mat = as.matrix(List$pred.mat[validation.index,])
 
-plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: SAheart Loss of each matrix",ylim=c(.1,.9))
+plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: SAheart Loss",ylim=c(.1,.9))
 lines(colMeans(as.matrix(train.pred.mat)),type="o", col = "red")
 ```
-
+For the above graph "NNetEarlyStoppingCV SAheart Loss", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
 
 
 NNetEarlyStoppingCV_Spam_Tests
@@ -323,13 +324,13 @@ prostate = list(dataset = as.matrix(
 
   plot(c(1:max.iterations),mean.loss.validation,type="s",xlim = c(1,max.iterations), ylim=c(0,1),
        xlab="interations",ylab="mean.validation",
-       col="gray",main="loss value",pch=c(15))
+       col="red",main="loss value",pch=c(15))
 
   par(new=TRUE)
 
   plot(c(1:max.iterations),mean.loss.train,type="s",xlim = c(1,max.iterations), ylim=c(0,1),
        xlab="interations",ylab="mean.validation",
-       col="blue",main="NNetEarlyStoppingCV Prostate results",pch=c(15))
+       col="blue",main="NNetEarlyStoppingCV Prostate",pch=c(15))
   dot.x <- select.step
 dot.y <- return.list$mean.validation.loss.vec[dot.x]
 
@@ -340,8 +341,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-The optimal number of steps is: **`r select.step`**
-For the graph NNItterations:Spam Loss of each matrix, the Blue line is the validation set error, and Redline is the Test set error.
+For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 5: ozone
 ### Code
@@ -413,8 +413,9 @@ for(fold.number in 1:folds.n){
 
 data(ozone, package = "ElemStatLearn")
 
-step.size = .5
+step.size = .01
 n.hidden.units = 5
+max.iterations= 1000L
   X.mat = as.matrix((ozone[,2:4]))
   y.vec = as.vector(ozone[,1])
   print(dim(X.mat))
@@ -433,13 +434,13 @@ n.hidden.units = 5
 
   plot(c(1:max.iterations),return.list$mean.validation.loss.vec,type="s",xlim = c(1,max.iterations),
        xlab="interations",ylab="mean.validation",
-       col="gray",pch=c(15))
+       col="red",pch=c(15))
 
   par(new=TRUE)
 
   plot(c(1:max.iterations),return.list$mean.train.loss.vec,type="s",xlim = c(1,max.iterations),
        xlab="interations",ylab="mean.validation",
-       col="blue",main="Ozone NNetEarlyStoppingCV",pch=c(15))
+       col="blue",main="NNetEarlyStoppingCV Ozone",pch=c(15))
   
 dot.x <- select.step
 dot.y <- return.list$mean.validation.loss.vec[dot.x]
@@ -448,4 +449,5 @@ matpoints(x = dot.x,
           y = dot.y,
           col = 2)
 ```
-The optimal number of steps is: **`r select.step`**
+For the above graph "NNetEarlyStoppingCV Ozone", the Blue line is the validation set error, and Redline is the Test set error. 
+With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
