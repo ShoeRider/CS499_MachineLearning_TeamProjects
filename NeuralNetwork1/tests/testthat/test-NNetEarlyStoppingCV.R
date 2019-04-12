@@ -92,7 +92,6 @@ test_that("NNetEarlyStoppingCV test fold vector size validation",{
   is.train.vec <- sample(c(TRUE,FALSE),replace = TRUE, size = length(TrainingLabels))
   fold.vec <- sample(rep(1:n.folds), length(TrainingData - 2),replace = TRUE)
 
-  # iteration is not an integer
   expect_error(NNetEarlyStoppingCV(TrainingData,TrainingLabels, fold.vec, iterations,step.size,n.hidden.units,n.folds))
 })
 
@@ -110,7 +109,6 @@ test_that("NNetEarlyStoppingCV test output vector size",{
 
   fold.vec <- sample(rep(1:n.folds), length(Data),replace = TRUE)
 
-  # iteration is not an integer
   Data <- as.matrix(as.data.frame(lapply(Data, as.numeric)))
   is.numeric(Data)
 
