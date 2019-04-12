@@ -206,7 +206,7 @@ NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,i
 
 
 NNetEarlyStoppingCV <-
-  function(X.mat, y.vec,fold.vec,max.iterations,step.size,n.hidden.units,n.folds = 4){
+  function(X.mat, y.vec,fold.vec=sample(rep(1:n.folds),length(y.vec)),max.iterations,step.size,n.hidden.units,n.folds = 4){
 
 
     #fold.vec = sample(rep(1:n.folds), length(y.vec),TRUE)  in test file
@@ -214,8 +214,7 @@ NNetEarlyStoppingCV <-
     mean.validation.loss.vec =  rep(0,max.iterations)
     is.train = rep(TRUE,length(y.vec))
 
-
-
+    str(fold.vec)
 
     for(fold.number in 1:n.folds){
 
