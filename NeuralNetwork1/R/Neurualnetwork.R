@@ -59,7 +59,7 @@ NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,i
     stop("step.size must be a number between 0 and 1!")
   }
 
-  if(!all(n.hidden.units>=1, is.integer(n.hidden.units))){
+  if(all(n.hidden.units>=1, is.integer(n.hidden.units))){
     stop("n.hidden.units must be an interger greater or equal to 1!")
   }
 
@@ -83,9 +83,6 @@ NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,i
   y.train = y.vec[train.index]
   X.validation = X.mat[validation.index,]
   y.validation = y.vec[validation.index]
-
-
-
 
 
 
