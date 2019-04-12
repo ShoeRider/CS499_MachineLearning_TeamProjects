@@ -43,7 +43,7 @@ NNItterations_Spam_LossMatrix:
 
 folds.n = 4
 Scalar.Step = 0.4
-max.iterations = 3000L
+max.iterations = 100L
 fold.vec = as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 is.train = rep(TRUE,length(Spam$n_Elements))
 PredMat.ByFold = c()
@@ -86,7 +86,7 @@ print("NNetIterations_Spam_Tests: Question:1")
 Spam<-Prep_Spam()
 
 Scalar.Step = 0.4
-max.iterations = 1000L
+max.iterations = 100L
 
 folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
 length(folds.vec)=Spam$n_Elements
@@ -116,7 +116,7 @@ NNetEarlyStoppingCV_Spam_Tests
 print("NNetEarlyStoppingCV_Spam_Tests:")
 Scalar.Step = .99
 folds.n = 4L
-max.iterations = 4000L
+max.iterations = 100L
 n.hidden.units = 10
 folds.vec=as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 length(folds.vec)=Spam$n_Elements
@@ -127,7 +127,7 @@ NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabel
 
 ```{r}
 plot(as.matrix(NNetEarlyStoppingList$mean.train.loss.vec),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNetEarlyStoppingCV: Spam Loss of each matrix",ylim=c(.1,1))
-lines((NNetEarlyStoppingList$mean.validation.loss.vec),type="o", col = "red")
+lines((NNetEarlyStoppingList$mean.validation.loss.vec),type="o", col = "gray")
 
 dot.x <- NNetEarlyStoppingList$selected.steps
 dot.y <- NNetEarlyStoppingList$mean.validation.loss.vec[dot.x]
@@ -139,7 +139,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-With a step.size of :**`r Scalar.Step **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
+
 
 ## Data set 2: SAheart
 ### Code
@@ -153,7 +153,7 @@ NNItterations_SAheart_LossMatrix:
 
 ```{r, results='hide'}
 folds.n = 4
-max.iterations = 4000L
+max.iterations = 100L
 
 fold.vec = as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 is.train = rep(TRUE,length(SAheart$n_Elements))
@@ -194,7 +194,7 @@ return.list = NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,f
 ```{r, results='hide'}
 
 Scalar.Step = 0.4
-max.iterations = 1000L
+max.iterations = 100L
 folds.vec = as.logical(Random_Folds(SAheart$n_Elements,1))
 length(folds.vec)=SAheart$n_Elements
 
@@ -243,7 +243,6 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-With a step.size of :**`r Scalar.Step **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r SAheart.NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
 
 
 ## Data set 4: prostate
@@ -256,7 +255,7 @@ With a step.size of :**`r Scalar.Step **,and **`r n.hidden.units ** number of n.
 ```{r, results='hide'}
 folds.n = 4
 Scalar.Step=.4
-max.iterations = 1000L
+max.iterations = 100L
 
 fold.vec = as.double(sample(1:(folds.n),Prostate$n_Elements,replace=T))
 is.train = rep(TRUE,length(Prostate$n_Elements))
@@ -304,7 +303,7 @@ print(return.list$selected.steps)
 ```{r, results='hide'}
 step.size = .5
 n.hidden.units = 4
-max.iterations = 1000L
+max.iterations = 100L
 n.hidden.units=10
 data(prostate, package = "ElemStatLearn")
 prostate = list(dataset = as.matrix(
@@ -344,7 +343,15 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r return.list$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
+For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :
+
+,and
+
+number of n.hidden.units, the optimal number of steps found was:
+
+
+
+**`r return.list$selected.steps **. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 5: ozone
 ### Code
@@ -418,7 +425,7 @@ data(ozone, package = "ElemStatLearn")
 
 step.size = .01
 n.hidden.units = 5
-max.iterations= 1000L
+max.iterations= 100L
   X.mat = as.matrix((ozone[,2:4]))
   y.vec = as.vector(ozone[,1])
   print(dim(X.mat))
@@ -453,4 +460,7 @@ matpoints(x = dot.x,
           col = 2)
 ```
 For the above graph "NNetEarlyStoppingCV Ozone", the Blue line is the validation set error, and Redline is the Test set error. 
-With a step.size of :**`r step.size **,and **`r n.hidden.units ** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
+With a step.size of :
+,and
+number of n.hidden.units, the optimal number of steps found was: 
+. by tweaking these values, a more optimal solution might be possible.
