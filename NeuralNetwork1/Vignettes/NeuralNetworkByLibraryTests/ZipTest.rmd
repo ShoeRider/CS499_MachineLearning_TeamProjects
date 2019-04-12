@@ -1,0 +1,96 @@
+---
+title: "Linear Models Report"
+author: "Junyu Chen"
+contributor: "Anthony Schroeder","Chadd Frasier","Austin Torrence"
+date: "04/12/2019"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Neural Newtork Models Report}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+```{r}
+library(NeuralNetwork1)
+#source("R/General.R")
+
+source("tests/testthat/Prep_Libraries.R")
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+```
+
+
+## Data set 3: Zip.train
+### Code
+```{r}
+  Ziptrain<-Prep_ZipTrain()
+#print(NCOL(Ziptrain$TrainingData))
+  #print(Ziptrain$TrainingData[0:2000,0])
+```
+
+### Matrix of loss values
+NNItterations_SAheart_LossMatrix:
+
+```{r, results='hide'}
+folds.n = 4
+Scalar.Step = 0.4
+fold.vec = as.double(sample(1:(folds.n),Ziptrain$n_Elements,replace=T))
+is.train = rep(TRUE,length(Ziptrain$n_Elements))
+PredMat.ByFold = c()
+for(fold.number in 1:folds.n){
+
+  is.train[which(fold.vec == fold.number)] = FALSE
+  is.train[which(fold.vec != fold.number)] = TRUE
+  #X.scaled.mat = scale(X.train,center = TRUE,scale = TRUE)
+  #
+  train.index = which(is.train==TRUE)
+  validation.index = which(is.train!=TRUE)
+  X.train = Ziptrain$TrainingData[train.index,]
+  y.train = Ziptrain$TrainingLabels[train.index]
+  X.validation = Ziptrain$TrainingData[validation.index,]
+  y.validation = Ziptrain$TrainingLabels[validation.index]
+
+  return.list <-NNetIterations(Ziptrain$TrainingData, Ziptrain$TrainingLabels,100L,Scalar.Step,10,is.train)
+  PredMat.ByFold<-cbind(PredMat.ByFold,colMeans(return.list$pred.mat))
+}
+```
+```{r, results='hide'}
+  print(dim(PredMat.ByFold))
+  print(as.double(PredMat.ByFold[1,]))
+  print(as.double(PredMat.ByFold[NROW(PredMat.ByFold),]))
+  Ziptrain_LossMatrix <-rbind(as.double(PredMat.ByFold[1,]),PredMat.ByFold[NROW(PredMat.ByFold),])
+  #as.double(PredMat.ByFold[NROW(PredMat.ByFold),2])
+
+  colnames(Ziptrain_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Ziptrain_LossMatrix)<-c("Untrained","Trained")
+  barplot(Ziptrain_LossMatrix, xlab = "Folds", ylab = "Error",main = "NNItterations_Ziptrain_LossMatrix",legend = (rownames(Ziptrain_LossMatrix)),beside = TRUE)
+```
+
+```{r, results='hide'}
+
+Scalar.Step = 0.4
+folds.vec = as.logical(Random_Folds(Ziptrain$n_Elements,1))
+length(folds.vec) = Ziptrain$n_Elements
+#print(Ziptrain$TrainingData)
+Ziptrain.NNetIterationsList <-NNetIterations(Ziptrain$TrainingData, Ziptrain$TrainingLabels,3L,Scalar.Step,15,folds.vec)
+print(Ziptrain.NNetIterationsList$pred.mat)
+```
+
+```{r, results='hide'}
+train.index = which(folds.vec==TRUE)
+validation.index = which(folds.vec!=TRUE)
+train.pred.mat = as.matrix(Ziptrain.NNetIterationsList$pred.mat[train.index,])
+
+#print(List$pred.mat[validation.index])
+validation.pred.mat = as.matrix(Ziptrain.NNetIterationsList$pred.mat[validation.index,])
+
+print((colMeans(validation.pred.mat)))
+
+plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: Ziptrain Loss of each matrix")
+lines(colMeans(as.matrix(train.pred.mat)),type="o", col = "red")
+```
