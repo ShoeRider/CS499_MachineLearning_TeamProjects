@@ -37,7 +37,7 @@
 #'folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
 #'length(folds.vec)=Spam$n_Elements
 #'List <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,max.iterations,Scalar.Step,10,folds.vec)
-NNetIterations <- function(X.mat, y.vec,fold.vec=sample(rep(1:n.folds),length(y.vec)),max.iterations,step.size,n.hidden.units,n.folds = 4){
+NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,is.train){
 
   if(!all(is.matrix(X.mat),is.numeric(X.mat))){
     stop("X.mat must be a numeric matrix!")
