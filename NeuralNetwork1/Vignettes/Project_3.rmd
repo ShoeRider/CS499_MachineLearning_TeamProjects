@@ -16,6 +16,53 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+## Equations used:
+Following the inclass description: 
+
+- Sigmoid(X)  $$ (1/(1+exp(-x))) $$
+- Sigmoid Gradient(X) $$ (sigmoid(x)/(1-sigmoid(x))) $$
+- Binary Regression 
+
+      delta.w = -y.tilde.train*sigmoid(-y.tilde.train*X.b.vec)
+      delta.v = delta.w * (X.z.mat * (1-X.z.mat)) * matrix(w.vec[-1],nrow(X.z.mat * (1-X.z.mat)) , ncol(X.z.mat * (1-X.z.mat)))
+      
+- Regression 
+
+      pred.mat[,iteration] = cbind(1,sigmoid(cbind(1,X.scaled.mat)%*%v.mat))%*%w.vec
+      delta.w = X.b.vec - y.train
+      delta.v = delta.w * (X.z.mat * (1-X.z.mat)) * matrix(w.vec[-1],nrow(X.z.mat * (1-X.z.mat)) , ncol(X.z.mat * (1-X.z.mat)))
+
+## Forward propigation Overview:
+
+$$ x_i >V()> a_i >S[a_i]> z_i > W > b_i > H > \hat{y}_i$$
+**x**, Matrix of input features.
+
+- **V**, pre-synaptic input operation/layer.
+
+**a**, Input to hidden layer Sinapse Activation.
+
+- **S**, Sigmoid Activation Operation.
+
+**z**, Output to hidden layer Sinapse Activation.
+
+- **W**, pre-synaptic input to the output operation/Layer, with **b** being the resulting Matrix.
+
+**b**, pre-synaptic output sinapse.
+
+- **H**, post-synaptic output operation/Layer. 
+
+**y**, classification made by the model.
+
+
+## BackPropigation:
+
+
+
+# Code and Testing
+
+Lets import some the library: "NeuralNetwork1", and show some of the functionality:
+
+      
 ```{r}
 library(NeuralNetwork1)
 print(getwd())
@@ -43,7 +90,7 @@ NNItterations_Spam_LossMatrix:
 
 folds.n = 4
 Scalar.Step = 0.4
-max.iterations = 100L
+max.iterations = 30L
 fold.vec = as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 is.train = rep(TRUE,length(Spam$n_Elements))
 PredMat.ByFold = c()
@@ -80,13 +127,14 @@ for(fold.number in 1:folds.n){
 
 Here is the Loss graph for Spam. For each fold the graph shows that the error was relatively constant however the untrained data was significantly higher in each case. The trained and early stopping data were both almost exactly the same in each fold signifying that neither was better than the other in terms of loss. 
 
+
 ### Train/validation loss plot
 ```{r, results='hide'}
 print("NNetIterations_Spam_Tests: Question:1")
 Spam<-Prep_Spam()
 
 Scalar.Step = 0.4
-max.iterations = 100L
+max.iterations = 1000L
 
 folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
 length(folds.vec)=Spam$n_Elements
@@ -127,7 +175,7 @@ NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabel
 
 ```{r}
 plot(as.matrix(NNetEarlyStoppingList$mean.train.loss.vec),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNetEarlyStoppingCV: Spam Loss of each matrix",ylim=c(.1,1))
-lines((NNetEarlyStoppingList$mean.validation.loss.vec),type="o", col = "gray")
+lines((NNetEarlyStoppingList$mean.validation.loss.vec),type="o", col = "red")
 
 dot.x <- NNetEarlyStoppingList$selected.steps
 dot.y <- NNetEarlyStoppingList$mean.validation.loss.vec[dot.x]
@@ -140,7 +188,7 @@ matpoints(x = dot.x,
           pch = 19)
 ```
 For "NNetEarlyStoppingCV: Spam Loss", we can see that the training and test data are diverging here as well causing the overfit graph we see.
-
+With a step.size of :**`r Scalar.Step`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 2: SAheart
 ### Code
@@ -154,7 +202,7 @@ NNItterations_SAheart_LossMatrix:
 
 ```{r, results='hide'}
 folds.n = 4
-max.iterations = 100L
+max.iterations = 400L
 
 fold.vec = as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 is.train = rep(TRUE,length(SAheart$n_Elements))
@@ -195,7 +243,7 @@ return.list = NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,f
 ```{r, results='hide'}
 
 Scalar.Step = 0.4
-max.iterations = 100L
+max.iterations = 1000L
 folds.vec = as.logical(Random_Folds(SAheart$n_Elements,1))
 length(folds.vec)=SAheart$n_Elements
 
@@ -213,8 +261,7 @@ validation.pred.mat = as.matrix(List$pred.mat[validation.index,])
 plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: SAheart Loss",ylim=c(.1,.9))
 lines(colMeans(as.matrix(train.pred.mat)),type="o", col = "red")
 ```
-
-For the above graph "NNIterations SAheart Loss", the Blue line is the validation set error, and Redline is the Test set error. As we can see here we have less overfitting than previously. 
+For the above graph "NNIterations SAheart Loss", the Blue line is the validation set error, and Redline is the Test set error. As we can see here we have less overfitting than previously.
 
 
 NNetEarlyStoppingCV_Spam_Tests
@@ -246,6 +293,8 @@ matpoints(x = dot.x,
           pch = 19)
 ```
 Here we have the training data in blue and the validation data in grey. Just like in the previous graph we have less overfitting and a more just fit. 
+With a step.size of :**`r Scalar.Step`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r SAheart.NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
+
 
 ## Data set 4: prostate
 ### Code
@@ -257,7 +306,7 @@ Here we have the training data in blue and the validation data in grey. Just lik
 ```{r, results='hide'}
 folds.n = 4
 Scalar.Step=.4
-max.iterations = 100L
+max.iterations = 1000L
 
 fold.vec = as.double(sample(1:(folds.n),Prostate$n_Elements,replace=T))
 is.train = rep(TRUE,length(Prostate$n_Elements))
@@ -306,7 +355,6 @@ print(return.list$selected.steps)
 step.size = .5
 n.hidden.units = 4
 max.iterations = 100L
-n.hidden.units=10
 data(prostate, package = "ElemStatLearn")
 prostate = list(dataset = as.matrix(
   prostate[, 1:8]),
@@ -345,7 +393,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of : `r step.size`, and `r n.hidden.units` number of n.hidden.units, the optimal number of steps found was: `r return.list$selected.steps`. By tweaking these values, a more optimal solution might be possible.
+For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :**`r step.size`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 5: ozone
 ### Code
@@ -373,6 +421,7 @@ n.hidden.units = 5
 ```{r, results='hide'}
 folds.n = 4
 Scalar.Step=.4
+
 fold.vec = as.double(sample(1:(folds.n),Ozone$n_Elements,replace=T))
 is.train = rep(TRUE,length(Ozone$n_Elements))
 PredMat.ByFold = c()
@@ -454,7 +503,4 @@ matpoints(x = dot.x,
           col = 2)
 ```
 For the above graph "NNetEarlyStoppingCV Ozone", the Blue line is the validation set error, and Redline is the Test set error. 
-With a step.size of : `r step.size`
-,and
-`r n.hidden.units` number of n.hidden.units, the optimal number of steps found was: 
-`r return.list$selected.steps` . by tweaking these values, a more optimal solution might be possible.
+With a step.size of :**`r step.size`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r select.step`**. by tweaking these values, a more optimal solution might be possible.
