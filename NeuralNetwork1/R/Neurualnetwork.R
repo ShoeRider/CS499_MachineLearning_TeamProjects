@@ -23,24 +23,26 @@
 #' @export
 #'
 #' @examples
-#' Spam<-Prep_Spam()
-#' folds.n = 4
-#' Scalar.Step = 0.4
-#' max.iterations = 3000L
-#' fold.vec = as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
-#' return.list = NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,fold.vec,max.iterations,Scalar.Step,10,n.folds = 4)
-#' @examples
-#'Spam<-Prep_Spam()
-#'Scalar.Step = 0.4
-#'max.iterations = 1000L
-#'
-#'folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
-#'length(folds.vec)=Spam$n_Elements
-#'List <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,max.iterations,Scalar.Step,10,folds.vec)
-NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,is.train){
+#' data(ozone, package = "ElemStatLearn")
+#' y.vec <- ozone[, 1]
+#' X.mat <- as.matrix(ozone[,-1])
+#' num.train <- dim(X.mat)[1]
+#' num.feature <- dim(X.mat)[2]
+#' X.mean.vec <- colMeans(X.mat)
+#' X.std.vec <- sqrt(rowSums((t(X.mat) - X.mean.vec) ^ 2) / num.train)
+#' X.std.mat <- diag(num.feature) * (1 / X.std.vec)
+#' X.scaled.mat <- t((t(X.mat) - X.mean.vec) / X.std.vec)
+
+
+
+
+
+NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,is.train){
+  #NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units){
+
 
   if(!all(is.matrix(X.mat),is.numeric(X.mat))){
-    stop("X.mat must be a numeric matrix!")
+    stop("X.mat must be a numberic matrix!")
   }
 
 
@@ -57,7 +59,7 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
     stop("step.size must be a number between 0 and 1!")
   }
 
-  if(all(n.hidden.units>=1, is.integer(n.hidden.units))){
+  if(!all(n.hidden.units>=1, is.integer(n.hidden.units))){
     stop("n.hidden.units must be an interger greater or equal to 1!")
   }
 
@@ -65,9 +67,10 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
     stop("is.train must be a logical vector of the same number of rows as X.mat!")
   }
 
-  if(length(unique(y.vec))==2){is.binary = 1
+  if(length(unique(y.vec))==2){
+    is.binary = 1
+    y.vec = ifelse(y.vec == which.max(y.vec),1,-1)
   }else{is.binary = 0}
-
 
   n.observations <- nrow(X.mat)
   n.features <- ncol(X.mat)
@@ -78,6 +81,8 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
 
   train.index = which(is.train==TRUE)
   validation.index = which(is.train!=TRUE)
+
+
   X.train = X.mat[train.index,]
   y.train = y.vec[train.index]
   X.validation = X.mat[validation.index,]
@@ -86,15 +91,17 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
 
 
 
+
+
+
   #compute a scaled input matrix, which has mean=0 and sd=1 for each column
 
   X.scaled.train = scale(X.train,center = TRUE,scale = TRUE)
 
-  X.scaled.validation = scale(X.validation,center = TRUE,scale = TRUE)
+  #X.scaled.validation = scale(X.validation,center = TRUE,scale = TRUE)
 
-#print(X.mat[1,256])
   X.scaled.mat = scale(X.mat,center = TRUE,scale = TRUE)
-#print(X.scaled.mat[1,256])
+
 
 
 
@@ -116,8 +123,6 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
   }
   for(iteration in 1:max.iterations){
     X.a.mat = (cbind(1,X.scaled.train))%*%v.mat
-
-
     X.z.mat = sigmoid(X.a.mat)
     #X.b.vec = X.z.mat %*% v.vec + interception.vec
     X.b.vec = as.numeric((cbind(1,X.z.mat)) %*% w.vec)
@@ -125,18 +130,13 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
 
     if(is.binary){
       ##binary classification
-      #pred.mat[train.index,iteration] = sigNoid(cbind(1,sigmoid(cbind(1,X.scaled.train)%*%v.mat))%*%w.vec)
-      pred.mat[,iteration] = sigmoid(cbind(1,sigmoid(cbind(1,X.scaled.mat)%*%v.mat))%*%w.vec)
-      y.tilde.train = y.train
-      y.tilde.train[which(y.tilde.train==0)] = -1 # change y into non-zero number
-      delta.w = -y.tilde.train*sigmoid(-y.tilde.train*X.b.vec)
+      pred.mat[,iteration] = ifelse((sigmoid(cbind(1,sigmoid(cbind(1,X.scaled.mat)%*%v.mat))%*%w.vec))>=0.5,1,0)
+      delta.w = -y.train*sigmoid(-y.train*X.b.vec)
       delta.v = delta.w * (X.z.mat * (1-X.z.mat)) * matrix(w.vec[-1],nrow(X.z.mat * (1-X.z.mat)) , ncol(X.z.mat * (1-X.z.mat)))
     }else{
 
 
       ##if regression
-      #pred.mat[train.index,iteration] = cbind(1,sigmoid(cbind(1,X.scaled.train)%*%v.mat))%*%w.vec
-      #pred.mat[validation.index,iteration] = cbind(1,sigmoid(cbind(1,X.scaled.validation)%*%v.mat))%*%w.vec
       pred.mat[,iteration] = cbind(1,sigmoid(cbind(1,X.scaled.mat)%*%v.mat))%*%w.vec
       delta.w = X.b.vec - y.train
       delta.v = delta.w * (X.z.mat * (1-X.z.mat)) * matrix(w.vec[-1],nrow(X.z.mat * (1-X.z.mat)) , ncol(X.z.mat * (1-X.z.mat)))
@@ -204,59 +204,62 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
 #' @return mean.validation.loss
 #' @return mean.train.loss.vec
 #' @return selected.steps
-#' @example
-#' data(ozone, package = "ElemStatLearn")
-#' step.size = .01
-#' n.hidden.units = 5
-#' max.iterations= 1000L
-#' X.mat = as.matrix((ozone[,2:4]))
-#' y.vec = as.vector(ozone[,1])
-#' fold.vec = fold.vec = sample(rep(1:4), length(y.vec),TRUE)
-#' return.list = NNetEarlyStoppingCV(X.mat, y.vec,fold.vec,max.iterations,
-#' step.size,n.hidden.units,n.folds = 4)
-#' @example
-#'Spam<-Prep_Spam()
-#'Scalar.Step = .99
-#'folds.n = 4L
-#'max.iterations = 7000L
-#'n.hidden.units = 10
-#'folds.vec=as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
-#'length(folds.vec)=Spam$n_Elements
-#'NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,folds.vec,max.iterations,Scalar.Step,n.hidden.units,folds.n)
+
+
+
 NNetEarlyStoppingCV <-
-  function(X.mat, y.vec,fold.vec=sample(rep(1:n.folds),,max.iterations,step.size,n.hidden.units,n.folds = 4){
+  function(X.mat, y.vec,fold.vec,max.iterations,step.size,n.hidden.units,n.folds = 4){
 
 
     #fold.vec = sample(rep(1:n.folds), length(y.vec),TRUE)  in test file
     mean.train.loss.vec =  rep(0,max.iterations)
     mean.validation.loss.vec =  rep(0,max.iterations)
     is.train = rep(TRUE,length(y.vec))
+    is.binary <- ifelse((all(y.vec %in% c(0,1))), TRUE, FALSE)
 
-    print("Entered Fold Values:")
-    str(fold.vec)
+
+
 
     for(fold.number in 1:n.folds){
 
       is.train[which(fold.vec == fold.number)] = FALSE
       is.train[which(fold.vec != fold.number)] = TRUE
-      #X.scaled.mat = scale(X.train,center = TRUE,scale = TRUE)
-      #
+
+
       train.index = which(is.train==TRUE)
       validation.index = which(is.train!=TRUE)
+
+
       X.train = X.mat[train.index,]
       y.train = y.vec[train.index]
       X.validation = X.mat[validation.index,]
       y.validation = y.vec[validation.index]
 
 
+
+
+
       return.list = NNetIterations(X.mat,y.vec,max.iterations,step.size,n.hidden.units,is.train)
-      print(dim(return.list$pred.mat))
       prediction.train = return.list$pred.mat[train.index,]
       prediction.validation =  return.list$pred.mat[validation.index,]
 
 
-      mean.train.loss.vec = mean.train.loss.vec + colMeans(abs(prediction.train - y.train))
-      mean.validation.loss.vec = mean.validation.loss.vec + colMeans(abs(prediction.validation - y.validation))
+      if(is.binary){
+        #mean.train.loss.vec = colMeans(log(exp(1),(1+exp(-diag(as.vector(y.train))%*%prediction.train))))
+        #mean.validation.loss.vec = colMeans(log(exp(1),(1+exp(-diag(as.vector(y.validation))%*%prediction.validation))))
+        mean.train.loss.vec = colMeans((ifelse(prediction.train == y.train, 0, 1)))
+        mean.validation.loss.vec = colMeans((ifelse(prediction.validation == y.validation, 0, 1)))
+
+
+      }else{
+        mean.train.loss.vec = mean.train.loss.vec + colMeans((prediction.train - y.train)^2)
+        mean.validation.loss.vec = mean.validation.loss.vec + colMeans((prediction.validation - y.validation)^2)
+        }
+
+
+
+
+
 
     }
     mean.train.loss.vec = mean.train.loss.vec / n.folds
@@ -273,6 +276,7 @@ NNetEarlyStoppingCV <-
 
     return(result.list)
   }
+
 
 
 
