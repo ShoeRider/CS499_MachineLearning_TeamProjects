@@ -224,7 +224,7 @@ NNetIterations <- function(X.mat, y.vec,max.iterations,step.size,n.hidden.units,
 #'length(folds.vec)=Spam$n_Elements
 #'NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,folds.vec,max.iterations,Scalar.Step,n.hidden.units,folds.n)
 NNetEarlyStoppingCV <-
-  function(X.mat, y.vec,fold.vec=sample(rep(1:n.folds),length(y.vec)),max.iterations,step.size,n.hidden.units,n.folds = 4){
+  function(X.mat, y.vec,fold.vec=sample(rep(1:n.folds),,max.iterations,step.size,n.hidden.units,n.folds = 4){
 
 
     #fold.vec = sample(rep(1:n.folds), length(y.vec),TRUE)  in test file
