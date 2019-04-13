@@ -4,8 +4,8 @@
 \alias{NNetEarlyStoppingCV}
 \title{a function using nerual network through cross validation}
 \usage{
-NNetEarlyStoppingCV(X.mat, y.vec, fold.vec, max.iterations, step.size,
-  n.hidden.units, n.folds = 4)
+NNetEarlyStoppingCV(X.mat, y.vec, fold.vec = sample(rep(1:n.folds),
+  length(y.vec)), max.iterations, step.size, n.hidden.units, n.folds = 4)
 }
 \arguments{
 \item{X.mat}{: n x p}

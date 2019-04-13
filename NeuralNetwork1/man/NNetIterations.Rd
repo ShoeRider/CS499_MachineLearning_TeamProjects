@@ -4,8 +4,8 @@
 \alias{NNetIterations}
 \title{Neural networks for regression and binary classification}
 \usage{
-NNetIterations(X.mat, y.vec, max.iterations, step.size, n.hidden.units,
-  is.train)
+NNetIterations(X.mat, y.vec, fold.vec = sample(rep(1:n.folds),
+  length(y.vec)), max.iterations, step.size, n.hidden.units, n.folds = 4)
 }
 \arguments{
 \item{X.mat}{(feature matrix, n_observations x n_features)}
@@ -37,13 +37,17 @@ Training by using nerual network with gradient descending
 (real numbers for regression, probabilities for binary classification).
 }
 \examples{
-data(ozone, package = "ElemStatLearn")
-y.vec <- ozone[, 1]
-X.mat <- as.matrix(ozone[,-1])
-num.train <- dim(X.mat)[1]
-num.feature <- dim(X.mat)[2]
-X.mean.vec <- colMeans(X.mat)
-X.std.vec <- sqrt(rowSums((t(X.mat) - X.mean.vec) ^ 2) / num.train)
-X.std.mat <- diag(num.feature) * (1 / X.std.vec)
-X.scaled.mat <- t((t(X.mat) - X.mean.vec) / X.std.vec)
+Spam<-Prep_Spam()
+folds.n = 4
+Scalar.Step = 0.4
+max.iterations = 3000L
+fold.vec = as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
+return.list = NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,fold.vec,max.iterations,Scalar.Step,10,n.folds = 4)
+Spam<-Prep_Spam()
+Scalar.Step = 0.4
+max.iterations = 1000L
+
+folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
+length(folds.vec)=Spam$n_Elements
+List <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,max.iterations,Scalar.Step,10,folds.vec)
 }
