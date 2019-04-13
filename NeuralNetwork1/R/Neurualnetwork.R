@@ -23,26 +23,24 @@
 #' @export
 #'
 #' @examples
-#' data(ozone, package = "ElemStatLearn")
-#' y.vec <- ozone[, 1]
-#' X.mat <- as.matrix(ozone[,-1])
-#' num.train <- dim(X.mat)[1]
-#' num.feature <- dim(X.mat)[2]
-#' X.mean.vec <- colMeans(X.mat)
-#' X.std.vec <- sqrt(rowSums((t(X.mat) - X.mean.vec) ^ 2) / num.train)
-#' X.std.mat <- diag(num.feature) * (1 / X.std.vec)
-#' X.scaled.mat <- t((t(X.mat) - X.mean.vec) / X.std.vec)
-
-
-
-
-
-NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,is.train){
-  #NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units){
-
+#' Spam<-Prep_Spam()
+#' folds.n = 4
+#' Scalar.Step = 0.4
+#' max.iterations = 3000L
+#' fold.vec = as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
+#' return.list = NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,fold.vec,max.iterations,Scalar.Step,10,n.folds = 4)
+#' @examples
+#'Spam<-Prep_Spam()
+#'Scalar.Step = 0.4
+#'max.iterations = 1000L
+#'
+#'folds.vec = as.logical(Random_Folds(Spam$n_Elements,1))
+#'length(folds.vec)=Spam$n_Elements
+#'List <-NNetIterations(Spam$TrainingData, Spam$TrainingLabels,max.iterations,Scalar.Step,10,folds.vec)
+NNetIterations <- function(X.mat, y.vec,fold.vec=sample(rep(1:n.folds),length(y.vec)),max.iterations,step.size,n.hidden.units,n.folds = 4){
 
   if(!all(is.matrix(X.mat),is.numeric(X.mat))){
-    stop("X.mat must be a numberic matrix!")
+    stop("X.mat must be a numeric matrix!")
   }
 
 
@@ -70,6 +68,7 @@ NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,i
   if(length(unique(y.vec))==2){is.binary = 1
   }else{is.binary = 0}
 
+
   n.observations <- nrow(X.mat)
   n.features <- ncol(X.mat)
 
@@ -93,8 +92,9 @@ NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,i
 
   X.scaled.validation = scale(X.validation,center = TRUE,scale = TRUE)
 
+#print(X.mat[1,256])
   X.scaled.mat = scale(X.mat,center = TRUE,scale = TRUE)
-
+#print(X.scaled.mat[1,256])
 
 
 
@@ -116,6 +116,8 @@ NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,i
   }
   for(iteration in 1:max.iterations){
     X.a.mat = (cbind(1,X.scaled.train))%*%v.mat
+
+
     X.z.mat = sigmoid(X.a.mat)
     #X.b.vec = X.z.mat %*% v.vec + interception.vec
     X.b.vec = as.numeric((cbind(1,X.z.mat)) %*% w.vec)
@@ -202,9 +204,25 @@ NNetIterations <- function(X.mat,y.vec,max.iterations,step.size,n.hidden.units,i
 #' @return mean.validation.loss
 #' @return mean.train.loss.vec
 #' @return selected.steps
-
-
-
+#' @example
+#' data(ozone, package = "ElemStatLearn")
+#' step.size = .01
+#' n.hidden.units = 5
+#' max.iterations= 1000L
+#' X.mat = as.matrix((ozone[,2:4]))
+#' y.vec = as.vector(ozone[,1])
+#' fold.vec = fold.vec = sample(rep(1:4), length(y.vec),TRUE)
+#' return.list = NNetEarlyStoppingCV(X.mat, y.vec,fold.vec,max.iterations,
+#' step.size,n.hidden.units,n.folds = 4)
+#' @example
+#'Spam<-Prep_Spam()
+#'Scalar.Step = .99
+#'folds.n = 4L
+#'max.iterations = 7000L
+#'n.hidden.units = 10
+#'folds.vec=as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
+#'length(folds.vec)=Spam$n_Elements
+#'NNetEarlyStoppingList<-NNetEarlyStoppingCV(Spam$TrainingData, Spam$TrainingLabels,folds.vec,max.iterations,Scalar.Step,n.hidden.units,folds.n)
 NNetEarlyStoppingCV <-
   function(X.mat, y.vec,fold.vec=sample(rep(1:n.folds),length(y.vec)),max.iterations,step.size,n.hidden.units,n.folds = 4){
 
@@ -214,6 +232,7 @@ NNetEarlyStoppingCV <-
     mean.validation.loss.vec =  rep(0,max.iterations)
     is.train = rep(TRUE,length(y.vec))
 
+    print("Entered Fold Values:")
     str(fold.vec)
 
     for(fold.number in 1:n.folds){
@@ -230,8 +249,8 @@ NNetEarlyStoppingCV <-
       y.validation = y.vec[validation.index]
 
 
-
       return.list = NNetIterations(X.mat,y.vec,max.iterations,step.size,n.hidden.units,is.train)
+      print(dim(return.list$pred.mat))
       prediction.train = return.list$pred.mat[train.index,]
       prediction.validation =  return.list$pred.mat[validation.index,]
 
@@ -240,8 +259,8 @@ NNetEarlyStoppingCV <-
       mean.validation.loss.vec = mean.validation.loss.vec + colMeans(abs(prediction.validation - y.validation))
 
     }
-    mean.train.loss.vec = mean.train.loss.vec / 4
-    mean.validation.loss.vec = mean.validation.loss.vec / 4
+    mean.train.loss.vec = mean.train.loss.vec / n.folds
+    mean.validation.loss.vec = mean.validation.loss.vec / n.folds
     selected.steps = which.min(mean.validation.loss.vec)
 
 
@@ -254,3 +273,6 @@ NNetEarlyStoppingCV <-
 
     return(result.list)
   }
+
+
+
