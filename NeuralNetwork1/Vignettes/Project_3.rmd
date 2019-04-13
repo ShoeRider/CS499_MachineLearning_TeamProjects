@@ -90,7 +90,7 @@ NNItterations_Spam_LossMatrix:
 
 folds.n = 4
 Scalar.Step = 0.4
-max.iterations = 30L
+max.iterations = 3000L
 fold.vec = as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 is.train = rep(TRUE,length(Spam$n_Elements))
 PredMat.ByFold = c()
@@ -164,7 +164,7 @@ NNetEarlyStoppingCV_Spam_Tests
 print("NNetEarlyStoppingCV_Spam_Tests:")
 Scalar.Step = .99
 folds.n = 4L
-max.iterations = 100L
+max.iterations = 7000L
 n.hidden.units = 10
 folds.vec=as.double(sample(1:(folds.n),Spam$n_Elements,replace=T))
 length(folds.vec)=Spam$n_Elements
@@ -187,8 +187,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-For "NNetEarlyStoppingCV: Spam Loss", we can see that the training and test data are diverging here as well causing the overfit graph we see.
-With a step.size of :**`r Scalar.Step`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
+For "NNetEarlyStoppingCV: Spam Loss", we can see that the training and test data are diverging here as well causing the overfit graph we see. With a step.size of :**`r Scalar.Step`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
 
 ## Data set 2: SAheart
 ### Code
@@ -202,7 +201,7 @@ NNItterations_SAheart_LossMatrix:
 
 ```{r, results='hide'}
 folds.n = 4
-max.iterations = 400L
+max.iterations = 4000L
 
 fold.vec = as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 is.train = rep(TRUE,length(SAheart$n_Elements))
@@ -275,7 +274,7 @@ folds.vec=as.double(sample(1:(folds.n),SAheart$n_Elements,replace=T))
 length(folds.vec)=SAheart$n_Elements
 
 
-SAheart.NNetEarlyStoppingList<-NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,folds.vec,100L,Scalar.Step,n.hidden.units,folds.n)
+SAheart.NNetEarlyStoppingList<-NNetEarlyStoppingCV(SAheart$TrainingData, SAheart$TrainingLabels,folds.vec,1000L,Scalar.Step,n.hidden.units,folds.n)
 ```
 
 ```{r}
@@ -292,8 +291,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-Here we have the training data in blue and the validation data in grey. Just like in the previous graph we have less overfitting and a more just fit. 
-With a step.size of :**`r Scalar.Step`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r SAheart.NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
+Here we have the training data in blue and the validation data in grey. Just like in the previous graph we have less overfitting and a more just fit. With a step.size of :**`r Scalar.Step`**,and **`r n.hidden.units`** number of n.hidden.units, the optimal number of steps found was: **`r SAheart.NNetEarlyStoppingList$selected.steps`**. by tweaking these values, a more optimal solution might be possible.
 
 
 ## Data set 4: prostate
@@ -333,11 +331,7 @@ for(fold.number in 1:folds.n){
 
 
 ```{r, results='hide'}
-print(return.list$selected.steps)
-  print(as.matrix(return.list$mean.validation.loss.vec))
-  print(dim(PredMat.ByFold))
-  print(as.double(PredMat.ByFold[1,]))
-  print(as.double(PredMat.ByFold[NROW(PredMat.ByFold),]))
+
   Prostate_LossMatrix = c()
   Prostate_LossMatrix <-rbind(as.double(PredMat.ByFold[1,]),PredMat.ByFold[NROW(PredMat.ByFold),])
   Prostate_LossMatrix <-rbind(Prostate_LossMatrix,as.double(PredMat.ByFold[return.list$selected.steps,]))
@@ -354,7 +348,7 @@ print(return.list$selected.steps)
 ```{r, results='hide'}
 step.size = .5
 n.hidden.units = 4
-max.iterations = 100L
+max.iterations = 1000L
 data(prostate, package = "ElemStatLearn")
 prostate = list(dataset = as.matrix(
   prostate[, 1:8]),
@@ -438,7 +432,7 @@ for(fold.number in 1:folds.n){
   X.validation = Ozone$TrainingData[validation.index,]
   y.validation = Ozone$TrainingLabels[validation.index]
   
-  return.list <-NNetIterations(Ozone$TrainingData, Ozone$TrainingLabels,100L,Scalar.Step,10,is.train)
+  return.list <-NNetIterations(Ozone$TrainingData, Ozone$TrainingLabels,1000L,Scalar.Step,10,is.train)
   PredMat.ByFold<-cbind(PredMat.ByFold,colMeans(return.list$pred.mat))
 }
 
@@ -468,7 +462,7 @@ data(ozone, package = "ElemStatLearn")
 
 step.size = .01
 n.hidden.units = 5
-max.iterations= 100L
+max.iterations= 1000L
   X.mat = as.matrix((ozone[,2:4]))
   y.vec = as.vector(ozone[,1])
   print(dim(X.mat))
