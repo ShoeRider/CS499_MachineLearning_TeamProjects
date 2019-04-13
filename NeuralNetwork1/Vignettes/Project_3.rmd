@@ -78,7 +78,7 @@ for(fold.number in 1:folds.n){
   barplot(Spam_LossMatrix, xlab = "Folds", ylab = "Error",main = "NNItterations_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
 ```
 
-Here is the Loss graph for Spam. The Trained and early stopping are the same because the best  resulting 
+Here is the Loss graph for Spam. For each fold the graph shows that the error was relatively constant however the untrained data was significantly higher in each case. The trained and early stopping data were both almost exactly the same in each fold signifying that neither was better than the other in terms of loss. 
 
 ### Train/validation loss plot
 ```{r, results='hide'}
@@ -139,6 +139,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
+For "NNetEarlyStoppingCV: Spam Loss", we can see that the training and test data are diverging here as well causing the overfit graph we see.
 
 
 ## Data set 2: SAheart
@@ -212,7 +213,8 @@ validation.pred.mat = as.matrix(List$pred.mat[validation.index,])
 plot(as.matrix(colMeans(validation.pred.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "NNItterations: SAheart Loss",ylim=c(.1,.9))
 lines(colMeans(as.matrix(train.pred.mat)),type="o", col = "red")
 ```
-For the above graph "NNetEarlyStoppingCV SAheart Loss", the Blue line is the validation set error, and Redline is the Test set error. 
+
+For the above graph "NNIterations SAheart Loss", the Blue line is the validation set error, and Redline is the Test set error. As we can see here we have less overfitting than previously. 
 
 
 NNetEarlyStoppingCV_Spam_Tests
@@ -243,7 +245,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-
+Here we have the training data in blue and the validation data in grey. Just like in the previous graph we have less overfitting and a more just fit. 
 
 ## Data set 4: prostate
 ### Code
@@ -343,15 +345,7 @@ matpoints(x = dot.x,
           col = 2,
           pch = 19)
 ```
-For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of :
-
-,and
-
-number of n.hidden.units, the optimal number of steps found was:
-
-
-
-**`r return.list$selected.steps **. by tweaking these values, a more optimal solution might be possible.
+For the above graph "NNetEarlyStoppingCV Prostate", the Blue line is the validation set error, and Redline is the Test set error. With a step.size of : `r step.size`, and `r n.hidden.units` number of n.hidden.units, the optimal number of steps found was: `r return.list$selected.steps`. By tweaking these values, a more optimal solution might be possible.
 
 ## Data set 5: ozone
 ### Code
@@ -460,7 +454,7 @@ matpoints(x = dot.x,
           col = 2)
 ```
 For the above graph "NNetEarlyStoppingCV Ozone", the Blue line is the validation set error, and Redline is the Test set error. 
-With a step.size of :
+With a step.size of : `r step.size`
 ,and
-number of n.hidden.units, the optimal number of steps found was: 
-. by tweaking these values, a more optimal solution might be possible.
+`r n.hidden.units` number of n.hidden.units, the optimal number of steps found was: 
+`r return.list$selected.steps` . by tweaking these values, a more optimal solution might be possible.
