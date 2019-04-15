@@ -1,11 +1,13 @@
-Package: NeuralNetwork1
+Package:NeurualNetwork1
 Type: Package
-Title: neuralnetwork
-Version: 0.1.0
-Author: Junyu Chen and ...
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: some gradient function about nerual network
-License: What license is it under?
+Title: NeurualNetwork
+Version: 2019.4.12
+Author: Anthony M Schroeder, Chadd Frasier, Junyu Chen, Austin Torrence
+Maintainer: Anthony M Schroeder <as3379@nau.edu> Chadd Frasier <cmf339@nau.edu>,Junyu Chen(jc3453@nau.edu), Austin Torrence(art296@nau.edu)
+Description: Demonstrates neurual network for regression and binary classification.
+License: GPL-3
+RoxygenNote: 6.1.1
+LinkingTo: RcppEigen
+Suggests: ElemStatLearn, testthat
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
