@@ -1,0 +1,13 @@
+Package:L1LinearModel
+Type: Package
+Title: L1 Linear Model
+Version: 2019.4.23
+Author: Anthony M Schroeder, Chadd Frasier, Junyu Chen, Austin Torrence
+Maintainer: Anthony M Schroeder <as3379@nau.edu> Chadd Frasier <cmf339@nau.edu>,Junyu Chen(jc3453@nau.edu), Austin Torrence(art296@nau.edu)
+Description: Demonstrates Linear Model using L1 regularization. Works for regression and binary classification.
+License: GPL-3
+RoxygenNote: 6.1.1
+LinkingTo: RcppEigen
+Suggests: ElemStatLearn, testthat
+Encoding: UTF-8
+LazyData: true

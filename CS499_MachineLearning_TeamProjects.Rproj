@@ -12,7 +12,9 @@ Encoding: UTF-8
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
+StripTrailingWhitespace: Yes
+
 BuildType: Package
 PackageUseDevtools: Yes
-PackagePath: NeuralNetwork1
+PackagePath: L1LinearModel
 PackageInstallArgs: --no-multiarch --with-keep.source
