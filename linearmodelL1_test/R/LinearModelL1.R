@@ -69,7 +69,7 @@ LinearModelL1 <-
     }
 
     # Initializing
-    is.binary <- ifelse(y.vec %in% c(0, 1), TRUE, FALSE)
+    is.binary <- ifelse(all(y.vec %in% c(0, 1)), as.logicial(TRUE), as.logical(FALSE))
     max.iteration <- 10000L
 
     if (is.binary) {
@@ -88,10 +88,10 @@ LinearModelL1 <-
         # do logistic
         w.gradient.vec <-
           t(X.train) %*% (y.vec / (1 + exp(y.vec * (
-            X.train %*% w.vec + rep(1,n.trains) * intercept))))
+            X.train[,-1] %*% w.vec + rep(1,n.trains) * intercept))))
 
         intercept.gradient <- t(rep(1,n.trains)) %*% (y.vec / (1 + exp(y.vec * (
-          X.train %*% w.vec + rep(1,n.trains) * intercept))))
+          X.train[,-1] %*% w.vec + rep(1,n.trains) * intercept))))
 
         u.vec <- w.vec + step.size * w.gradient.vec / n.trains
         intercept <- intercept + step.size * intercept.gradient / n.trains
@@ -99,7 +99,7 @@ LinearModelL1 <-
       } else{
         # do linear square loss
         w.gradient.vec <- -t(X.train) %*%
-          (X.train %*% w.vec + rep(1,n.trains) * intercept - y.vec)
+          (X.train[,-1] %*% w.vec + rep(1,n.trains) * intercept - y.vec)
 
         intercept.gradient <- -t(rep(1,n.trains)) %*%
           (X.train %*% w.vec + rep(1,n.trains) * intercept - y.vec)
