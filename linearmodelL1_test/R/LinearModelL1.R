@@ -88,10 +88,10 @@ LinearModelL1 <-
         # do logistic
         w.gradient.vec <-
           t(X.train) %*% (y.vec / (1 + exp(y.vec * (
-            X.train[,-1] %*% w.vec + rep(1,n.trains) * intercept))))
+            X.train %*% w.vec + rep(1,n.trains) * intercept))))
 
         intercept.gradient <- t(rep(1,n.trains)) %*% (y.vec / (1 + exp(y.vec * (
-          X.train[,-1] %*% w.vec + rep(1,n.trains) * intercept))))
+          X.train %*% w.vec + rep(1,n.trains) * intercept))))
 
         u.vec <- w.vec + step.size * w.gradient.vec / n.trains
         intercept <- intercept + step.size * intercept.gradient / n.trains
@@ -99,7 +99,7 @@ LinearModelL1 <-
       } else{
         # do linear square loss
         w.gradient.vec <- -t(X.train) %*%
-          (X.train[,-1] %*% w.vec + rep(1,n.trains) * intercept - y.vec)
+          (X.train %*% w.vec + rep(1,n.trains) * intercept - y.vec)
 
         intercept.gradient <- -t(rep(1,n.trains)) %*%
           (X.train %*% w.vec + rep(1,n.trains) * intercept - y.vec)

@@ -32,15 +32,20 @@ test_that("Test the ability to use testthat functions",{
 
 # set up for binary classification
 test_that(
-  "NN1toKmaxPredict handles wrong max.neighbors sizes",{
+  "This tests binary classification of LinearModelL1 ",{
     data(zip.train, package= "ElemStatLearn")
     i01 <- which(zip.train[,1] %in% c(0,1))
     train.i <- i01[1:5]
     test.i <- i01[6]
-    x <- zip.train[train.i,-1]
+    x.scaled <- scale(zip.train[train.i,-1])
     y <- zip.train[train.i, 1]
-    testx <- zip.train[test.i, -1]
-    max.neighbors <- 3000
-    pred.vec <- NN1toKmaxPredict(x,y,testx,max.neighbors)
+    penalty <- 1.8
+    initial.weight.vec <- rep(0.0,ncol(x.scaled) + 1)
+   
+    opt.thresh <- .0001
+    step.size <- .1
+    
+    
+    output <-LinearModelL1(x.scaled, y, penalty, opt.thresh, initial.weight.vec, step.size)
     expect_false(is.null(pred.vec))
   })
