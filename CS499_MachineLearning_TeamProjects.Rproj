@@ -16,5 +16,5 @@ StripTrailingWhitespace: Yes
 
 BuildType: Package
 PackageUseDevtools: Yes
-PackagePath: L1LinearModel
+PackagePath: linearmodelL1_test
 PackageInstallArgs: --no-multiarch --with-keep.source
