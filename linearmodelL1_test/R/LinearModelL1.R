@@ -44,7 +44,7 @@ LinearModelL1 <-
     if (!all(
       is.numeric(initial.weight.vec),
       is.vector(initial.weight.vec),
-      length(initial.weight.vec) == ncol(X.scaled.mat) + 1
+      length(initial.weight.vec) == ncol(X.scaled.mat)+1
     )) {
       stop("initial.weight.vec must be a numeric vector of length ncol(X.scaled.mat) + 1") # <- Change here
     }
@@ -53,11 +53,13 @@ LinearModelL1 <-
       return(1 / 1 + exp(-x))
     }
 
-    sign <- function(w){
-      if (w > 0)
-        return(1)
-      elseif(w == 0,0,-1)
+    sign <- function(x){
+      x[which(x<0)]=-1
+      x[which(x==0)]=0
+      x[which(x>0)]=1
+      return(x)
     }
+
 
     positive <- function(x){
       return(ifelse(x > 0, x, 0))
@@ -69,8 +71,7 @@ LinearModelL1 <-
     }
 
     # Initializing
-    is.binary <- ifelse(all(y.vec %in% c(0, 1)), as.logicial(TRUE), as.logical(FALSE))
-    max.iteration <- 10000L
+    is.binary <- ifelse(y.vec %in% c(0, 1), TRUE, FALSE)
 
     if (is.binary) {
       y.vec <- ifelse(y.vec == 0, -1, 1)
@@ -79,8 +80,8 @@ LinearModelL1 <-
     n.features <- ncol(X.scaled.mat)   # p
     n.trains <- nrow(X.scaled.mat)  # n
 
-    X.train <- cbind(1,X.scaled.mat) # n x (p+1)
-    w.vec <- rnorm(n.features) # p x 1
+    X.train <- X.scaled.mat # n x (p+1)
+    w.vec <- initial.weight.vec[-1] # p x 1
     intercept <- rnorm(1)
 
     while (1) {
@@ -97,7 +98,7 @@ LinearModelL1 <-
         intercept <- intercept + step.size * intercept.gradient / n.trains
         w.vec <- soft(u.vec, step.size * penalty)
       } else{
-        # do linear square loss
+        # do linear square lossdj
         w.gradient.vec <- -t(X.train) %*%
           (X.train %*% w.vec + rep(1,n.trains) * intercept - y.vec)
 
@@ -110,13 +111,17 @@ LinearModelL1 <-
       }
 
       temp.w.vec <- c(intercept, w.vec)
-      if (all(positive(w.gradient.vec[w.vec==0] - penalty) < opt.thresh,
-              positive(w.gradient.vec[w.vec!=0] - sign(w.vec[w.vec!=0]) * penalty) < opt.thresh,
-              positive(intercept.gradient) < opt.thresh))
-        break;
+
+
+      dj <- sign(w.vec)*penalty
+      if(all(abs(dj[which(w.vec<0)]-sign(w.vec[which(w.vec<0)]))<opt.thresh,
+          positive(dj[which(w.vec==0)]-penalty)<opt.thresh))
+
+        break
+
     }
+
 
     w.vec <- c(intercept, w.vec)
     return(w.vec)
   }
-
