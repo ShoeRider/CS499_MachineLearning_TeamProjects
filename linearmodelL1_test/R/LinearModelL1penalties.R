@@ -69,7 +69,7 @@ LinearModelL1penalties <-
     
     for (i.penalty in c(1:n.penalties)) {
       W.mat[, i.penalty] <-
-        LinearModelL1(X.scaled,
+        LinearModelL1(X.scaled.mat,
                       y.vec,
                       penalty.vec[i.penalty],
                       opt.thresh,
