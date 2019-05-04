@@ -3,15 +3,7 @@ source("R/General.R")
 source("tests/testthat/Prep_Libraries.R")
 
 
-#' LMSquare_Gradient
-#'
-#'@param TrainingData numeric imput feature matrix [n x p]
-#'@param TrainingLabels numberic input label vector [n]
-#'@param W.Vector Weight values representing the Linear funciton [p+1]
-#'
-#' @return
-#'
-#' @examples
+
 LinearModel.Loss.Gradient<-function(TrainingData,TrainingLabels,W.Vector)
 {
   #t(X.mat) %*% (as.numeric(X.mat %*% W.Vec) - y.vec) / nrow(X.mat)
@@ -86,23 +78,6 @@ LinearModel.Gradient<-function(TrainingData,TrainingLabels,W.Vector,penalty,Lamb
 
 
 
-#'
-#' finds the error of a Regularized(L2) Matrix
-#'
-#'@param TrainingData numeric imput feature matrix [n x p]
-#'@param TrainingLabels numberic input label vector [n]
-#'either all 0/1 for binary classification or other real numbers for regression
-#'@param StepSize.Scalar scalar integer, determines the size of each step.
-#'@param W.Matrix Weight values representing the Linear funciton [p+1,Iterations],
-#'@param BinaryClassification binary or integer value that determines how the algorithm classifies the retulsts
-#'If (BinaryClassification):
-#'  Then Classification is either 0 or 1.
-#'
-#'@return L2Error.Matrix
-#'@export
-#'
-#' @examples
-#'
 Find_WVector_MeanLoss<-function(TestingData,TestingLables,W.Vector,BinaryClassification)
 {
   #print(dim(W.Matrix))
@@ -150,24 +125,7 @@ Find_WVector_MeanLoss<-function(TestingData,TestingLables,W.Vector,BinaryClassif
   L1Error = as.double(colMeans(Error_Vector))
 }
 
-#' L1-norm
-#'
-#' finds the error of a Regularized(L2) Matrix
-#'
-#'@param TrainingData numeric imput feature matrix [n x p]
-#'@param TrainingLabels numberic input label vector [n]
-#'either all 0/1 for binary classification or other real numbers for regression
-#'@param StepSize.Scalar scalar integer, determines the size of each step.
-#'@param W.Matrix Weight values representing the Linear funciton [p+1,Iterations],
-#'@param BinaryClassification binary or integer value that determines how the algorithm classifies the retulsts
-#'If (BinaryClassification):
-#'  Then Classification is either 0 or 1.
-#'
-#'@return L2Error.Matrix
-#'@export
-#'
-#' @examples
-#'
+
 Find_WMatrix_MeanLoss<-function(TestingData,TestingLables,W.Matrix,BinaryClassification)
 {
   print(nrow(W.Matrix))
@@ -229,11 +187,21 @@ LinearModel.L1.Cost <- function(TestingData,TestingLables,W.Matrix,penalty,Binar
 #'@param Iterations integer that determines the number of steps taken to find the optimal
 #'@param StepSize.Scalar scalar integer, determines the size of each step.
 #'
-#'@return numeric matrix of the weight matrix at each step, from 1 to Iterations.
+#'@return W.Matrix: numeric matrix of the weight matrix at each step, from 1 to Iterations.
 #'Returned Matrix is[n_features+1 x max.iterations], where the first element of the weight vector is be the intercept term(AKA Bias).
 #'@export
 #'
 #'@examples
+#'  Spam<-Prep_Spam()
+#'  folds.n = 4L
+#'  Scalar.Step = 0.4
+#'  max.iterations = 3000L
+#'  fold.vec = as.double(sample(1:(4L),Spam$n_Elements,replace=T))
+#'  Scaled.Train  = scale(Spam$TrainingData)
+#'  Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+#'  y.vec <- as.numeric(Spam$TrainingLabels)
+#'
+#'  W.Matrix = LinearModelL1(Scaled.Train,y.vec,0.5,1200,Initial.Vector,1,max.iterations=50)
 LinearModelL1<-function(Normalized_TrainingData,TrainingLabels,penalty,opt.thresh,Initial.Vector,StepSize.Scalar,max.iterations=5000,  Lambda = 10)
 {
 
@@ -267,6 +235,7 @@ LinearModelL1<-function(Normalized_TrainingData,TrainingLabels,penalty,opt.thres
   #print(t(as.matrix(initial.weight.vec)))
 
   W.Matrix = array(as.matrix(Initial.Vector),dim=c(1,NCOL(Initial.Vector)))
+  print("W.matrix")
   #print((W.Matrix))
   print(dim(W.Matrix))
 
@@ -308,10 +277,23 @@ LinearModelL1<-function(Normalized_TrainingData,TrainingLabels,penalty,opt.thres
     print(dim(L1Error.vector))
   }
 
+  SmallestLoss = .Machine$integer.max
+  selected.steps = 0
+  for(Index in 1:Iteration)
+  {
 
+    if(L1Error.vector[Index] < SmallestLoss)
+    {
+      SmallestLoss    = L1Error.vector[Index]
+      selected.steps  = Index
+    }
+  }
+
+  #print("Selected.steps")
+  #print(selected.steps)
   #Returns: Optimal weight vector (with p+1 elements, first element is the bias/intercept b) for the given penalty parameter.
-  #return(W.Matrix[selected.steps,])
-  return(W.Matrix)
+  return(W.Matrix[selected.steps,])
+  #return(W.Matrix)
 }
 
 Test_LinearL1<-function()
