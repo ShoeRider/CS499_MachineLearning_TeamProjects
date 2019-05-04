@@ -53,7 +53,7 @@ LinearModelL1penalties <-
     X.scaled.mat <-
       t((t(X.mat) - feature.mean.vec) / feature.sd.vec)
 
-    initial.weight.vec <- rep(0, n.features)
+    initial.weight.vec <- rep(0, n.features+1)
 
     W.mat <- matrix(0, nrow = n.features + 1, ncol = n.penalties)
     # W.temp.mat <- W.mat
