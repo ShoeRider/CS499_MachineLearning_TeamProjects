@@ -1,3 +1,8 @@
+print(getwd())
+source("R/General.R")
+source("R/Temp2.R")
+source("tests/testthat/Prep_Libraries.R")
+
 #' Linear Model with L1 regularization using cross validation
 #'
 #' This algorithm splits the data into several folds and apply LinealModelL1penalites to each fold
@@ -13,6 +18,18 @@
 #' @export
 #'
 #' @examples
+#'  Spam<-Prep_Spam()
+#'  folds.n = 4L
+#'  Scalar.Step = 0.4
+#'  max.iterations = 3000L
+#'  fold.vec = as.double(sample(1:(4L),Spam$n_Elements,replace=T))
+#'  Scaled.Train  = scale(Spam$TrainingData)
+#'  Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+#'  y.vec <- as.numeric(Spam$TrainingLabels)
+#'
+#'
+#' result.list = LinearModelL1CV(Scaled.Train, y.vec,fold.vec = sample(rep(1:n.folds, l = length(y.vec))),n.folds = 5L,
+#' penalty.vec = seq(1, 0.1, -0.1),step.size = 0.1)
 LinearModelL1CV <-
   function(X.mat,
            y.vec,
@@ -33,8 +50,9 @@ LinearModelL1CV <-
       for (set.name in names(set.list)) {
         index <- get(set.name, set.list)
 
-        W.mat <-
+        List <-
           LinearModelL1penalties(X.mat, y.vec, penalty.vec, step.size)
+        W.mat <- List$weight.vec
         predict <- cbind(1, X.mat[index,]) %*% W.mat
 
         if (is.binary) {
@@ -59,8 +77,9 @@ LinearModelL1CV <-
     mean.validation.loss.vec <- colMeans(validation.loss.mat)
     selected.penalty.index <- which.min(mean.validation.loss.vec)
 
-    weight.vec <-
+    List<-
       LinearModelL1penalties(X.mat, y.vec, penalty.vec)[, selected.penalty.index]
+    weight.vec = List$weight.vec
 
     predict <- function(testX.mat) {
 
@@ -80,3 +99,75 @@ LinearModelL1CV <-
 
     return(result.list)
   }
+
+
+Test_LinearL1<-function()
+{
+
+  Spam<-Prep_Spam()
+
+  print("Spam")
+
+  print(dim(Spam$TrainingData))
+  print(dim(Spam$TrainingLabels))
+  #(Spam$TrainingData)
+  #(Spam$TrainingLabels)
+
+
+  n.folds = 4L
+  Scalar.Step = 0.4
+  max.iterations = 3000L
+  fold.vec = as.double(sample(1:(4L),Spam$n_Elements,replace=T))
+  Scaled.Train  = scale(Spam$TrainingData)
+
+  if(TRUE)
+  {
+
+    Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+    #as.numeric(rep(0,NCOL(Scaled.Train)+1),dim=c(1,NCOL(Scaled.Train)+1))
+    #dim(Initial.Vector) <-c(1,NCOL(Scaled.Train)+1)
+    #print("dim Initial.Vector")
+    #print(dim(Initial.Vector))
+  }
+  if(FALSE)
+  {
+    Initial.Vector <- as.vector(rep(0,NCOL(Scaled.Train)+1))
+    #dim(Initial.Vector) <-c(1,NCOL(Scaled.Train)+1)
+    #print("dim Initial.Vector")
+    #print(dim(Initial.Vector))
+  }
+
+
+
+
+  #print(dim(Scaled.Labels))
+  #print(dim(Scaled.Train))
+  #print(length(Initial.Vector))
+  #print(dim(Initial.Vector))
+  #print("LinearModelL1")
+  y.vec <- as.numeric(Spam$TrainingLabels)
+  if(FALSE)
+  {
+    print("MEan y")
+    print((y.vec))
+    print((y.vec[1000:length(y.vec)]))
+    print((y.vec[2000:length(y.vec)]))
+    print((y.vec[3000:length(y.vec)]))
+  }
+
+  result.list = LinearModelL1CV(Scaled.Train, y.vec,
+    fold.vec = sample(rep(1:n.folds, l = length(y.vec))),
+    n.folds = 5L,
+    penalty.vec = seq(1, 0.1, -0.1),
+    step.size = 0.1)
+  #w.vec = LinearModelL1(Scaled.Train,as.numeric(Spam$TrainingLabels),1,1200,Initial.Vector,5,max.iterations=1000)
+
+  print(result.list$weight.vec)
+  Loss.vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],result.list$weight.vec,Spam$BinaryClassification)
+}
+#Test_LinearL1()
+
+
+
+
+
