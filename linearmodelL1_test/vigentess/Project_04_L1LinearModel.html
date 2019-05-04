@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Junyu Chen" />
+
+<meta name="date" content="2019-04-30" />
+
+<title>Project 4: L1 Linear Models</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Project 4: L1 Linear Models</h1>
+<h4 class="author"><em>Junyu Chen</em></h4>
+<h4 class="date"><em>04/30/2019</em></h4>
+
+
+
+<p><a id="top"></a></p>
+<div id="project-4" class="section level1">
+<h1>Project 4</h1>
+<p><a id="intro"></a> ## Introduction</p>
+<div id="linear-regression" class="section level2">
+<h2>Linear Regression</h2>
+</div>
+<div id="lmsquarelossiterations" class="section level2">
+<h2>LMSquareLossIterations</h2>
+<p>This function will take a matrix of training input (n_train x n_features), a vector of labels for the training data vectors (n_train x 1), it will take a scaler value that is the maximum number of iterations in the decent algorithm(scalar &gt; 1), and lastly it will take in a step size which is the size of each step in the gradent descent(scaler &gt; 0). This function will take the matrix of training data and the vector of labels to perform gradient descent on each vector and then create a matrix of weight vectors created from the gradient decent. The function will output th weight matrix by creating a vector for each iteration (n_features+1 x max.iterations). The matrix is larger than the training data so in order to perform matrix multiplication the first element of the weight vectors should be the intercept term. This function will need to minimize the mean loss, not the total loss or eles the gradient decent may not converge. Another method for convergence is to scale the trainign data matrix to a smaller size so the steps of the algorithm will not have to be as large and we will get a much more accurate convergence value. We will compute a scaled input matrix, with a mean of 0 and standard deviation of 1 for each column. This is how we accomplished the matrix normalization.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">NormalizeMatrix&lt;-<span class="cf">function</span>(Matrix)</a>
+<a class="sourceLine" id="cb1-2" title="2">{</a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="co"># ---------- This creates a scaled vector with sd = 1 mean = 0 for each column in matrix-------</span></a>
+<a class="sourceLine" id="cb1-4" title="4">  scaled.mat =<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">nrow =</span> <span class="kw">nrow</span>(Matrix),<span class="dt">ncol =</span> <span class="kw">ncol</span>(Matrix))</a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="cf">for</span>(col <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(Matrix))</a>
+<a class="sourceLine" id="cb1-6" title="6">  {</a>
+<a class="sourceLine" id="cb1-7" title="7">    scaled.mat[,col] =<span class="st"> </span>(Matrix[,col] <span class="op">-</span><span class="st"> </span><span class="kw">colMeans</span>(Matrix)[col])<span class="op">/</span><span class="kw">sd</span>(Matrix[,col])</a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9">  }</a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="kw">return</span>(<span class="kw">as.matrix</span>(scaled.mat))</a>
+<a class="sourceLine" id="cb1-11" title="11">}</a></code></pre></div>
+<p><strong>Fromula: </strong> <strong><span class="math inline">\(\hat{y} = XW + B\)</span></strong> Y.hat = data.matrix(TestingData) %*% data.matrix(W.Matrix) +</p>
+<p><strong>Gradient: </strong> <strong><span class="math inline">\({W&#39;} = 2X^T(WX-y)^2\)</span></strong> Gradient = 2<em>sum(W.Vector</em>TrainingData + TrainingLabels)*TrainingLabels</p>
+<p><strong>Bias Gradient: </strong> <strong><span class="math inline">\({W&#39;} = 2I^T((WX+IB)-y)^2\)</span></strong> #Gradient = 2<em>sum(W.Vector</em>TrainingData + TrainingLabels)*TrainingLabels</p>
+<div id="linear-l2-equations" class="section level4">
+<h4>Linear L2 equations</h4>
+<p><strong>We are Looking for : </strong> <strong><span class="math inline">\(\hat{W}^{Lambda} = argmin_{W\in R^{P}}\)</span></strong></p>
+<p><strong>Regularization Gradient: </strong> <strong><span class="math inline">\({W&#39;} = 2X^T(X-y)^2 + 2*(Labmda)*W\)</span></strong></p>
+</div>
+<div id="logistic-equations" class="section level3">
+<h3>Logistic equations</h3>
+<div id="logistic-iteration-equations" class="section level4">
+<h4>Logistic Iteration equations</h4>
+<p><strong>Gradient: </strong> <strong><span class="math inline">\({W&#39;} = 1/(1+e^{-yXW})-y\)</span></strong></p>
+<p><strong>Cost Function</strong>: 1/n ∑i=1^n L[w^T x_i + b, y_i] + penalty * ||w||_1</p>
+</div>
+<div id="linear-l2-equations-1" class="section level4">
+<h4>Linear L2 equations</h4>
+<p>** We are Looking for : ** <strong><span class="math inline">\(\hat{W}^{Lambda} = argmin_{W\in R^{P}}\)</span></strong></p>
+<p>** Regularization Gradient: ** <strong><span class="math inline">\({W&#39;} = 2X^T(X-y)^2 + 2*(Labmda)*W\)</span></strong></p>
+<p><a id="test"></a> ## Testing With Data Sets we are going to run our code on the following data sets for Binary Classification - ElemStatLearn::spam 2-class [4601, 57] output is last column (spam). - ElemStatLearn::SAheart 2-class [462, 9] output is last column (chd). - ElemStatLearn::zip.train: 10-class [7291, 256] output is first column. (ignore classes other than 0 and 1) And we will be using the following for regression: - ElemStatLearn::prostate [97 x 8] output is lpsa column, ignore train column. - ElemStatLearn::ozone [111 x 3] output is first column (ozone).</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># Spam Data Set</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">data</span>(spam, <span class="dt">package =</span> <span class="st">&quot;ElemStatLearn&quot;</span>)</a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co"># SAheart Data Set</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">data</span>(SAheart, <span class="dt">package =</span> <span class="st">&quot;ElemStatLearn&quot;</span>)</a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="co"># zip.train Data Set</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="kw">data</span>(zip.train, <span class="dt">package =</span> <span class="st">&quot;ElemStatLearn&quot;</span>)</a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="co"># prostate Data Set</span></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="kw">data</span>(prostate, <span class="dt">package =</span> <span class="st">&quot;ElemStatLearn&quot;</span>)</a>
+<a class="sourceLine" id="cb2-12" title="12"></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="co"># OZone Data Set</span></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="kw">data</span>(ozone, <span class="dt">package =</span> <span class="st">&quot;ElemStatLearn&quot;</span>)</a></code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div id="how-to-use-the-elemstatlearn-libraries" class="section level1">
+<h1>How to use the ‘ElemStatLearn’ Libraries:</h1>
+<p>How To use this Linear Models Library: 1. Organize your data into: a. Training Data: Your data should be a matrix with the Column’s containing Feature’s, and Row’s containing the different training Instances</p>
+<p>b.Training Labels: Your data should be a single colomn of numerical values, Note: if all labels are (0 or 1) training will be classified as Binary classification, and be trained accordingly. otherwise, training will be Regressive.</p>
+<div id="testing" class="section level2">
+<h2>Testing</h2>
+</div>
+</div>
+<div id="how-to-use-the-elemstatlearn-libraries-1" class="section level1">
+<h1>How to use the ‘ElemStatLearn’ Libraries:</h1>
+<p>we are going to run our code on the following data sets.</p>
+<p>How To use this Linear Models Library: 1. Organize your data into: a. Training Data: Your data should be a matrix with the Column’s containing Feature’s, and Row’s containing the different training Instances</p>
+<p>b.Training Labels: Your data should be a single colomn of numerical values, Note: if all labels are (0 or 1) training will be classified as Binary classification, and be trained accordingly. otherwise, training will be Regressive.</p>
+<ul>
+<li>We will include the library(LinearModel), to have access to the given functionality.</li>
+<li>The R script Prep_Libraries.R in the tests/testthat folder contains some simple data manipulation to prep the data to be used for the LinearModel Algorithms.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">#library(LinearModel)</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co">#library(LinearModelsL1)</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">print</span>(<span class="kw">getwd</span>())</a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt; [1] &quot;C:/Users/PC/Downloads/Documents/LinearModels/LinearModelsL1&quot;</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">source</span>(<span class="st">&quot;R/General.R&quot;</span>)</a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="kw">source</span>(<span class="st">&quot;R/Temp3CV.R&quot;</span>)</a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt; [1] &quot;C:/Users/PC/Downloads/Documents/LinearModels/LinearModelsL1&quot;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt; [1] &quot;C:/Users/PC/Downloads/Documents/LinearModels/LinearModelsL1&quot;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt; [1] &quot;C:/Users/PC/Downloads/Documents/LinearModels/LinearModelsL1&quot;</span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt; [1] 3626   57</span></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt; [1] 3626    1</span></a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-14" title="14"><span class="co">#&gt; [1] 256</span></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="co">#&gt; [1] 3626   57</span></a>
+<a class="sourceLine" id="cb3-16" title="16"><span class="co">#&gt; [1] 3626    1</span></a>
+<a class="sourceLine" id="cb3-17" title="17"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-18" title="18"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-19" title="19"><span class="co">#&gt; [1] 256</span></a>
+<a class="sourceLine" id="cb3-20" title="20"><span class="co">#&gt; [1] 3626   57</span></a>
+<a class="sourceLine" id="cb3-21" title="21"><span class="co">#&gt; [1] 3626    1</span></a>
+<a class="sourceLine" id="cb3-22" title="22"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-23" title="23"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-24" title="24"><span class="co">#&gt; [1] 256</span></a>
+<a class="sourceLine" id="cb3-25" title="25"><span class="kw">source</span>(<span class="st">&quot;tests/testthat/Prep_Libraries.R&quot;</span>)</a>
+<a class="sourceLine" id="cb3-26" title="26"><span class="co">#&gt; [1] 3626   57</span></a>
+<a class="sourceLine" id="cb3-27" title="27"><span class="co">#&gt; [1] 3626    1</span></a>
+<a class="sourceLine" id="cb3-28" title="28"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-29" title="29"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb3-30" title="30"><span class="co">#&gt; [1] 256</span></a>
+<a class="sourceLine" id="cb3-31" title="31">knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">fig.width=</span><span class="dv">12</span>, <span class="dt">fig.height=</span><span class="dv">8</span>) </a>
+<a class="sourceLine" id="cb3-32" title="32"><span class="co">#source(&quot;tests/testthat/LinearModels_Test_Libraries.R&quot;)</span></a></code></pre></div>
+</div>
+<div id="binary-classification" class="section level1">
+<h1>Binary Classification:</h1>
+<div id="data-set-1-spam" class="section level2">
+<h2>Data set 1: spam</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co"># Data set 1: spam</span></a>
+<a class="sourceLine" id="cb4-2" title="2">  Spam&lt;-<span class="kw">Prep_Spam</span>()</a></code></pre></div>
+<div id="code" class="section level3">
+<h3>Code</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co"># Data set 1: spam</span></a>
+<a class="sourceLine" id="cb5-2" title="2">LossMat.fold.n  &lt;-<span class="st"> </span><span class="dv">4</span></a>
+<a class="sourceLine" id="cb5-3" title="3">LossMat.fold.vec&lt;-<span class="kw">Random_Folds</span>((Spam<span class="op">$</span>n_Elements),LossMat.fold.n)</a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6">Data =<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">scale</span>(Spam<span class="op">$</span>TrainingData) ,Spam<span class="op">$</span>TrainingLabels)</a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="co">#Randomly shuffle the data</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="co">#Data&lt;-Data[sample(nrow(Data)),]</span></a>
+<a class="sourceLine" id="cb5-9" title="9"></a>
+<a class="sourceLine" id="cb5-10" title="10">SLI.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-11" title="11">SLI.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-12" title="12">SLI.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-13" title="13"></a>
+<a class="sourceLine" id="cb5-14" title="14">L1_Pen.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-15" title="15">L1_Pen.TrainingError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-16" title="16">L1_Pen.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-17" title="17">L1.Pen.Matrix =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-18" title="18"></a>
+<a class="sourceLine" id="cb5-19" title="19"></a>
+<a class="sourceLine" id="cb5-20" title="20">L1_CV_Error.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-21" title="21">L1_CV_Error.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-22" title="22">L1_CV_Error.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-23" title="23"></a>
+<a class="sourceLine" id="cb5-24" title="24"><span class="co">#Perform folds.n fold cross validation</span></a>
+<a class="sourceLine" id="cb5-25" title="25"><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>(LossMat.fold.n))</a>
+<a class="sourceLine" id="cb5-26" title="26">{</a>
+<a class="sourceLine" id="cb5-27" title="27">  Spam&lt;-<span class="kw">Prep_Spam</span>()</a>
+<a class="sourceLine" id="cb5-28" title="28">  <span class="co">#folds.n = 2L</span></a>
+<a class="sourceLine" id="cb5-29" title="29">  Scalar.Step =<span class="st"> </span><span class="fl">0.4</span></a>
+<a class="sourceLine" id="cb5-30" title="30">  max.iterations =<span class="st"> </span>50L</a>
+<a class="sourceLine" id="cb5-31" title="31">  fold.vec =<span class="st"> </span><span class="kw">as.double</span>(<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span>(4L),Spam<span class="op">$</span>n_Elements,<span class="dt">replace=</span>T))</a>
+<a class="sourceLine" id="cb5-32" title="32">  Scaled.Train  =<span class="st"> </span><span class="kw">scale</span>(Spam<span class="op">$</span>TrainingData)</a>
+<a class="sourceLine" id="cb5-33" title="33">  Initial.Vector &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">as.matrix</span>(<span class="kw">rep</span>(<span class="dv">0</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>)),<span class="dt">dim=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb5-34" title="34"></a>
+<a class="sourceLine" id="cb5-35" title="35">  testIndexes &lt;-<span class="st"> </span><span class="kw">which</span>(LossMat.fold.vec<span class="op">==</span>i,<span class="dt">arr.ind=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb5-36" title="36">  testData    &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[testIndexes, ])</a>
+<a class="sourceLine" id="cb5-37" title="37">  trainData   &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[<span class="op">-</span>testIndexes, ])</a>
+<a class="sourceLine" id="cb5-38" title="38"></a>
+<a class="sourceLine" id="cb5-39" title="39">  <span class="kw">print</span>(<span class="st">&quot;Please wait this might take some time, Iteration:&quot;</span>)</a>
+<a class="sourceLine" id="cb5-40" title="40">  <span class="kw">print</span>(i)</a>
+<a class="sourceLine" id="cb5-41" title="41"></a>
+<a class="sourceLine" id="cb5-42" title="42">  </a>
+<a class="sourceLine" id="cb5-43" title="43">  <span class="kw">print</span>(<span class="kw">dim</span>(trainData))</a>
+<a class="sourceLine" id="cb5-44" title="44">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>])))</a>
+<a class="sourceLine" id="cb5-45" title="45">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)])))</a>
+<a class="sourceLine" id="cb5-46" title="46">  <span class="co">#-------------------------LMSquareLossIterations (SLI_Error)--------------</span></a>
+<a class="sourceLine" id="cb5-47" title="47">  <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb5-48" title="48">  {</a>
+<a class="sourceLine" id="cb5-49" title="49">    List =<span class="st"> </span><span class="kw">LinearModelL1</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="fl">0.5</span>,max.iterations,Initial.Vector,Scalar.Step,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb5-50" title="50">    W.Vec =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb5-51" title="51">    </a>
+<a class="sourceLine" id="cb5-52" title="52"></a>
+<a class="sourceLine" id="cb5-53" title="53">    <span class="co">#SLI.WholeError.Vec &lt;- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Spam$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb5-54" title="54">    <span class="co">#SLI.WholeError.Mat &lt;- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb5-55" title="55">    </a>
+<a class="sourceLine" id="cb5-56" title="56">    SLI.TrainError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],(W.Vec),Spam<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb5-57" title="57">    SLI.TrainError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TrainError.Mat,SLI.TrainError.Vec)  </a>
+<a class="sourceLine" id="cb5-58" title="58">    </a>
+<a class="sourceLine" id="cb5-59" title="59">    SLI.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(Data[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],Data[,<span class="kw">NCOL</span>(testData)],(W.Vec),Spam<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb5-60" title="60">    SLI.TestError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TestError.Mat,SLI.TestError.Vec)</a>
+<a class="sourceLine" id="cb5-61" title="61">  </a>
+<a class="sourceLine" id="cb5-62" title="62">    SLI.WholeError.Vec &lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Vec,Spam<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb5-63" title="63">    SLI.WholeError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.WholeError.Mat,SLI.WholeError.Vec)</a>
+<a class="sourceLine" id="cb5-64" title="64">  }</a>
+<a class="sourceLine" id="cb5-65" title="65"></a>
+<a class="sourceLine" id="cb5-66" title="66">      </a>
+<a class="sourceLine" id="cb5-67" title="67">  <span class="co">#------------------------------------------------------------------------</span></a>
+<a class="sourceLine" id="cb5-68" title="68"></a>
+<a class="sourceLine" id="cb5-69" title="69">    <span class="co">#W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)</span></a>
+<a class="sourceLine" id="cb5-70" title="70">    List =<span class="st"> </span><span class="kw">LinearModelL1penalties</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="dt">penalty.vec =</span> <span class="kw">seq</span>(<span class="dv">1</span>, <span class="fl">0.1</span>, <span class="fl">-0.2</span>),<span class="dt">step.size =</span> <span class="fl">0.1</span>,<span class="dt">opt.thresh=</span><span class="dv">300</span>,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb5-71" title="71">    W.Vector =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb5-72" title="72">    <span class="co">#W.Vector = List$weight.vec</span></a>
+<a class="sourceLine" id="cb5-73" title="73">    W.Matrix =<span class="st"> </span>List<span class="op">$</span>weight.mat</a>
+<a class="sourceLine" id="cb5-74" title="74">    </a>
+<a class="sourceLine" id="cb5-75" title="75">    <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb5-76" title="76">    {</a>
+<a class="sourceLine" id="cb5-77" title="77">      L1_Pen.TrainingError.Vec &lt;-<span class="kw">Find_WMatrix_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Matrix,Spam<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb5-78" title="78">      L1_Pen.TrainingError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)</a>
+<a class="sourceLine" id="cb5-79" title="79"></a>
+<a class="sourceLine" id="cb5-80" title="80">      <span class="co">#L1_Pen.TestError.Vec&lt;- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],Spam$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb5-81" title="81">      L1_Pen.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WMatrix_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],W.Matrix,Spam<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb5-82" title="82">      L1_Pen.TestError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)</a>
+<a class="sourceLine" id="cb5-83" title="83">      </a>
+<a class="sourceLine" id="cb5-84" title="84">       <span class="co"># L1_Pen.WholeError.Vec&lt;- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Spam$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb5-85" title="85">       <span class="co"># L1_Pen.WholeError.Mat&lt;- rbind(SLI.TestError.Mat,SLI.TestError.Vec)</span></a>
+<a class="sourceLine" id="cb5-86" title="86">      </a>
+<a class="sourceLine" id="cb5-87" title="87">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb5-88" title="88">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb5-89" title="89">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb5-90" title="90">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb5-91" title="91">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb5-92" title="92">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb5-93" title="93">    }</a>
+<a class="sourceLine" id="cb5-94" title="94"></a>
+<a class="sourceLine" id="cb5-95" title="95">}</a></code></pre></div>
+<pre><code>LMSquareLossIterations.W.Vec &lt;- LMSquareLossIterations(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],Iterations,Scalar.Step)
+SLI.WholeError.Vec &lt;-Find_Wmatrix_MeanL2Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)</code></pre>
+</div>
+<div id="matrix-of-loss-values" class="section level3">
+<h3>Matrix of loss values</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb7-2" title="2">{</a>
+<a class="sourceLine" id="cb7-3" title="3">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TrainError.Mat)))</a>
+<a class="sourceLine" id="cb7-4" title="4">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TestError.Mat)))</a>
+<a class="sourceLine" id="cb7-5" title="5">  </a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="kw">print</span>(<span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb7-7" title="7">      </a>
+<a class="sourceLine" id="cb7-8" title="8">  <span class="kw">print</span>(<span class="st">&quot;L1 Pen Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb7-9" title="9">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb7-10" title="10">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb7-11" title="11">  <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb7-12" title="12">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb7-13" title="13">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb7-14" title="14">  <span class="co">#SLI.WholeError.Mat &lt;- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb7-15" title="15">}</a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb7-18" title="18"><span class="co">#&gt; [1] &quot;&quot;</span></a>
+<a class="sourceLine" id="cb7-19" title="19"><span class="co">#&gt; [1] &quot;L1 Pen Training vs Test Error Vec&quot;</span></a>
+<a class="sourceLine" id="cb7-20" title="20"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb7-21" title="21"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb7-22" title="22"><span class="co">#&gt; [1] &quot;Training vs Test Error Mat&quot;</span></a>
+<a class="sourceLine" id="cb7-23" title="23"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb7-24" title="24"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb7-25" title="25"></a>
+<a class="sourceLine" id="cb7-26" title="26"><span class="co">#-------------------Matrix of Cross Validation loss values-------------------------------------</span></a>
+<a class="sourceLine" id="cb7-27" title="27"></a>
+<a class="sourceLine" id="cb7-28" title="28"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb7-29" title="29">{</a>
+<a class="sourceLine" id="cb7-30" title="30">  <span class="co">#print(SLI.TestError.Mat)</span></a>
+<a class="sourceLine" id="cb7-31" title="31"></a>
+<a class="sourceLine" id="cb7-32" title="32">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(<span class="kw">as.double</span>(SLI.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>]))</a>
+<a class="sourceLine" id="cb7-33" title="33">  </a>
+<a class="sourceLine" id="cb7-34" title="34">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(Spam_LossMatrix,<span class="kw">as.double</span>((L1_Pen.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>])))</a>
+<a class="sourceLine" id="cb7-35" title="35">  </a>
+<a class="sourceLine" id="cb7-36" title="36">  <span class="co">#Spam_LossMatrix &lt;-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))</span></a>
+<a class="sourceLine" id="cb7-37" title="37"></a>
+<a class="sourceLine" id="cb7-38" title="38"></a>
+<a class="sourceLine" id="cb7-39" title="39">  <span class="kw">colnames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;Fold1&quot;</span>,<span class="st">&quot;Fold2&quot;</span>,<span class="st">&quot;Fold3&quot;</span>,<span class="st">&quot;Fold4&quot;</span>)</a>
+<a class="sourceLine" id="cb7-40" title="40">  <span class="kw">rownames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;L1 Early Stoping&quot;</span>,<span class="st">&quot;L1 Penalty Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb7-41" title="41">  <span class="co">#barplot(Spam_LossMatrix, xlab = &quot;Iterations&quot;, ylab = &quot;Error&quot;,main = &quot;LinearModels_Spam_LossMatrix&quot;,legend = (rownames(Spam_LossMatrix)),beside = TRUE)</span></a>
+<a class="sourceLine" id="cb7-42" title="42">  </a>
+<a class="sourceLine" id="cb7-43" title="43">  <span class="kw">barplot</span>(Spam_LossMatrix, <span class="dt">xlab =</span> <span class="st">&quot;Iterations&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Error&quot;</span>,<span class="dt">main =</span> <span class="st">&quot;LinearModels_Spam_LossMatrix&quot;</span>,<span class="dt">legend =</span> (<span class="kw">rownames</span>(Spam_LossMatrix)),<span class="dt">beside =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb7-44" title="44">}</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div id="data-set-2-saheart" class="section level2">
+<h2>Data set 2: SAheart</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># Data set 2: SAheart</span></a>
+<a class="sourceLine" id="cb8-2" title="2">  SAheart&lt;-<span class="kw">Prep_SAheart</span>()</a></code></pre></div>
+<div id="code-1" class="section level3">
+<h3>Code</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co"># Data set 2: SAheart</span></a>
+<a class="sourceLine" id="cb9-2" title="2">LossMat.fold.n  &lt;-<span class="st"> </span><span class="dv">4</span></a>
+<a class="sourceLine" id="cb9-3" title="3">LossMat.fold.vec&lt;-<span class="kw">Random_Folds</span>((SAheart<span class="op">$</span>n_Elements),LossMat.fold.n)</a>
+<a class="sourceLine" id="cb9-4" title="4"></a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6">Data =<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">scale</span>(SAheart<span class="op">$</span>TrainingData) ,SAheart<span class="op">$</span>TrainingLabels)</a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">#Randomly shuffle the data</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="co">#Data&lt;-Data[sample(nrow(Data)),]</span></a>
+<a class="sourceLine" id="cb9-9" title="9"></a>
+<a class="sourceLine" id="cb9-10" title="10">SLI.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-11" title="11">SLI.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-12" title="12">SLI.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-13" title="13"></a>
+<a class="sourceLine" id="cb9-14" title="14">L1_Pen.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-15" title="15">L1_Pen.TrainingError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-16" title="16">L1_Pen.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-17" title="17">L1.Pen.Matrix =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-18" title="18"></a>
+<a class="sourceLine" id="cb9-19" title="19"></a>
+<a class="sourceLine" id="cb9-20" title="20">L1_CV_Error.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-21" title="21">L1_CV_Error.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-22" title="22">L1_CV_Error.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb9-23" title="23"></a>
+<a class="sourceLine" id="cb9-24" title="24"><span class="co">#Perform folds.n fold cross validation</span></a>
+<a class="sourceLine" id="cb9-25" title="25"><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>(LossMat.fold.n))</a>
+<a class="sourceLine" id="cb9-26" title="26">{</a>
+<a class="sourceLine" id="cb9-27" title="27">  SAheart&lt;-<span class="kw">Prep_SAheart</span>()</a>
+<a class="sourceLine" id="cb9-28" title="28">  <span class="co">#folds.n = 2L</span></a>
+<a class="sourceLine" id="cb9-29" title="29">  Scalar.Step =<span class="st"> </span><span class="fl">0.4</span></a>
+<a class="sourceLine" id="cb9-30" title="30">  max.iterations =<span class="st"> </span>50L</a>
+<a class="sourceLine" id="cb9-31" title="31">  fold.vec =<span class="st"> </span><span class="kw">as.double</span>(<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span>(4L),SAheart<span class="op">$</span>n_Elements,<span class="dt">replace=</span>T))</a>
+<a class="sourceLine" id="cb9-32" title="32">  Scaled.Train  =<span class="st"> </span><span class="kw">scale</span>(SAheart<span class="op">$</span>TrainingData)</a>
+<a class="sourceLine" id="cb9-33" title="33">  Initial.Vector &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">as.matrix</span>(<span class="kw">rep</span>(<span class="dv">0</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>)),<span class="dt">dim=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb9-34" title="34"></a>
+<a class="sourceLine" id="cb9-35" title="35">  testIndexes &lt;-<span class="st"> </span><span class="kw">which</span>(LossMat.fold.vec<span class="op">==</span>i,<span class="dt">arr.ind=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb9-36" title="36">  testData    &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[testIndexes, ])</a>
+<a class="sourceLine" id="cb9-37" title="37">  trainData   &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[<span class="op">-</span>testIndexes, ])</a>
+<a class="sourceLine" id="cb9-38" title="38"></a>
+<a class="sourceLine" id="cb9-39" title="39">  <span class="kw">print</span>(<span class="st">&quot;Please wait this might take some time, Iteration:&quot;</span>)</a>
+<a class="sourceLine" id="cb9-40" title="40">  <span class="kw">print</span>(i)</a>
+<a class="sourceLine" id="cb9-41" title="41"></a>
+<a class="sourceLine" id="cb9-42" title="42">  </a>
+<a class="sourceLine" id="cb9-43" title="43">  <span class="kw">print</span>(<span class="kw">dim</span>(trainData))</a>
+<a class="sourceLine" id="cb9-44" title="44">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>])))</a>
+<a class="sourceLine" id="cb9-45" title="45">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)])))</a>
+<a class="sourceLine" id="cb9-46" title="46">  <span class="co">#-------------------------LMSquareLossIterations (SLI_Error)--------------</span></a>
+<a class="sourceLine" id="cb9-47" title="47">  <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb9-48" title="48">  {</a>
+<a class="sourceLine" id="cb9-49" title="49">    List =<span class="st"> </span><span class="kw">LinearModelL1</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="fl">0.5</span>,max.iterations,Initial.Vector,Scalar.Step,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb9-50" title="50">    W.Vec =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb9-51" title="51">    </a>
+<a class="sourceLine" id="cb9-52" title="52"></a>
+<a class="sourceLine" id="cb9-53" title="53">    <span class="co">#SLI.WholeError.Vec &lt;- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,SAheart$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb9-54" title="54">    <span class="co">#SLI.WholeError.Mat &lt;- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb9-55" title="55">    </a>
+<a class="sourceLine" id="cb9-56" title="56">    SLI.TrainError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],(W.Vec),SAheart<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb9-57" title="57">    SLI.TrainError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TrainError.Mat,SLI.TrainError.Vec)  </a>
+<a class="sourceLine" id="cb9-58" title="58">    </a>
+<a class="sourceLine" id="cb9-59" title="59">    SLI.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(Data[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],Data[,<span class="kw">NCOL</span>(testData)],(W.Vec),SAheart<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb9-60" title="60">    SLI.TestError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TestError.Mat,SLI.TestError.Vec)</a>
+<a class="sourceLine" id="cb9-61" title="61">  </a>
+<a class="sourceLine" id="cb9-62" title="62">    SLI.WholeError.Vec &lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Vec,SAheart<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb9-63" title="63">    SLI.WholeError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.WholeError.Mat,SLI.WholeError.Vec)</a>
+<a class="sourceLine" id="cb9-64" title="64">  }</a>
+<a class="sourceLine" id="cb9-65" title="65"></a>
+<a class="sourceLine" id="cb9-66" title="66">      </a>
+<a class="sourceLine" id="cb9-67" title="67">  <span class="co">#------------------------------------------------------------------------</span></a>
+<a class="sourceLine" id="cb9-68" title="68"></a>
+<a class="sourceLine" id="cb9-69" title="69">    <span class="co">#W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)</span></a>
+<a class="sourceLine" id="cb9-70" title="70">    List =<span class="st"> </span><span class="kw">LinearModelL1penalties</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="dt">penalty.vec =</span> <span class="kw">seq</span>(<span class="dv">1</span>, <span class="fl">0.1</span>, <span class="fl">-0.2</span>),<span class="dt">step.size =</span> <span class="fl">0.1</span>,<span class="dt">opt.thresh=</span><span class="dv">300</span>,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb9-71" title="71">    W.Vector =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb9-72" title="72">    <span class="co">#W.Vector = List$weight.vec</span></a>
+<a class="sourceLine" id="cb9-73" title="73">    W.Matrix =<span class="st"> </span>List<span class="op">$</span>weight.mat</a>
+<a class="sourceLine" id="cb9-74" title="74">    </a>
+<a class="sourceLine" id="cb9-75" title="75">    <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb9-76" title="76">    {</a>
+<a class="sourceLine" id="cb9-77" title="77">      L1_Pen.TrainingError.Vec &lt;-<span class="kw">Find_WMatrix_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Matrix,SAheart<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb9-78" title="78">      L1_Pen.TrainingError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)</a>
+<a class="sourceLine" id="cb9-79" title="79"></a>
+<a class="sourceLine" id="cb9-80" title="80">      <span class="co">#L1_Pen.TestError.Vec&lt;- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],SAheart$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb9-81" title="81">      L1_Pen.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WMatrix_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],W.Matrix,SAheart<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb9-82" title="82">      L1_Pen.TestError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)</a>
+<a class="sourceLine" id="cb9-83" title="83">      </a>
+<a class="sourceLine" id="cb9-84" title="84">       <span class="co"># L1_Pen.WholeError.Vec&lt;- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),SAheart$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb9-85" title="85">       <span class="co"># L1_Pen.WholeError.Mat&lt;- rbind(SLI.TestError.Mat,SLI.TestError.Vec)</span></a>
+<a class="sourceLine" id="cb9-86" title="86">      </a>
+<a class="sourceLine" id="cb9-87" title="87">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb9-88" title="88">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb9-89" title="89">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb9-90" title="90">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb9-91" title="91">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb9-92" title="92">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb9-93" title="93">    }</a>
+<a class="sourceLine" id="cb9-94" title="94"></a>
+<a class="sourceLine" id="cb9-95" title="95">}</a></code></pre></div>
+</div>
+<div id="matrix-of-loss-values-1" class="section level3">
+<h3>Matrix of loss values</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2">{</a>
+<a class="sourceLine" id="cb10-3" title="3">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TrainError.Mat)))</a>
+<a class="sourceLine" id="cb10-4" title="4">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TestError.Mat)))</a>
+<a class="sourceLine" id="cb10-5" title="5">  </a>
+<a class="sourceLine" id="cb10-6" title="6">  <span class="kw">print</span>(<span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb10-7" title="7">      </a>
+<a class="sourceLine" id="cb10-8" title="8">  <span class="kw">print</span>(<span class="st">&quot;L1 Pen Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb10-9" title="9">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb10-10" title="10">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb10-11" title="11">  <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb10-12" title="12">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb10-13" title="13">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb10-14" title="14">  <span class="co">#SLI.WholeError.Mat &lt;- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb10-15" title="15">}</a>
+<a class="sourceLine" id="cb10-16" title="16"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb10-17" title="17"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb10-18" title="18"><span class="co">#&gt; [1] &quot;&quot;</span></a>
+<a class="sourceLine" id="cb10-19" title="19"><span class="co">#&gt; [1] &quot;L1 Pen Training vs Test Error Vec&quot;</span></a>
+<a class="sourceLine" id="cb10-20" title="20"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb10-21" title="21"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb10-22" title="22"><span class="co">#&gt; [1] &quot;Training vs Test Error Mat&quot;</span></a>
+<a class="sourceLine" id="cb10-23" title="23"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb10-24" title="24"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb10-25" title="25"></a>
+<a class="sourceLine" id="cb10-26" title="26"><span class="co">#-------------------Matrix of Cross Validation loss values-------------------------------------</span></a>
+<a class="sourceLine" id="cb10-27" title="27"></a>
+<a class="sourceLine" id="cb10-28" title="28"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb10-29" title="29">{</a>
+<a class="sourceLine" id="cb10-30" title="30">  <span class="co">#print(SLI.TestError.Mat)</span></a>
+<a class="sourceLine" id="cb10-31" title="31"></a>
+<a class="sourceLine" id="cb10-32" title="32">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(<span class="kw">as.double</span>(SLI.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>]))</a>
+<a class="sourceLine" id="cb10-33" title="33">  </a>
+<a class="sourceLine" id="cb10-34" title="34">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(Spam_LossMatrix,<span class="kw">as.double</span>((L1_Pen.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>])))</a>
+<a class="sourceLine" id="cb10-35" title="35">  </a>
+<a class="sourceLine" id="cb10-36" title="36">  <span class="co">#Spam_LossMatrix &lt;-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))</span></a>
+<a class="sourceLine" id="cb10-37" title="37"></a>
+<a class="sourceLine" id="cb10-38" title="38"></a>
+<a class="sourceLine" id="cb10-39" title="39">  <span class="kw">colnames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;Fold1&quot;</span>,<span class="st">&quot;Fold2&quot;</span>,<span class="st">&quot;Fold3&quot;</span>,<span class="st">&quot;Fold4&quot;</span>)</a>
+<a class="sourceLine" id="cb10-40" title="40">  <span class="kw">rownames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;L1 Early Stoping&quot;</span>,<span class="st">&quot;L1 Penalty Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb10-41" title="41">  <span class="co">#barplot(Spam_LossMatrix, xlab = &quot;Iterations&quot;, ylab = &quot;Error&quot;,main = &quot;LinearModels_Spam_LossMatrix&quot;,legend = (rownames(Spam_LossMatrix)),beside = TRUE)</span></a>
+<a class="sourceLine" id="cb10-42" title="42">  </a>
+<a class="sourceLine" id="cb10-43" title="43">  <span class="kw">barplot</span>(Spam_LossMatrix, <span class="dt">xlab =</span> <span class="st">&quot;Iterations&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Error&quot;</span>,<span class="dt">main =</span> <span class="st">&quot;LinearModels_Spam_LossMatrix&quot;</span>,<span class="dt">legend =</span> (<span class="kw">rownames</span>(Spam_LossMatrix)),<span class="dt">beside =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb10-44" title="44">}</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="trainvalidation-loss-plot" class="section level3">
+<h3>Train/validation loss plot</h3>
+</div>
+</div>
+<div id="data-set-3-zip.train" class="section level2">
+<h2>Data set 3: Zip.train</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">  ZipTrain&lt;-<span class="kw">Prep_ZipTrain</span>()</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="co">#&gt; [1] 257</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="co">#&gt; [1] 256</span></a></code></pre></div>
+<div id="code-2" class="section level3">
+<h3>Code</h3>
+</div>
+<div id="matrix-of-loss-values-2" class="section level3">
+<h3>Matrix of loss values</h3>
+</div>
+<div id="trainvalidation-loss-plot-1" class="section level3">
+<h3>Train/validation loss plot</h3>
+</div>
+</div>
+<div id="data-set-4-prostate" class="section level2">
+<h2>Data set 4: Prostate</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">   Prostate&lt;-<span class="kw">Prep_Prostate</span>()</a></code></pre></div>
+<div id="code-3" class="section level3">
+<h3>Code</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="co"># Data set 1: Prostate</span></a>
+<a class="sourceLine" id="cb13-2" title="2">LossMat.fold.n  &lt;-<span class="st"> </span><span class="dv">4</span></a>
+<a class="sourceLine" id="cb13-3" title="3">LossMat.fold.vec&lt;-<span class="kw">Random_Folds</span>((Prostate<span class="op">$</span>n_Elements),LossMat.fold.n)</a>
+<a class="sourceLine" id="cb13-4" title="4"></a>
+<a class="sourceLine" id="cb13-5" title="5"></a>
+<a class="sourceLine" id="cb13-6" title="6">Data =<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">scale</span>(Prostate<span class="op">$</span>TrainingData) ,Prostate<span class="op">$</span>TrainingLabels)</a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="co">#Randomly shuffle the data</span></a>
+<a class="sourceLine" id="cb13-8" title="8"><span class="co">#Data&lt;-Data[sample(nrow(Data)),]</span></a>
+<a class="sourceLine" id="cb13-9" title="9"></a>
+<a class="sourceLine" id="cb13-10" title="10">SLI.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-11" title="11">SLI.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-12" title="12">SLI.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-13" title="13"></a>
+<a class="sourceLine" id="cb13-14" title="14">L1_Pen.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-15" title="15">L1_Pen.TrainingError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-16" title="16">L1_Pen.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-17" title="17">L1.Pen.Matrix =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-18" title="18"></a>
+<a class="sourceLine" id="cb13-19" title="19"></a>
+<a class="sourceLine" id="cb13-20" title="20">L1_CV_Error.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-21" title="21">L1_CV_Error.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-22" title="22">L1_CV_Error.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb13-23" title="23"></a>
+<a class="sourceLine" id="cb13-24" title="24"><span class="co">#Perform folds.n fold cross validation</span></a>
+<a class="sourceLine" id="cb13-25" title="25"><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>(LossMat.fold.n))</a>
+<a class="sourceLine" id="cb13-26" title="26">{</a>
+<a class="sourceLine" id="cb13-27" title="27">  Prostate&lt;-<span class="kw">Prep_Prostate</span>()</a>
+<a class="sourceLine" id="cb13-28" title="28">  <span class="co">#folds.n = 2L</span></a>
+<a class="sourceLine" id="cb13-29" title="29">  Scalar.Step =<span class="st"> </span><span class="fl">0.4</span></a>
+<a class="sourceLine" id="cb13-30" title="30">  max.iterations =<span class="st"> </span>50L</a>
+<a class="sourceLine" id="cb13-31" title="31">  fold.vec =<span class="st"> </span><span class="kw">as.double</span>(<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span>(4L),Prostate<span class="op">$</span>n_Elements,<span class="dt">replace=</span>T))</a>
+<a class="sourceLine" id="cb13-32" title="32">  Scaled.Train  =<span class="st"> </span><span class="kw">scale</span>(Prostate<span class="op">$</span>TrainingData)</a>
+<a class="sourceLine" id="cb13-33" title="33">  Initial.Vector &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">as.matrix</span>(<span class="kw">rep</span>(<span class="dv">0</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>)),<span class="dt">dim=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb13-34" title="34"></a>
+<a class="sourceLine" id="cb13-35" title="35">  testIndexes &lt;-<span class="st"> </span><span class="kw">which</span>(LossMat.fold.vec<span class="op">==</span>i,<span class="dt">arr.ind=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb13-36" title="36">  testData    &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[testIndexes, ])</a>
+<a class="sourceLine" id="cb13-37" title="37">  trainData   &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[<span class="op">-</span>testIndexes, ])</a>
+<a class="sourceLine" id="cb13-38" title="38"></a>
+<a class="sourceLine" id="cb13-39" title="39">  <span class="kw">print</span>(<span class="st">&quot;Please wait this might take some time, Iteration:&quot;</span>)</a>
+<a class="sourceLine" id="cb13-40" title="40">  <span class="kw">print</span>(i)</a>
+<a class="sourceLine" id="cb13-41" title="41"></a>
+<a class="sourceLine" id="cb13-42" title="42">  </a>
+<a class="sourceLine" id="cb13-43" title="43">  <span class="kw">print</span>(<span class="kw">dim</span>(trainData))</a>
+<a class="sourceLine" id="cb13-44" title="44">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>])))</a>
+<a class="sourceLine" id="cb13-45" title="45">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)])))</a>
+<a class="sourceLine" id="cb13-46" title="46">  <span class="co">#-------------------------LMSquareLossIterations (SLI_Error)--------------</span></a>
+<a class="sourceLine" id="cb13-47" title="47">  <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb13-48" title="48">  {</a>
+<a class="sourceLine" id="cb13-49" title="49">    List =<span class="st"> </span><span class="kw">LinearModelL1</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="fl">0.5</span>,max.iterations,Initial.Vector,Scalar.Step,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb13-50" title="50">    W.Vec =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb13-51" title="51">    </a>
+<a class="sourceLine" id="cb13-52" title="52"></a>
+<a class="sourceLine" id="cb13-53" title="53">    <span class="co">#SLI.WholeError.Vec &lt;- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Prostate$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb13-54" title="54">    <span class="co">#SLI.WholeError.Mat &lt;- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb13-55" title="55">    </a>
+<a class="sourceLine" id="cb13-56" title="56">    SLI.TrainError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],(W.Vec),Prostate<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb13-57" title="57">    SLI.TrainError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TrainError.Mat,SLI.TrainError.Vec)  </a>
+<a class="sourceLine" id="cb13-58" title="58">    </a>
+<a class="sourceLine" id="cb13-59" title="59">    SLI.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(Data[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],Data[,<span class="kw">NCOL</span>(testData)],(W.Vec),Prostate<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb13-60" title="60">    SLI.TestError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TestError.Mat,SLI.TestError.Vec)</a>
+<a class="sourceLine" id="cb13-61" title="61">  </a>
+<a class="sourceLine" id="cb13-62" title="62">    SLI.WholeError.Vec &lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Vec,Prostate<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb13-63" title="63">    SLI.WholeError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.WholeError.Mat,SLI.WholeError.Vec)</a>
+<a class="sourceLine" id="cb13-64" title="64">  }</a>
+<a class="sourceLine" id="cb13-65" title="65"></a>
+<a class="sourceLine" id="cb13-66" title="66">      </a>
+<a class="sourceLine" id="cb13-67" title="67">  <span class="co">#------------------------------------------------------------------------</span></a>
+<a class="sourceLine" id="cb13-68" title="68"></a>
+<a class="sourceLine" id="cb13-69" title="69">    <span class="co">#W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)</span></a>
+<a class="sourceLine" id="cb13-70" title="70">    List =<span class="st"> </span><span class="kw">LinearModelL1penalties</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="dt">penalty.vec =</span> <span class="kw">seq</span>(<span class="dv">1</span>, <span class="fl">0.1</span>, <span class="fl">-0.2</span>),<span class="dt">step.size =</span> <span class="fl">0.1</span>,<span class="dt">opt.thresh=</span><span class="dv">300</span>,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb13-71" title="71">    W.Vector =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb13-72" title="72">    <span class="co">#W.Vector = List$weight.vec</span></a>
+<a class="sourceLine" id="cb13-73" title="73">    W.Matrix =<span class="st"> </span>List<span class="op">$</span>weight.mat</a>
+<a class="sourceLine" id="cb13-74" title="74">    </a>
+<a class="sourceLine" id="cb13-75" title="75">    <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb13-76" title="76">    {</a>
+<a class="sourceLine" id="cb13-77" title="77">      L1_Pen.TrainingError.Vec &lt;-<span class="kw">Find_WMatrix_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Matrix,Prostate<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb13-78" title="78">      L1_Pen.TrainingError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)</a>
+<a class="sourceLine" id="cb13-79" title="79"></a>
+<a class="sourceLine" id="cb13-80" title="80">      <span class="co">#L1_Pen.TestError.Vec&lt;- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],Prostate$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb13-81" title="81">      L1_Pen.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WMatrix_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],W.Matrix,Prostate<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb13-82" title="82">      L1_Pen.TestError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)</a>
+<a class="sourceLine" id="cb13-83" title="83">      </a>
+<a class="sourceLine" id="cb13-84" title="84">       <span class="co"># L1_Pen.WholeError.Vec&lt;- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Prostate$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb13-85" title="85">       <span class="co"># L1_Pen.WholeError.Mat&lt;- rbind(SLI.TestError.Mat,SLI.TestError.Vec)</span></a>
+<a class="sourceLine" id="cb13-86" title="86">      </a>
+<a class="sourceLine" id="cb13-87" title="87">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb13-88" title="88">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb13-89" title="89">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb13-90" title="90">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb13-91" title="91">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb13-92" title="92">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb13-93" title="93">    }</a>
+<a class="sourceLine" id="cb13-94" title="94"></a>
+<a class="sourceLine" id="cb13-95" title="95">}</a></code></pre></div>
+</div>
+<div id="matrix-of-loss-values-3" class="section level3">
+<h3>Matrix of loss values</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb14-2" title="2">{</a>
+<a class="sourceLine" id="cb14-3" title="3">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TrainError.Mat)))</a>
+<a class="sourceLine" id="cb14-4" title="4">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TestError.Mat)))</a>
+<a class="sourceLine" id="cb14-5" title="5">  </a>
+<a class="sourceLine" id="cb14-6" title="6">  <span class="kw">print</span>(<span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb14-7" title="7">      </a>
+<a class="sourceLine" id="cb14-8" title="8">  <span class="kw">print</span>(<span class="st">&quot;L1 Pen Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb14-9" title="9">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb14-10" title="10">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb14-11" title="11">  <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb14-12" title="12">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb14-13" title="13">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb14-14" title="14">  <span class="co">#SLI.WholeError.Mat &lt;- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb14-15" title="15">}</a>
+<a class="sourceLine" id="cb14-16" title="16"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb14-17" title="17"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb14-18" title="18"><span class="co">#&gt; [1] &quot;&quot;</span></a>
+<a class="sourceLine" id="cb14-19" title="19"><span class="co">#&gt; [1] &quot;L1 Pen Training vs Test Error Vec&quot;</span></a>
+<a class="sourceLine" id="cb14-20" title="20"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb14-21" title="21"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb14-22" title="22"><span class="co">#&gt; [1] &quot;Training vs Test Error Mat&quot;</span></a>
+<a class="sourceLine" id="cb14-23" title="23"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb14-24" title="24"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb14-25" title="25"></a>
+<a class="sourceLine" id="cb14-26" title="26"><span class="co">#-------------------Matrix of Cross Validation loss values-------------------------------------</span></a>
+<a class="sourceLine" id="cb14-27" title="27"></a>
+<a class="sourceLine" id="cb14-28" title="28"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb14-29" title="29">{</a>
+<a class="sourceLine" id="cb14-30" title="30">  <span class="co">#print(SLI.TestError.Mat)</span></a>
+<a class="sourceLine" id="cb14-31" title="31"></a>
+<a class="sourceLine" id="cb14-32" title="32">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(<span class="kw">as.double</span>(SLI.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>]))</a>
+<a class="sourceLine" id="cb14-33" title="33">  </a>
+<a class="sourceLine" id="cb14-34" title="34">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(Spam_LossMatrix,<span class="kw">as.double</span>((L1_Pen.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>])))</a>
+<a class="sourceLine" id="cb14-35" title="35">  </a>
+<a class="sourceLine" id="cb14-36" title="36">  <span class="co">#Spam_LossMatrix &lt;-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))</span></a>
+<a class="sourceLine" id="cb14-37" title="37"></a>
+<a class="sourceLine" id="cb14-38" title="38"></a>
+<a class="sourceLine" id="cb14-39" title="39">  <span class="kw">colnames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;Fold1&quot;</span>,<span class="st">&quot;Fold2&quot;</span>,<span class="st">&quot;Fold3&quot;</span>,<span class="st">&quot;Fold4&quot;</span>)</a>
+<a class="sourceLine" id="cb14-40" title="40">  <span class="kw">rownames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;L1 Early Stoping&quot;</span>,<span class="st">&quot;L1 Penalty Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb14-41" title="41">  <span class="co">#barplot(Spam_LossMatrix, xlab = &quot;Iterations&quot;, ylab = &quot;Error&quot;,main = &quot;LinearModels_Spam_LossMatrix&quot;,legend = (rownames(Spam_LossMatrix)),beside = TRUE)</span></a>
+<a class="sourceLine" id="cb14-42" title="42">  </a>
+<a class="sourceLine" id="cb14-43" title="43">  <span class="kw">barplot</span>(Spam_LossMatrix, <span class="dt">xlab =</span> <span class="st">&quot;Iterations&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Error&quot;</span>,<span class="dt">main =</span> <span class="st">&quot;LinearModels_Spam_LossMatrix&quot;</span>,<span class="dt">legend =</span> (<span class="kw">rownames</span>(Spam_LossMatrix)),<span class="dt">beside =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb14-44" title="44">}</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div id="data-set-5-ozone" class="section level2">
+<h2>Data set 5: Ozone</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">  Ozone&lt;-<span class="kw">Prep_Ozone</span>()</a></code></pre></div>
+<div id="code-4" class="section level3">
+<h3>Code</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="co"># Data set 1: Ozone</span></a>
+<a class="sourceLine" id="cb16-2" title="2">LossMat.fold.n  &lt;-<span class="st"> </span><span class="dv">4</span></a>
+<a class="sourceLine" id="cb16-3" title="3">LossMat.fold.vec&lt;-<span class="kw">Random_Folds</span>((Ozone<span class="op">$</span>n_Elements),LossMat.fold.n)</a>
+<a class="sourceLine" id="cb16-4" title="4"></a>
+<a class="sourceLine" id="cb16-5" title="5"></a>
+<a class="sourceLine" id="cb16-6" title="6">Data =<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">scale</span>(Ozone<span class="op">$</span>TrainingData) ,Ozone<span class="op">$</span>TrainingLabels)</a>
+<a class="sourceLine" id="cb16-7" title="7"><span class="co">#Randomly shuffle the data</span></a>
+<a class="sourceLine" id="cb16-8" title="8"><span class="co">#Data&lt;-Data[sample(nrow(Data)),]</span></a>
+<a class="sourceLine" id="cb16-9" title="9"></a>
+<a class="sourceLine" id="cb16-10" title="10">SLI.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-11" title="11">SLI.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-12" title="12">SLI.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-13" title="13"></a>
+<a class="sourceLine" id="cb16-14" title="14">L1_Pen.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-15" title="15">L1_Pen.TrainingError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-16" title="16">L1_Pen.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-17" title="17">L1.Pen.Matrix =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-18" title="18"></a>
+<a class="sourceLine" id="cb16-19" title="19"></a>
+<a class="sourceLine" id="cb16-20" title="20">L1_CV_Error.WholeError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-21" title="21">L1_CV_Error.TrainError.Mat =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-22" title="22">L1_CV_Error.TestError.Mat  =<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb16-23" title="23"></a>
+<a class="sourceLine" id="cb16-24" title="24"><span class="co">#Perform folds.n fold cross validation</span></a>
+<a class="sourceLine" id="cb16-25" title="25"><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>(LossMat.fold.n))</a>
+<a class="sourceLine" id="cb16-26" title="26">{</a>
+<a class="sourceLine" id="cb16-27" title="27"></a>
+<a class="sourceLine" id="cb16-28" title="28">  <span class="co">#folds.n = 2L</span></a>
+<a class="sourceLine" id="cb16-29" title="29">  Scalar.Step =<span class="st"> </span><span class="fl">0.4</span></a>
+<a class="sourceLine" id="cb16-30" title="30">  max.iterations =<span class="st"> </span>50L</a>
+<a class="sourceLine" id="cb16-31" title="31">  fold.vec =<span class="st"> </span><span class="kw">as.double</span>(<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span>(4L),Ozone<span class="op">$</span>n_Elements,<span class="dt">replace=</span>T))</a>
+<a class="sourceLine" id="cb16-32" title="32">  Scaled.Train  =<span class="st"> </span><span class="kw">scale</span>(Ozone<span class="op">$</span>TrainingData)</a>
+<a class="sourceLine" id="cb16-33" title="33">  Initial.Vector &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">as.matrix</span>(<span class="kw">rep</span>(<span class="dv">0</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>)),<span class="dt">dim=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="kw">NCOL</span>(Scaled.Train)<span class="op">+</span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb16-34" title="34"></a>
+<a class="sourceLine" id="cb16-35" title="35">  testIndexes &lt;-<span class="st"> </span><span class="kw">which</span>(LossMat.fold.vec<span class="op">==</span>i,<span class="dt">arr.ind=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb16-36" title="36">  testData    &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[testIndexes, ])</a>
+<a class="sourceLine" id="cb16-37" title="37">  trainData   &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(Data[<span class="op">-</span>testIndexes, ])</a>
+<a class="sourceLine" id="cb16-38" title="38"></a>
+<a class="sourceLine" id="cb16-39" title="39">  <span class="kw">print</span>(<span class="st">&quot;Please wait this might take some time, Iteration:&quot;</span>)</a>
+<a class="sourceLine" id="cb16-40" title="40">  <span class="kw">print</span>(i)</a>
+<a class="sourceLine" id="cb16-41" title="41"></a>
+<a class="sourceLine" id="cb16-42" title="42">  </a>
+<a class="sourceLine" id="cb16-43" title="43">  <span class="kw">print</span>(<span class="kw">dim</span>(trainData))</a>
+<a class="sourceLine" id="cb16-44" title="44">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>])))</a>
+<a class="sourceLine" id="cb16-45" title="45">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)])))</a>
+<a class="sourceLine" id="cb16-46" title="46">  <span class="co">#-------------------------LMSquareLossIterations (SLI_Error)--------------</span></a>
+<a class="sourceLine" id="cb16-47" title="47">  <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb16-48" title="48">  {</a>
+<a class="sourceLine" id="cb16-49" title="49">    List =<span class="st"> </span><span class="kw">LinearModelL1</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="fl">0.5</span>,max.iterations,Initial.Vector,Scalar.Step,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb16-50" title="50">    W.Vec =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb16-51" title="51">    </a>
+<a class="sourceLine" id="cb16-52" title="52"></a>
+<a class="sourceLine" id="cb16-53" title="53">    <span class="co">#SLI.WholeError.Vec &lt;- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Ozone$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb16-54" title="54">    <span class="co">#SLI.WholeError.Mat &lt;- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb16-55" title="55">    </a>
+<a class="sourceLine" id="cb16-56" title="56">    SLI.TrainError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],(W.Vec),Ozone<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb16-57" title="57">    SLI.TrainError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TrainError.Mat,SLI.TrainError.Vec)  </a>
+<a class="sourceLine" id="cb16-58" title="58">    </a>
+<a class="sourceLine" id="cb16-59" title="59">    SLI.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(Data[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],Data[,<span class="kw">NCOL</span>(testData)],(W.Vec),Ozone<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb16-60" title="60">    SLI.TestError.Mat&lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.TestError.Mat,SLI.TestError.Vec)</a>
+<a class="sourceLine" id="cb16-61" title="61">  </a>
+<a class="sourceLine" id="cb16-62" title="62">    SLI.WholeError.Vec &lt;-<span class="st"> </span><span class="kw">Find_WVector_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Vec,Ozone<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb16-63" title="63">    SLI.WholeError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(SLI.WholeError.Mat,SLI.WholeError.Vec)</a>
+<a class="sourceLine" id="cb16-64" title="64">  }</a>
+<a class="sourceLine" id="cb16-65" title="65"></a>
+<a class="sourceLine" id="cb16-66" title="66">      </a>
+<a class="sourceLine" id="cb16-67" title="67">  <span class="co">#------------------------------------------------------------------------</span></a>
+<a class="sourceLine" id="cb16-68" title="68"></a>
+<a class="sourceLine" id="cb16-69" title="69">    <span class="co">#W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)</span></a>
+<a class="sourceLine" id="cb16-70" title="70">    List =<span class="st"> </span><span class="kw">LinearModelL1penalties</span>(<span class="kw">as.matrix</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>]),<span class="kw">as.matrix</span>(trainData[,<span class="kw">NCOL</span>(trainData)]),<span class="dt">penalty.vec =</span> <span class="kw">seq</span>(<span class="dv">1</span>, <span class="fl">0.1</span>, <span class="fl">-0.2</span>),<span class="dt">step.size =</span> <span class="fl">0.1</span>,<span class="dt">opt.thresh=</span><span class="dv">300</span>,<span class="dt">max.iterations=</span>max.iterations)</a>
+<a class="sourceLine" id="cb16-71" title="71">    W.Vector =<span class="st"> </span>List<span class="op">$</span>weight.vec</a>
+<a class="sourceLine" id="cb16-72" title="72">    <span class="co">#W.Vector = List$weight.vec</span></a>
+<a class="sourceLine" id="cb16-73" title="73">    W.Matrix =<span class="st"> </span>List<span class="op">$</span>weight.mat</a>
+<a class="sourceLine" id="cb16-74" title="74">    </a>
+<a class="sourceLine" id="cb16-75" title="75">    <span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb16-76" title="76">    {</a>
+<a class="sourceLine" id="cb16-77" title="77">      L1_Pen.TrainingError.Vec &lt;-<span class="kw">Find_WMatrix_MeanLoss</span>(trainData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(trainData)<span class="op">-</span><span class="dv">1</span>],trainData[,<span class="kw">NCOL</span>(trainData)],W.Matrix,Ozone<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb16-78" title="78">      L1_Pen.TrainingError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)</a>
+<a class="sourceLine" id="cb16-79" title="79"></a>
+<a class="sourceLine" id="cb16-80" title="80">      <span class="co">#L1_Pen.TestError.Vec&lt;- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],Ozone$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb16-81" title="81">      L1_Pen.TestError.Vec&lt;-<span class="st"> </span><span class="kw">Find_WMatrix_MeanLoss</span>(testData[,<span class="dv">1</span><span class="op">:</span><span class="kw">NCOL</span>(testData)<span class="op">-</span><span class="dv">1</span>],testData[,<span class="kw">NCOL</span>(testData)],W.Matrix,Ozone<span class="op">$</span>BinaryClassification)</a>
+<a class="sourceLine" id="cb16-82" title="82">      L1_Pen.TestError.Mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)</a>
+<a class="sourceLine" id="cb16-83" title="83">      </a>
+<a class="sourceLine" id="cb16-84" title="84">       <span class="co"># L1_Pen.WholeError.Vec&lt;- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Ozone$BinaryClassification)</span></a>
+<a class="sourceLine" id="cb16-85" title="85">       <span class="co"># L1_Pen.WholeError.Mat&lt;- rbind(SLI.TestError.Mat,SLI.TestError.Vec)</span></a>
+<a class="sourceLine" id="cb16-86" title="86">      </a>
+<a class="sourceLine" id="cb16-87" title="87">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb16-88" title="88">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb16-89" title="89">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb16-90" title="90">      <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb16-91" title="91">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb16-92" title="92">      <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb16-93" title="93">    }</a>
+<a class="sourceLine" id="cb16-94" title="94"></a>
+<a class="sourceLine" id="cb16-95" title="95">}</a></code></pre></div>
+</div>
+<div id="matrix-of-loss-values-4" class="section level3">
+<h3>Matrix of loss values</h3>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb17-2" title="2">{</a>
+<a class="sourceLine" id="cb17-3" title="3">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TrainError.Mat)))</a>
+<a class="sourceLine" id="cb17-4" title="4">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(SLI.TestError.Mat)))</a>
+<a class="sourceLine" id="cb17-5" title="5">  </a>
+<a class="sourceLine" id="cb17-6" title="6">  <span class="kw">print</span>(<span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb17-7" title="7">      </a>
+<a class="sourceLine" id="cb17-8" title="8">  <span class="kw">print</span>(<span class="st">&quot;L1 Pen Training vs Test Error Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb17-9" title="9">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Vec)))</a>
+<a class="sourceLine" id="cb17-10" title="10">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Vec)))</a>
+<a class="sourceLine" id="cb17-11" title="11">  <span class="kw">print</span>(<span class="st">&quot;Training vs Test Error Mat&quot;</span>)</a>
+<a class="sourceLine" id="cb17-12" title="12">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TrainingError.Mat)))</a>
+<a class="sourceLine" id="cb17-13" title="13">  <span class="kw">print</span>(<span class="kw">dim</span>(<span class="kw">as.matrix</span>(L1_Pen.TestError.Mat)))</a>
+<a class="sourceLine" id="cb17-14" title="14">  <span class="co">#SLI.WholeError.Mat &lt;- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)</span></a>
+<a class="sourceLine" id="cb17-15" title="15">}</a>
+<a class="sourceLine" id="cb17-16" title="16"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb17-17" title="17"><span class="co">#&gt; [1] 5 1</span></a>
+<a class="sourceLine" id="cb17-18" title="18"><span class="co">#&gt; [1] &quot;&quot;</span></a>
+<a class="sourceLine" id="cb17-19" title="19"><span class="co">#&gt; [1] &quot;L1 Pen Training vs Test Error Vec&quot;</span></a>
+<a class="sourceLine" id="cb17-20" title="20"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb17-21" title="21"><span class="co">#&gt; [1] 6 1</span></a>
+<a class="sourceLine" id="cb17-22" title="22"><span class="co">#&gt; [1] &quot;Training vs Test Error Mat&quot;</span></a>
+<a class="sourceLine" id="cb17-23" title="23"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb17-24" title="24"><span class="co">#&gt; [1] 5 6</span></a>
+<a class="sourceLine" id="cb17-25" title="25"></a>
+<a class="sourceLine" id="cb17-26" title="26"><span class="co">#-------------------Matrix of Cross Validation loss values-------------------------------------</span></a>
+<a class="sourceLine" id="cb17-27" title="27"></a>
+<a class="sourceLine" id="cb17-28" title="28"><span class="cf">if</span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb17-29" title="29">{</a>
+<a class="sourceLine" id="cb17-30" title="30">  <span class="co">#print(SLI.TestError.Mat)</span></a>
+<a class="sourceLine" id="cb17-31" title="31"></a>
+<a class="sourceLine" id="cb17-32" title="32">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(<span class="kw">as.double</span>(SLI.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>]))</a>
+<a class="sourceLine" id="cb17-33" title="33">  </a>
+<a class="sourceLine" id="cb17-34" title="34">  Spam_LossMatrix &lt;-<span class="kw">rbind</span>(Spam_LossMatrix,<span class="kw">as.double</span>((L1_Pen.TestError.Mat[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>])))</a>
+<a class="sourceLine" id="cb17-35" title="35">  </a>
+<a class="sourceLine" id="cb17-36" title="36">  <span class="co">#Spam_LossMatrix &lt;-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))</span></a>
+<a class="sourceLine" id="cb17-37" title="37"></a>
+<a class="sourceLine" id="cb17-38" title="38"></a>
+<a class="sourceLine" id="cb17-39" title="39">  <span class="kw">colnames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;Fold1&quot;</span>,<span class="st">&quot;Fold2&quot;</span>,<span class="st">&quot;Fold3&quot;</span>,<span class="st">&quot;Fold4&quot;</span>)</a>
+<a class="sourceLine" id="cb17-40" title="40">  <span class="kw">rownames</span>(Spam_LossMatrix)&lt;-<span class="kw">c</span>(<span class="st">&quot;L1 Early Stoping&quot;</span>,<span class="st">&quot;L1 Penalty Vec&quot;</span>)</a>
+<a class="sourceLine" id="cb17-41" title="41">  <span class="co">#barplot(Spam_LossMatrix, xlab = &quot;Iterations&quot;, ylab = &quot;Error&quot;,main = &quot;LinearModels_Spam_LossMatrix&quot;,legend = (rownames(Spam_LossMatrix)),beside = TRUE)</span></a>
+<a class="sourceLine" id="cb17-42" title="42">  </a>
+<a class="sourceLine" id="cb17-43" title="43">  <span class="kw">barplot</span>(Spam_LossMatrix, <span class="dt">xlab =</span> <span class="st">&quot;Iterations&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;Error&quot;</span>,<span class="dt">main =</span> <span class="st">&quot;LinearModels_Spam_LossMatrix&quot;</span>,<span class="dt">legend =</span> (<span class="kw">rownames</span>(Spam_LossMatrix)),<span class="dt">beside =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb17-44" title="44">}</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
