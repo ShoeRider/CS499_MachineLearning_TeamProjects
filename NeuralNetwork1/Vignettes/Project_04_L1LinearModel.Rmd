@@ -1,0 +1,989 @@
+---
+title: "Project 4: L1 Linear Models"
+author: "Junyu Chen"
+contributor: "Anthony Schroeder, Junyu Chen, Chadd Frasier, Austin Torrence"
+date: "04/30/2019"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{L1 Linear Models Report}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+<a id="top"></a>
+
+# Project 4
+
+
+
+<a id="intro"></a>
+## Introduction
+
+
+## Linear Regression
+
+
+
+## LMSquareLossIterations
+This function will take a matrix of training input (n_train x n_features), a vector of labels for the training data vectors (n_train x 1), it will take a scaler value that is the maximum number of iterations in the decent algorithm(scalar > 1), and lastly it will take in a step size which is the size of each step in the gradent descent(scaler > 0). This function will take the matrix of training data and the vector of labels to perform gradient descent on each vector and then create a matrix of weight vectors created from the gradient decent. The function will output th weight matrix by creating a vector for each iteration (n_features+1 x max.iterations). The matrix is larger than the training data so in order to perform matrix multiplication the first element of the weight vectors should be the intercept term. This function will need to minimize the mean loss, not the total loss or eles the gradient decent may not converge. Another method for convergence is to scale the trainign data matrix to a smaller size so the steps of the algorithm will not have to be as large and we will get a much more accurate convergence value. We will compute a scaled input matrix, with a mean of 0 and standard deviation of 1 for each column. This is how we accomplished the matrix normalization.
+```{r}
+NormalizeMatrix<-function(Matrix)
+{
+  # ---------- This creates a scaled vector with sd = 1 mean = 0 for each column in matrix-------
+  scaled.mat = matrix(nrow = nrow(Matrix),ncol = ncol(Matrix))
+  for(col in 1:ncol(Matrix))
+  {
+    scaled.mat[,col] = (Matrix[,col] - colMeans(Matrix)[col])/sd(Matrix[,col])
+
+  }
+  return(as.matrix(scaled.mat))
+}
+```
+
+
+**Fromula: ** **$\hat{y} = XW + B$**
+Y.hat = data.matrix(TestingData) %*% data.matrix(W.Matrix) +
+
+**Gradient: ** **${W'} = 2X^T(WX-y)^2$**
+Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+
+**Bias Gradient: ** **${W'} = 2I^T((WX+IB)-y)^2$**
+#Gradient = 2*sum(W.Vector*TrainingData + TrainingLabels)*TrainingLabels
+
+
+#### Linear L2 equations
+**We are Looking for : ** **$\hat{W}^{Lambda} = argmin_{W\in R^{P}}$**
+
+**Regularization Gradient: ** **${W'} = 2X^T(X-y)^2 + 2*(Labmda)*W$**
+
+
+
+
+### Logistic equations
+#### Logistic Iteration equations
+
+**Gradient: ** **${W'} = 1/(1+e^{-yXW})-y$**
+
+**Cost Function**: 1/n ∑i=1^n L[w^T x_i + b, y_i] + penalty * ||w||_1
+
+#### Linear L2 equations
+** We are Looking for : ** **$\hat{W}^{Lambda} = argmin_{W\in R^{P}}$**
+
+** Regularization Gradient: ** **${W'} = 2X^T(X-y)^2 + 2*(Labmda)*W$**
+
+
+<a id= 'test'></a>
+## Testing With Data Sets
+we are going to run our code on the following data sets for Binary Classification
+- ElemStatLearn::spam 2-class [4601, 57] output is last column (spam).
+- ElemStatLearn::SAheart 2-class [462, 9] output is last column (chd).
+- ElemStatLearn::zip.train: 10-class [7291, 256] output is first column. (ignore classes other than 0 and 1)
+And we will be using the following for regression:
+- ElemStatLearn::prostate [97 x 8] output is lpsa column, ignore train column.
+- ElemStatLearn::ozone [111 x 3] output is first column (ozone).
+
+```{r, results='hide'}
+# Spam Data Set
+data(spam, package = "ElemStatLearn")
+
+# SAheart Data Set
+data(SAheart, package = "ElemStatLearn")
+
+# zip.train Data Set
+data(zip.train, package = "ElemStatLearn")
+
+# prostate Data Set
+data(prostate, package = "ElemStatLearn")
+
+# OZone Data Set
+data(ozone, package = "ElemStatLearn")
+```
+
+# How to use the 'ElemStatLearn' Libraries:
+
+How To use this Linear Models Library:
+1. Organize your data into:
+  a. Training Data:
+  Your data should be a matrix with the Column's containing Feature's, and Row's containing the different training Instances
+
+  b.Training Labels:
+  Your data should be a single colomn of numerical values,
+    Note: if all labels are (0 or 1)  training will be classified as Binary classification, and be trained accordingly. otherwise, training will be Regressive.
+
+## Testing 
+# How to use the 'ElemStatLearn' Libraries:
+we are going to run our code on the following data sets.
+
+How To use this Linear Models Library:
+1. Organize your data into:
+  a. Training Data:
+  Your data should be a matrix with the Column's containing Feature's, and Row's containing the different training Instances 
+    
+  b.Training Labels:
+  Your data should be a single colomn of numerical values, 
+    Note: if all labels are (0 or 1)  training will be classified as Binary classification, and be trained accordingly. otherwise, training will be Regressive.
+
+
+- We will include the library(LinearModel), to have access to the given functionality.
+- The R script Prep_Libraries.R in the tests/testthat folder contains some simple data manipulation to prep the data to be used for the LinearModel Algorithms.
+
+```{r}
+library(LinearModel)
+#library(LinearModelsL1)
+print(getwd())
+source("R/General.R")
+source("R/Temp2.R")
+source("tests/testthat/Prep_Libraries.R")
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+#source("tests/testthat/LinearModels_Test_Libraries.R")
+```
+
+# Binary Classification:
+## Data set 1: spam
+```{r}
+# Data set 1: spam
+  Spam<-Prep_Spam()
+```
+### Code
+
+```{r, results='hide'}
+# Data set 1: spam
+LossMat.fold.n  <- 4
+LossMat.fold.vec<-Random_Folds((Spam$n_Elements),LossMat.fold.n)
+
+
+Data = cbind(scale(Spam$TrainingData) ,Spam$TrainingLabels)
+#Randomly shuffle the data
+#Data<-Data[sample(nrow(Data)),]
+
+SLI.WholeError.Mat = 0
+SLI.TrainError.Mat = 0
+SLI.TestError.Mat  = 0
+
+L1_Pen.WholeError.Mat = 0
+L1_Pen.TrainingError.Mat = 0
+L1_Pen.TestError.Mat  = 0
+L1.Pen.Matrix = 0
+
+
+L1_CV_Error.WholeError.Mat = 0
+L1_CV_Error.TrainError.Mat = 0
+L1_CV_Error.TestError.Mat  = 0
+
+#Perform folds.n fold cross validation
+for(i in 1:(LossMat.fold.n))
+{
+  Spam<-Prep_Spam()
+  #folds.n = 2L
+  Scalar.Step = 0.4
+  max.iterations = 50L
+  fold.vec = as.double(sample(1:(4L),Spam$n_Elements,replace=T))
+  Scaled.Train  = scale(Spam$TrainingData)
+  Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+
+  testIndexes <- which(LossMat.fold.vec==i,arr.ind=TRUE)
+  testData    <- as.matrix(Data[testIndexes, ])
+  trainData   <- as.matrix(Data[-testIndexes, ])
+
+  print("Please wait this might take some time, Iteration:")
+  print(i)
+
+  
+  print(dim(trainData))
+  print(dim(as.matrix(trainData[,1:NCOL(trainData)-1])))
+  print(dim(as.matrix(trainData[,NCOL(trainData)])))
+  #-------------------------LMSquareLossIterations (SLI_Error)--------------
+  if(TRUE)
+  {
+    List = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=max.iterations)
+    W.Vec = List$weight.vec
+    
+
+    #SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Spam$BinaryClassification)
+    #SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+    
+    SLI.TrainError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],(W.Vec),Spam$BinaryClassification)
+    SLI.TrainError.Mat<- rbind(SLI.TrainError.Mat,SLI.TrainError.Vec)  
+    
+    SLI.TestError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Spam$BinaryClassification)
+    SLI.TestError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+  
+    SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Spam$BinaryClassification)
+    SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+  }
+
+      
+  #------------------------------------------------------------------------
+
+    #W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)
+    List = LinearModelL1penalties(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),penalty.vec = seq(1, 0.1, -0.2),step.size = 0.1,opt.thresh=300,max.iterations=max.iterations)
+    W.Vector = List$weight.vec
+    #W.Vector = List$weight.vec
+    W.Matrix = List$weight.mat
+    
+    if(TRUE)
+    {
+      L1_Pen.TrainingError.Vec <-Find_WMatrix_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Matrix,Spam$BinaryClassification)
+      L1_Pen.TrainingError.Mat <- rbind(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)
+
+      #L1_Pen.TestError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],Spam$BinaryClassification)
+      L1_Pen.TestError.Vec<- Find_WMatrix_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix,Spam$BinaryClassification)
+      L1_Pen.TestError.Mat <- rbind(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)
+      
+       # L1_Pen.WholeError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Spam$BinaryClassification)
+       # L1_Pen.WholeError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+      
+      print("Training vs Test Error Vec")
+      print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+      print(dim(as.matrix(L1_Pen.TestError.Vec)))
+      print("Training vs Test Error Mat")
+      print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+      print(dim(as.matrix(L1_Pen.TestError.Mat)))
+    }
+
+}
+```
+    LMSquareLossIterations.W.Vec <- LMSquareLossIterations(trainData[,1:NCOL(trainData)-1], trainData[,NCOL(trainData)],Iterations,Scalar.Step)
+    SLI.WholeError.Vec <-Find_Wmatrix_MeanL2Error(Spam$TrainingData, Spam$TrainingLabels,as.matrix(LMSquareLossIterations.W.Vec),Spam$BinaryClassification)
+
+
+
+### Matrix of loss values
+```{r}
+if(TRUE)
+{
+  print(dim(as.matrix(SLI.TrainError.Mat)))
+  print(dim(as.matrix(SLI.TestError.Mat)))
+  
+  print("")
+      
+  print("L1 Pen Training vs Test Error Vec")
+  print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+  print(dim(as.matrix(L1_Pen.TestError.Vec)))
+  print("Training vs Test Error Mat")
+  print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+  print(dim(as.matrix(L1_Pen.TestError.Mat)))
+  #SLI.WholeError.Mat <- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+}
+
+#-------------------Matrix of Cross Validation loss values-------------------------------------
+
+if(TRUE)
+{
+  #print(SLI.TestError.Mat)
+
+  Spam_LossMatrix <-rbind(as.double(SLI.TestError.Mat[2:5]))
+  
+  Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double((L1_Pen.TestError.Mat[2:5])))
+  
+  #Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))
+
+
+  colnames(Spam_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Spam_LossMatrix)<-c("L1 Early Stoping","L1 Penalty Vec")
+  #barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+  
+  barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+}
+
+```
+
+
+
+
+
+### Train/validation loss plot
+```{r}
+    #-------------------------LMSquareLossIterations (SLI_Error)--------------
+    #SLI.TrainError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],(W.Vec),Spam$BinaryClassification)
+    #SLI.TrainError.Mat<- rbind(SLI.TrainError.Mat,SLI.TrainError.Vec)  
+    
+    #SLI.TestError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Spam$BinaryClassification)
+    #SLI.TestError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+  
+      #print(W.Matrix)
+      DeNorm.Error <- Find_WMatrix_MeanLoss(Scaled.Train, y.vec,t(W.Matrix),Spam$BinaryClassification)
+      #Find_Wmatrix_MeanLoss<-function(TestingData,TestingLables,W.Matrix,BinaryClassification)
+      print(DeNorm.Error)
+      barplot(t(DeNorm.Error),main = "Question 1: LMSquareLossL1Iterations:Spam",xlab = "Iteration",ylab = "Error",beside = TRUE)
+      
+    #------------------------------------------------------------------------
+```
+
+
+```{r}
+
+```
+
+
+### Extra Credit attempt: compaire The LinearModels to the KNN
+```{r}
+  #--------------------NN1ToKmaxPredict------------------------------------
+  Spam<-Prep_Spam()
+  Fold.vec = Random_Folds(Spam$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(Spam$TrainingData, Spam$TrainingLabels, 30, Fold.vec, Fold.n)
+  #------------------------------------------------------------------------
+
+```
+
+
+```{r}
+  plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "",ylim=c(0,1))
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  
+    #-------------------------LMSquareLossL2CV_List-(SL_L2CV)----------------
+    lines(as.matrix((SL_L2CV.TestError.Mat[2:NROW(SL_L2CV.TestError.Mat)])),type="o", col = "orange")
+    lines(as.matrix((SL_L2CV.TrainError.Mat[2:NROW(SL_L2CV.TrainError.Mat)])),type="o", col = "gold")
+    #------------------------------------------------------------------------
+dot.x <- KNNLearnCV.List$selected.KNN
+dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+matpoints(x = dot.x,
+          y = dot.y,
+          col = 2,
+          pch = 19)
+ # legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+```
+
+## Data set 2: SAheart
+```{r}
+# Data set 2: SAheart
+  SAheart<-Prep_SAheart()
+```
+### Code 
+```{r, results='hide'}
+# Data set 2: SAheart
+LossMat.fold.n  <- 4
+LossMat.fold.vec<-Random_Folds((SAheart$n_Elements),LossMat.fold.n)
+
+
+Data = cbind(scale(SAheart$TrainingData) ,SAheart$TrainingLabels)
+#Randomly shuffle the data
+#Data<-Data[sample(nrow(Data)),]
+
+SLI.WholeError.Mat = 0
+SLI.TrainError.Mat = 0
+SLI.TestError.Mat  = 0
+
+L1_Pen.WholeError.Mat = 0
+L1_Pen.TrainingError.Mat = 0
+L1_Pen.TestError.Mat  = 0
+L1.Pen.Matrix = 0
+
+
+L1_CV_Error.WholeError.Mat = 0
+L1_CV_Error.TrainError.Mat = 0
+L1_CV_Error.TestError.Mat  = 0
+
+#Perform folds.n fold cross validation
+for(i in 1:(LossMat.fold.n))
+{
+  SAheart<-Prep_SAheart()
+  #folds.n = 2L
+  Scalar.Step = 0.4
+  max.iterations = 50L
+  fold.vec = as.double(sample(1:(4L),SAheart$n_Elements,replace=T))
+  Scaled.Train  = scale(SAheart$TrainingData)
+  Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+
+  testIndexes <- which(LossMat.fold.vec==i,arr.ind=TRUE)
+  testData    <- as.matrix(Data[testIndexes, ])
+  trainData   <- as.matrix(Data[-testIndexes, ])
+
+  print("Please wait this might take some time, Iteration:")
+  print(i)
+
+  
+  print(dim(trainData))
+  print(dim(as.matrix(trainData[,1:NCOL(trainData)-1])))
+  print(dim(as.matrix(trainData[,NCOL(trainData)])))
+  #-------------------------LMSquareLossIterations (SLI_Error)--------------
+  if(TRUE)
+  {
+    List = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=max.iterations)
+    W.Vec = List$weight.vec
+    
+
+    #SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,SAheart$BinaryClassification)
+    #SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+    
+    SLI.TrainError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],(W.Vec),SAheart$BinaryClassification)
+    SLI.TrainError.Mat<- rbind(SLI.TrainError.Mat,SLI.TrainError.Vec)  
+    
+    SLI.TestError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),SAheart$BinaryClassification)
+    SLI.TestError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+  
+    SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,SAheart$BinaryClassification)
+    SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+  }
+
+      
+  #------------------------------------------------------------------------
+
+    #W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)
+    List = LinearModelL1penalties(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),penalty.vec = seq(1, 0.1, -0.2),step.size = 0.1,opt.thresh=300,max.iterations=max.iterations)
+    W.Vector = List$weight.vec
+    #W.Vector = List$weight.vec
+    W.Matrix = List$weight.mat
+    
+    if(TRUE)
+    {
+      L1_Pen.TrainingError.Vec <-Find_WMatrix_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Matrix,SAheart$BinaryClassification)
+      L1_Pen.TrainingError.Mat <- rbind(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)
+
+      #L1_Pen.TestError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],SAheart$BinaryClassification)
+      L1_Pen.TestError.Vec<- Find_WMatrix_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix,SAheart$BinaryClassification)
+      L1_Pen.TestError.Mat <- rbind(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)
+      
+       # L1_Pen.WholeError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),SAheart$BinaryClassification)
+       # L1_Pen.WholeError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+      
+      print("Training vs Test Error Vec")
+      print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+      print(dim(as.matrix(L1_Pen.TestError.Vec)))
+      print("Training vs Test Error Mat")
+      print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+      print(dim(as.matrix(L1_Pen.TestError.Mat)))
+    }
+
+}
+```
+
+
+
+
+### Matrix of loss values
+```{r}
+if(TRUE)
+{
+  print(dim(as.matrix(SLI.TrainError.Mat)))
+  print(dim(as.matrix(SLI.TestError.Mat)))
+  
+  print("")
+      
+  print("L1 Pen Training vs Test Error Vec")
+  print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+  print(dim(as.matrix(L1_Pen.TestError.Vec)))
+  print("Training vs Test Error Mat")
+  print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+  print(dim(as.matrix(L1_Pen.TestError.Mat)))
+  #SLI.WholeError.Mat <- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+}
+
+#-------------------Matrix of Cross Validation loss values-------------------------------------
+
+if(TRUE)
+{
+  #print(SLI.TestError.Mat)
+
+  Spam_LossMatrix <-rbind(as.double(SLI.TestError.Mat[2:5]))
+  
+  Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double((L1_Pen.TestError.Mat[2:5])))
+  
+  #Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))
+
+
+  colnames(Spam_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Spam_LossMatrix)<-c("L1 Early Stoping","L1 Penalty Vec")
+  #barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+  
+  barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+}
+
+```
+
+### Train/validation loss plot
+
+
+```{r}
+
+```
+
+
+### Extra Credit attempt: compaire The LinearModels to the KNN
+```{r}
+  #--------------------NN1ToKmaxPredict------------------------------------
+  SAheart<-Prep_SAheart()
+  Fold.vec = Random_Folds(SAheart$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(SAheart$TrainingData, SAheart$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "SAheart: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+
+```
+```{r}
+  plot(colMeans(as.matrix(KNNLearnCV.List$TestMeanError.mat)),type="o", col = "blue", xlab = "Iterations", ylab = "Error",main = "",ylim=c(0,1))
+  lines(colMeans(as.matrix(KNNLearnCV.List$TrainMeanError.mat)),type="o", col = "gray")
+  
+    #-------------------------LMSquareLossL2CV_List-(SL_L2CV)----------------
+    lines(as.matrix((SL_L2CV.TestError.Mat[2:NROW(SL_L2CV.TestError.Mat)])),type="o", col = "orange")
+    lines(as.matrix((SL_L2CV.TrainError.Mat[2:NROW(SL_L2CV.TrainError.Mat)])),type="o", col = "gold")
+    #------------------------------------------------------------------------
+dot.x <- KNNLearnCV.List$selected.KNN
+dot.y <- KNNLearnCV.List$TestMeanError.Means[dot.x]
+
+matpoints(x = dot.x,
+          y = dot.y,
+          col = 2,
+          pch = 19)
+ # legend(25,30,c("decay","growth"),col=c("blue","red"),pch=c(15,19), y.intersp=1800)
+```
+
+
+## Data set 3: Zip.train
+```{r}
+  ZipTrain<-Prep_ZipTrain()
+```
+### Code 
+```{r, results='hide'}
+# Data set 1: ZipTrain
+LossMat.fold.n  <- 4
+LossMat.fold.vec<-Random_Folds((ZipTrain$n_Elements),LossMat.fold.n)
+
+
+Data = cbind(scale(ZipTrain$TrainingData) ,ZipTrain$TrainingLabels)
+#Randomly shuffle the data
+#Data<-Data[sample(nrow(Data)),]
+
+SLI.WholeError.Mat = 0
+SLI.TrainError.Mat = 0
+SLI.TestError.Mat  = 0
+
+L1_Pen.WholeError.Mat = 0
+L1_Pen.TrainingError.Mat = 0
+L1_Pen.TestError.Mat  = 0
+L1.Pen.Matrix = 0
+
+
+L1_CV_Error.WholeError.Mat = 0
+L1_CV_Error.TrainError.Mat = 0
+L1_CV_Error.TestError.Mat  = 0
+
+#Perform folds.n fold cross validation
+for(i in 1:(LossMat.fold.n))
+{
+  ZipTrain<-Prep_ZipTrain()
+  #folds.n = 2L
+  Scalar.Step = 0.4
+  max.iterations = 50L
+  fold.vec = as.double(sample(1:(4L),ZipTrain$n_Elements,replace=T))
+  Scaled.Train  = scale(ZipTrain$TrainingData)
+  Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+
+  testIndexes <- which(LossMat.fold.vec==i,arr.ind=TRUE)
+  testData    <- as.matrix(Data[testIndexes, ])
+  trainData   <- as.matrix(Data[-testIndexes, ])
+
+  print("Please wait this might take some time, Iteration:")
+  print(i)
+
+  
+  print(dim(trainData))
+  print(dim(as.matrix(trainData[,1:NCOL(trainData)-1])))
+  print(dim(as.matrix(trainData[,NCOL(trainData)])))
+  #-------------------------LMSquareLossIterations (SLI_Error)--------------
+  if(TRUE)
+  {
+    List = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=max.iterations)
+    W.Vec = List$weight.vec
+    
+
+    #SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,ZipTrain$BinaryClassification)
+    #SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+    
+    SLI.TrainError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],(W.Vec),ZipTrain$BinaryClassification)
+    SLI.TrainError.Mat<- rbind(SLI.TrainError.Mat,SLI.TrainError.Vec)  
+    
+    SLI.TestError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),ZipTrain$BinaryClassification)
+    SLI.TestError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+  
+    SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,ZipTrain$BinaryClassification)
+    SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+  }
+
+      
+  #------------------------------------------------------------------------
+
+    #W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)
+    #List = LinearModelL1penalties(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),penalty.vec = seq(1, 0.1, -0.2),step.size = 0.1,opt.thresh=300,max.iterations=max.iterations)
+    #W.Vector = List$weight.vec
+    #W.Vector = List$weight.vec
+    #W.Matrix = List$weight.mat
+    
+    if(FALSE)
+    {
+      L1_Pen.TrainingError.Vec <-Find_WMatrix_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Matrix,ZipTrain$BinaryClassification)
+      L1_Pen.TrainingError.Mat <- rbind(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)
+
+      #L1_Pen.TestError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],ZipTrain$BinaryClassification)
+      L1_Pen.TestError.Vec<- Find_WMatrix_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix,ZipTrain$BinaryClassification)
+      L1_Pen.TestError.Mat <- rbind(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)
+      
+       # L1_Pen.WholeError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),ZipTrain$BinaryClassification)
+       # L1_Pen.WholeError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+      
+      print("Training vs Test Error Vec")
+      print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+      print(dim(as.matrix(L1_Pen.TestError.Vec)))
+      print("Training vs Test Error Mat")
+      print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+      print(dim(as.matrix(L1_Pen.TestError.Mat)))
+    }
+
+}
+```
+
+### Matrix of loss values
+```{r}
+
+```
+
+### Train/validation loss plot
+```{r}
+
+```
+
+### Extra Credit attempt: compaire The LinearModels to the KNN
+```{r}
+  #--------------------KNNLearnCV------------------------------------
+  Ziptrain<-Prep_ZipTrain()
+  Fold.vec = Random_Folds(Ziptrain$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(Ziptrain$TrainingData, Ziptrain$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "Ziptrain: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+
+```
+
+
+
+## Data set 4: Prostate
+```{r}
+   Prostate<-Prep_Prostate()
+```
+### Code 
+```{r, results='hide'}
+# Data set 1: Prostate
+LossMat.fold.n  <- 4
+LossMat.fold.vec<-Random_Folds((Prostate$n_Elements),LossMat.fold.n)
+
+
+Data = cbind(scale(Prostate$TrainingData) ,Prostate$TrainingLabels)
+#Randomly shuffle the data
+#Data<-Data[sample(nrow(Data)),]
+
+SLI.WholeError.Mat = 0
+SLI.TrainError.Mat = 0
+SLI.TestError.Mat  = 0
+
+L1_Pen.WholeError.Mat = 0
+L1_Pen.TrainingError.Mat = 0
+L1_Pen.TestError.Mat  = 0
+L1.Pen.Matrix = 0
+
+
+L1_CV_Error.WholeError.Mat = 0
+L1_CV_Error.TrainError.Mat = 0
+L1_CV_Error.TestError.Mat  = 0
+
+#Perform folds.n fold cross validation
+for(i in 1:(LossMat.fold.n))
+{
+  Prostate<-Prep_Prostate()
+  #folds.n = 2L
+  Scalar.Step = 0.4
+  max.iterations = 50L
+  fold.vec = as.double(sample(1:(4L),Prostate$n_Elements,replace=T))
+  Scaled.Train  = scale(Prostate$TrainingData)
+  Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+
+  testIndexes <- which(LossMat.fold.vec==i,arr.ind=TRUE)
+  testData    <- as.matrix(Data[testIndexes, ])
+  trainData   <- as.matrix(Data[-testIndexes, ])
+
+  print("Please wait this might take some time, Iteration:")
+  print(i)
+
+  
+  print(dim(trainData))
+  print(dim(as.matrix(trainData[,1:NCOL(trainData)-1])))
+  print(dim(as.matrix(trainData[,NCOL(trainData)])))
+  #-------------------------LMSquareLossIterations (SLI_Error)--------------
+  if(TRUE)
+  {
+    List = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=max.iterations)
+    W.Vec = List$weight.vec
+    
+
+    #SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Prostate$BinaryClassification)
+    #SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+    
+    SLI.TrainError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],(W.Vec),Prostate$BinaryClassification)
+    SLI.TrainError.Mat<- rbind(SLI.TrainError.Mat,SLI.TrainError.Vec)  
+    
+    SLI.TestError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Prostate$BinaryClassification)
+    SLI.TestError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+  
+    SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Prostate$BinaryClassification)
+    SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+  }
+
+      
+  #------------------------------------------------------------------------
+
+    #W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)
+    List = LinearModelL1penalties(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),penalty.vec = seq(1, 0.1, -0.2),step.size = 0.1,opt.thresh=300,max.iterations=max.iterations)
+    W.Vector = List$weight.vec
+    #W.Vector = List$weight.vec
+    W.Matrix = List$weight.mat
+    
+    if(TRUE)
+    {
+      L1_Pen.TrainingError.Vec <-Find_WMatrix_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Matrix,Prostate$BinaryClassification)
+      L1_Pen.TrainingError.Mat <- rbind(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)
+
+      #L1_Pen.TestError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],Prostate$BinaryClassification)
+      L1_Pen.TestError.Vec<- Find_WMatrix_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix,Prostate$BinaryClassification)
+      L1_Pen.TestError.Mat <- rbind(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)
+      
+       # L1_Pen.WholeError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Prostate$BinaryClassification)
+       # L1_Pen.WholeError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+      
+      print("Training vs Test Error Vec")
+      print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+      print(dim(as.matrix(L1_Pen.TestError.Vec)))
+      print("Training vs Test Error Mat")
+      print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+      print(dim(as.matrix(L1_Pen.TestError.Mat)))
+    }
+
+}
+```
+### Matrix of loss values
+```{r}
+if(TRUE)
+{
+  print(dim(as.matrix(SLI.TrainError.Mat)))
+  print(dim(as.matrix(SLI.TestError.Mat)))
+  
+  print("")
+      
+  print("L1 Pen Training vs Test Error Vec")
+  print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+  print(dim(as.matrix(L1_Pen.TestError.Vec)))
+  print("Training vs Test Error Mat")
+  print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+  print(dim(as.matrix(L1_Pen.TestError.Mat)))
+  #SLI.WholeError.Mat <- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+}
+
+#-------------------Matrix of Cross Validation loss values-------------------------------------
+
+if(TRUE)
+{
+  #print(SLI.TestError.Mat)
+
+  Spam_LossMatrix <-rbind(as.double(SLI.TestError.Mat[2:5]))
+  
+  Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double((L1_Pen.TestError.Mat[2:5])))
+  
+  #Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))
+
+
+  colnames(Spam_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Spam_LossMatrix)<-c("L1 Early Stoping","L1 Penalty Vec")
+  #barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+  
+  barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+}
+
+```
+### Train/validation loss plot
+```{r}
+
+```
+### Extra Credit attempt: compaire The LinearModels to the KNN
+```{r}
+  #--------------------NN1ToKmaxPredict------------------------------------
+  Prostate<-Prep_Prostate()
+  Fold.vec = Random_Folds(Prostate$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(Prostate$TrainingData, Prostate$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "Prostate: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+```
+
+
+
+## Data set 5: Ozone
+```{r}
+  Ozone<-Prep_Ozone()
+```
+### Code 
+```{r, results='hide'}
+# Data set 1: Ozone
+LossMat.fold.n  <- 4
+LossMat.fold.vec<-Random_Folds((Ozone$n_Elements),LossMat.fold.n)
+
+
+Data = cbind(scale(Ozone$TrainingData) ,Ozone$TrainingLabels)
+#Randomly shuffle the data
+#Data<-Data[sample(nrow(Data)),]
+
+SLI.WholeError.Mat = 0
+SLI.TrainError.Mat = 0
+SLI.TestError.Mat  = 0
+
+L1_Pen.WholeError.Mat = 0
+L1_Pen.TrainingError.Mat = 0
+L1_Pen.TestError.Mat  = 0
+L1.Pen.Matrix = 0
+
+
+L1_CV_Error.WholeError.Mat = 0
+L1_CV_Error.TrainError.Mat = 0
+L1_CV_Error.TestError.Mat  = 0
+
+#Perform folds.n fold cross validation
+for(i in 1:(LossMat.fold.n))
+{
+
+  #folds.n = 2L
+  Scalar.Step = 0.4
+  max.iterations = 50L
+  fold.vec = as.double(sample(1:(4L),Ozone$n_Elements,replace=T))
+  Scaled.Train  = scale(Ozone$TrainingData)
+  Initial.Vector <- array(as.matrix(rep(0,NCOL(Scaled.Train)+1)),dim=c(1,NCOL(Scaled.Train)+1))
+
+  testIndexes <- which(LossMat.fold.vec==i,arr.ind=TRUE)
+  testData    <- as.matrix(Data[testIndexes, ])
+  trainData   <- as.matrix(Data[-testIndexes, ])
+
+  print("Please wait this might take some time, Iteration:")
+  print(i)
+
+  
+  print(dim(trainData))
+  print(dim(as.matrix(trainData[,1:NCOL(trainData)-1])))
+  print(dim(as.matrix(trainData[,NCOL(trainData)])))
+  #-------------------------LMSquareLossIterations (SLI_Error)--------------
+  if(TRUE)
+  {
+    List = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=max.iterations)
+    W.Vec = List$weight.vec
+    
+
+    #SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Ozone$BinaryClassification)
+    #SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+    
+    SLI.TrainError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],(W.Vec),Ozone$BinaryClassification)
+    SLI.TrainError.Mat<- rbind(SLI.TrainError.Mat,SLI.TrainError.Vec)  
+    
+    SLI.TestError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Ozone$BinaryClassification)
+    SLI.TestError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+  
+    SLI.WholeError.Vec <- Find_WVector_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Vec,Ozone$BinaryClassification)
+    SLI.WholeError.Mat <- rbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+  }
+
+      
+  #------------------------------------------------------------------------
+
+    #W.Vec = LinearModelL1(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),0.5,max.iterations,Initial.Vector,Scalar.Step,max.iterations=Iterations)
+    List = LinearModelL1penalties(as.matrix(trainData[,1:NCOL(trainData)-1]),as.matrix(trainData[,NCOL(trainData)]),penalty.vec = seq(1, 0.1, -0.2),step.size = 0.1,opt.thresh=300,max.iterations=max.iterations)
+    W.Vector = List$weight.vec
+    #W.Vector = List$weight.vec
+    W.Matrix = List$weight.mat
+    
+    if(TRUE)
+    {
+      L1_Pen.TrainingError.Vec <-Find_WMatrix_MeanLoss(trainData[,1:NCOL(trainData)-1],trainData[,NCOL(trainData)],W.Matrix,Ozone$BinaryClassification)
+      L1_Pen.TrainingError.Mat <- rbind(L1_Pen.TrainingError.Mat,L1_Pen.TrainingError.Vec)
+
+      #L1_Pen.TestError.Vec<- Find_WVector_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix[NROW(W.Matrix),],Ozone$BinaryClassification)
+      L1_Pen.TestError.Vec<- Find_WMatrix_MeanLoss(testData[,1:NCOL(testData)-1],testData[,NCOL(testData)],W.Matrix,Ozone$BinaryClassification)
+      L1_Pen.TestError.Mat <- rbind(L1_Pen.TestError.Mat,L1_Pen.TestError.Vec)
+      
+       # L1_Pen.WholeError.Vec<- Find_WVector_MeanLoss(Data[,1:NCOL(testData)-1],Data[,NCOL(testData)],(W.Vec),Ozone$BinaryClassification)
+       # L1_Pen.WholeError.Mat<- rbind(SLI.TestError.Mat,SLI.TestError.Vec)
+      
+      print("Training vs Test Error Vec")
+      print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+      print(dim(as.matrix(L1_Pen.TestError.Vec)))
+      print("Training vs Test Error Mat")
+      print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+      print(dim(as.matrix(L1_Pen.TestError.Mat)))
+    }
+
+}
+```
+
+### Matrix of loss values
+```{r}
+if(TRUE)
+{
+  print(dim(as.matrix(SLI.TrainError.Mat)))
+  print(dim(as.matrix(SLI.TestError.Mat)))
+  
+  print("")
+      
+  print("L1 Pen Training vs Test Error Vec")
+  print(dim(as.matrix(L1_Pen.TrainingError.Vec)))
+  print(dim(as.matrix(L1_Pen.TestError.Vec)))
+  print("Training vs Test Error Mat")
+  print(dim(as.matrix(L1_Pen.TrainingError.Mat)))
+  print(dim(as.matrix(L1_Pen.TestError.Mat)))
+  #SLI.WholeError.Mat <- cbind(SLI.WholeError.Mat,SLI.WholeError.Vec)
+}
+
+#-------------------Matrix of Cross Validation loss values-------------------------------------
+
+if(TRUE)
+{
+  #print(SLI.TestError.Mat)
+
+  Spam_LossMatrix <-rbind(as.double(SLI.TestError.Mat[2:5]))
+  
+  Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double((L1_Pen.TestError.Mat[2:5])))
+  
+  #Spam_LossMatrix <-rbind(Spam_LossMatrix,as.double(colMeans(SL_L2_Pen.TestError.Mat)[2:5]))
+
+
+  colnames(Spam_LossMatrix)<-c("Fold1","Fold2","Fold3","Fold4")
+  rownames(Spam_LossMatrix)<-c("L1 Early Stoping","L1 Penalty Vec")
+  #barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+  
+  barplot(Spam_LossMatrix, xlab = "Iterations", ylab = "Error",main = "LinearModels_Spam_LossMatrix",legend = (rownames(Spam_LossMatrix)),beside = TRUE)
+}
+
+```
+### Train/validation loss plot
+```{r}
+
+
+```
+
+### Extra Credit attempt: compaire The LinearModels to the KNN
+```{r}
+  #--------------------NN1ToKmaxPredict------------------------------------
+  Ozone<-Prep_Ozone()
+  print("NN1ToKmax_Ozone_Tests: ")
+  Fold.vec = Random_Folds(Ozone$n_Elements,4)
+  Fold.n   = 4
+  KNNLearnCV.List = KNNLearnCV(Ozone$TrainingData, Ozone$TrainingLabels, 30, Fold.vec, Fold.n)
+
+  barplot(KNNLearnCV.List$TestMeanError.Means,main = "Ozone: KNNLearnCV L2 Mean Error",xlab = "KNN Compared",ylab = "Error",beside = TRUE)
+  #------------------------------------------------------------------------
+```
+
