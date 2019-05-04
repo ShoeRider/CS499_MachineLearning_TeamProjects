@@ -8,9 +8,8 @@ test_that("Tests to see if the dimensions will be checked in the CV function",{
   data(ozone, package = "ElemStatLearn")
   # show(ozone)
   
-  
   Labels <- ozone[,1] # first col is output of the data
-  
+  output <- NULL
   Data <- ozone[,2:ncol(ozone)]
   
   TrainingData <- as.matrix(Data)[1:57,]
@@ -25,14 +24,13 @@ test_that("Tests to see if the dimensions will be checked in the CV function",{
   
   output <- LinearModelL1CV(X.scaled.mat, TrainingLabels, fold.vec, n.folds, penalty.vec, step.size)
   
-  show(output)
-  succeed()
+  expect_true(is.null(output))
 })
 
 
 # set up for binary classification
 test_that(
-  "Tests for a successful run ",{
+  "Tests for a non null / successfull output",{
     data(zip.train, package= "ElemStatLearn")
     
     i01 <- which(zip.train[,1] %in% c(0,1))
@@ -73,7 +71,5 @@ test_that("Shows proper output dimensions",{
   
   output <- LinearModelL1CV(X.scaled.mat, TrainingLabels, fold.vec, n.folds, penalty.vec, step.size)
   
-  show(output)
-  # TODO
-  succeed()
+  expect_equal(length(TrainingLabels) + 1, length(output$weight.vec))
 })

@@ -4,11 +4,11 @@ context("../../R/LinearModelL1penalties.R")
 
 
 # set up for regression
-test_that("Tests to see if the dimensions will be checked in the CV function",{
+test_that("Tests to see if the dimensions will be checked in the penalties function",{
   data(ozone, package = "ElemStatLearn")
   # show(ozone)
   
-  
+  output <- NULL
   Labels <- ozone[,1] # first col is output of the data
   
   Data <- ozone[,2:ncol(ozone)]
@@ -25,8 +25,7 @@ test_that("Tests to see if the dimensions will be checked in the CV function",{
   
   output <- LinearModelL1penalties(X.scaled.mat, TrainingLabels, penalty.vec, step.size)
   
-  show(output)
-  succeed()
+  expect_true(is.null(output))
 })
 
 
@@ -45,9 +44,11 @@ test_that(
     y <- zip.train[train.i, 1]
     
     penalty.vec <- seq(1, 0.1, -0.1)
+    show(penalty.vec)
     step.size <- .8
     
     output <- LinearModelL1penalties(x.scaled.mat, y, penalty.vec, step.size)
     
-    expect_false(is.null(output))
+    expect_equal((length(y) +1) == (nrow(output)))
+    expect_equal(ncol(output) == length(penalty.vec))
   })
