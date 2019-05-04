@@ -31,7 +31,7 @@ test_that("Tests to see if the dimensions will be checked in the penalties funct
 
 # set up for binary classification
 test_that(
-  "Tests for a successful run ",{
+  "Tests for a successful output dimensions ",{
     data(zip.train, package= "ElemStatLearn")
     
     i01 <- which(zip.train[,1] %in% c(0,1))
@@ -49,6 +49,35 @@ test_that(
     
     output <- LinearModelL1penalties(x.scaled.mat, y, penalty.vec, step.size)
     
-    expect_equal((length(y) +1) == (nrow(output)))
-    expect_equal(ncol(output) == length(penalty.vec))
+    expect_equal(length(y) +1, nrow(output))
+    expect_equal(ncol(output), length(penalty.vec))
   })
+
+
+# set up for regression
+test_that("Tests to see if the dimensions will be checked in the penalties function",{
+  data(ozone, package = "ElemStatLearn")
+  # show(ozone)
+  
+  output <- NULL
+  Labels <- ozone[,1] # first col is output of the data
+  
+  Data <- ozone[,2:ncol(ozone)]
+  
+  TrainingData <- as.matrix(Data)[1:57,]
+  
+  TrainingLabels <- Labels[1:57]
+  
+  step.size <- 2
+  
+  X.scaled.mat <- scale(TrainingData)
+  penalty.vec <- seq(1, 0.1, -0.1)
+  
+  
+  output <- LinearModelL1penalties(X.scaled.mat, TrainingLabels, penalty.vec, step.size)
+  
+  expect_equal(length(TrainingLabels) + 1,nrow(output))
+  
+  expect_equal(length(penalty.vec) + 1,ncol(output))
+  })
+

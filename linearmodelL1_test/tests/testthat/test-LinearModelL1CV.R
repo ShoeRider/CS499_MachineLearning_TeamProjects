@@ -61,7 +61,7 @@ test_that("Shows proper output dimensions",{
   
   TrainingData <- as.matrix(Data)[1:57,]
   
-  TrainingLabels <- Labels[1:52]
+  TrainingLabels <- Labels[1:57]
   
   n.folds <- 5
   step.size <- 2

@@ -8,7 +8,7 @@ test_that("Tests to see if the dimensions will be checked",{
   data(ozone, package = "ElemStatLearn")
   # show(ozone)
   penalty <- 2
-  
+  output <- NULL
   opt.thresh <- .0000007
   step.size <- 2
   
@@ -18,15 +18,14 @@ test_that("Tests to see if the dimensions will be checked",{
   
   TrainingData <- as.matrix(Data)[1:57,]
 
-  TrainingLabels <- Labels[1:57]
+  TrainingLabels <- Labels[1:54]
 
   X.scaled.mat <- scale(TrainingData)
   initial.weight.vec <- rep(0.0,ncol(X.scaled.mat) + 1)
   
   output <- LinearModelL1(X.scaled.mat, TrainingLabels, penalty, opt.thresh, initial.weight.vec, step.size)
 
-  show(output)
-  succeed()
+  expect_true(is.null(output))
 })
 
 
@@ -67,11 +66,12 @@ test_that("Tests to see if the dimensions will be checked",{
   
   TrainingData <- as.matrix(Data)[1:57,]
   
-  TrainingLabels <- Labels[1:59]
+  TrainingLabels <- Labels[1:57]
 
   
   X.scaled.mat <- scale(TrainingData)
   initial.weight.vec <- rep(0.0,ncol(X.scaled.mat) + 1)
   output <- LinearModelL1(X.scaled.mat, TrainingLabels, penalty, opt.thresh, initial.weight.vec, step.size)
-  expect_condition(is.null(output))
+  
+  expect_true(is.null(output))
 })
